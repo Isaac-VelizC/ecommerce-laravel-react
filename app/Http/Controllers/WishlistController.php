@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\WishList;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class WishlistController extends Controller
 {
     protected $product=null;
     public function __construct(Product $product){
         $this->product=$product;
+    }
+
+    public function index() {
+        return Inertia::render('Client/ListFavorite');
     }
 
     public function wishlist(Request $request){

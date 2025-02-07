@@ -29,7 +29,7 @@ class AdminController extends Controller
     public function settings()
     {
         $data = Setting::first();
-        return Inertia::render('Dashboard/Settings', ['data' => $data]);
+        return Inertia::render('Dashboard/Settings', ['infoApp' => $data]);
     }
 
     public function settingsUpdate(Request $request)

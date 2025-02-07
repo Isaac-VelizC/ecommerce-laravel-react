@@ -1,22 +1,26 @@
 import DataTable, { TableColumn } from "react-data-table-component";
-import React, { useEffect, useState } from "react";
-import { Link } from "@inertiajs/react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 type Props<T> = {
     columns: TableColumn<T>[];
     data: T[];
     title?: string;
     href?: string;
-    buttonCreate: boolean
+    children?: ReactNode;
+    current_page: number;  // Página actual
+    last_page: number;     // Última página
+    per_page: number;      // Elementos por página
+    total: number;         // Total de elementos
+    onPageChange: (page: number) => void; // Función para cambiar de página
 };
 
 const customStyles = {
     headRow: {
         style: {
-            backgroundColor: "#1E293B", // Color oscuro para el encabezado
-            color: "#FFFFFF", // Texto blanco
+            backgroundColor: "#3d99b8", // Color oscuro para el encabezado
+            color: "#0b0e0e",
             fontSize: "16px",
-            fontWeight: "bold",
+            fontWeight: "600",
         },
     },
     headCells: {
@@ -29,24 +33,21 @@ const customStyles = {
     },
     subHeader: {
         style: {
-            backgroundColor: "#CBD5E1", // Fondo gris claro
-            borderBottom: "2px solid #94A3B8", // Línea divisoria
-            padding: "12px", // Espaciado interno
+            backgroundColor: "transparent",
+            border: "none",
+            padding: "12px",
             display: "flex",
-            justifyContent: "space-between", // Distribuye elementos a los extremos
+            justifyContent: "space-between",
             alignItems: "center",
             fontSize: "14px",
-            fontWeight: "bold",
-            color: "#1E293B", // Texto oscuro
         },
     },
     rows: {
         style: {
-            backgroundColor: "#F8FAFC",
+            backgroundColor: "transparent",
             color: "#1E293B",
             fontSize: "14px",
             minHeight: "50px",
-            borderBottom: "1px solid #E2E8F0",
             "&:nth-child(odd)": {
                 backgroundColor: "#E2E8F0",
             },
@@ -59,9 +60,9 @@ const customStyles = {
     },
     pagination: {
         style: {
-            backgroundColor: "#CBD5E1",
-            borderTop: "1px solid #E2E8F0",
+            backgroundColor: "transparent",
             padding: "10px",
+            color: "#94A3B8",
         },
     },
 };
@@ -93,19 +94,19 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
     onFilter,
     onClear,
 }) => (
-    <div className="my-4 bg-gray-200 rounded-xl">
+    <div className="my-4 bg-body rounded-xl">
         <input
             type="text"
             placeholder="Buscar..."
             value={filterText}
             onChange={onFilter}
-            className="border-0 outline-none bg-transparent p-2 focus:ring-0 text-gray-500"
+            className="border-0 outline-none bg-transparent placeholder:font-normal p-2 pl-6 focus:ring-0 text-gray-500"
         />
         <button
             onClick={onClear}
-            className="ml-2 py-2 px-6 bg-gray-600 text-white rounded-r-xl"
+            className="ml-2 py-2 px-4 bg-accent text-white rounded-r-lg"
         >
-            <i className="bx bx-x-circle"></i>
+            <i className="bx bx-x-circle text-xl"></i>
         </button>
     </div>
 );
@@ -114,8 +115,12 @@ const DataTableComponent = <T extends Record<string, unknown>>({
     columns,
     data,
     title,
-    buttonCreate = false,
-    href
+    children,
+    current_page,
+    last_page,
+    per_page,
+    total,
+    onPageChange
 }: Props<T>) => {
     const [loading, setLoading] = useState(true);
     const [filterText, setFilterText] = useState("");
@@ -151,7 +156,7 @@ const DataTableComponent = <T extends Record<string, unknown>>({
                     onClear={handleClear}
                     filterText={filterText}
                 />
-                {buttonCreate ? <Link href={href!} >Create</Link> : null }
+                {children}
             </>
         );
     }, [filterText, resetPaginationToggle]);
@@ -162,7 +167,6 @@ const DataTableComponent = <T extends Record<string, unknown>>({
             columns={columns}
             data={filteredItems}
             pagination
-            paginationPerPage={10}
             paginationRowsPerPageOptions={[5, 10, 20]}
             customStyles={customStyles}
             noDataComponent={<NoDataTable />}
@@ -171,6 +175,11 @@ const DataTableComponent = <T extends Record<string, unknown>>({
             subHeader
             subHeaderComponent={subHeaderComponentMemo}
             persistTableHead
+            paginationServer
+            paginationTotalRows={total}
+            paginationPerPage={per_page}
+            paginationDefaultPage={current_page}
+            onChangePage={onPageChange}
         />
     );
 };

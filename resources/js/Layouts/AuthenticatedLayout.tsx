@@ -1,6 +1,8 @@
 import Header from "@/Components/Dashboard/Header";
 import Sidebar from "@/Components/Dashboard/Sidebar";
 import { PropsWithChildren, ReactNode, useState } from "react";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 
 export default function Authenticated({
     children,
@@ -8,7 +10,7 @@ export default function Authenticated({
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="dark:bg-boxdark-2 dark:text-bodydark">
+        <div className="dark:bg-body dark:text-text">
             {/* <!-- ===== Page Wrapper Start ===== --> */}
             <div className="flex h-screen overflow-hidden">
                 {/* <!-- ===== Sidebar Start ===== --> */}
@@ -17,7 +19,19 @@ export default function Authenticated({
                     setSidebarOpen={setSidebarOpen}
                 />
                 {/* <!-- ===== Sidebar End ===== --> */}
-
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick={false}
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                    //transition={Zoom}
+                />
                 {/* <!-- ===== Content Area Start ===== --> */}
                 <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
                     {/* <!-- ===== Header Start ===== --> */}

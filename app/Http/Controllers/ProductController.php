@@ -15,7 +15,13 @@ class ProductController extends Controller
     {
         $products = Product::getAllProduct();
         return Inertia::render('Dashboard/Product/Index', [
-            'products' => $products
+            'products' => [
+                'data' => $products->items(), // Los productos
+                'current_page' => $products->currentPage(), // Página actual
+                'last_page' => $products->lastPage(), // Última página
+                'per_page' => $products->perPage(), // Elementos por página
+                'total' => $products->total(), // Total de elementos
+            ],
         ]);
     }
 
@@ -23,50 +29,57 @@ class ProductController extends Controller
     {
         $brand = Brand::get();
         $category = Categorie::where('is_parent', 1)->get();
-        return view('backend.product.create')->with('categories', $category)->with('brands', $brand);
+        return Inertia::render('Dashboard/Product/Create', [
+            'categories' => $category,
+            'brands' => $brand,
+            'isEditing' => false
+        ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'title' => 'string|required',
             'summary' => 'string|required',
             'description' => 'string|nullable',
             'photo' => 'string|required',
-            'size' => 'nullable',
-            'stock' => "required|numeric",
-            'cat_id' => 'required|exists:categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'child_cat_id' => 'nullable|exists:categories,id',
-            'is_featured' => 'sometimes|in:1',
+            'size' => 'nullable|string',  // Asegurando que sea un string si se espera un texto
+            'stock' => 'required|numeric|min:0',
+            'cat_id' => 'required|integer|exists:categories,id',
+            'brand_id' => 'nullable|integer|exists:brands,id',
+            'child_cat_id' => 'nullable|integer|exists:categories,id', // Corrección de typo en "intenger"
+            'is_featured' => 'sometimes|boolean',
             'status' => 'required|in:active,inactive',
             'condition' => 'required|in:default,new,hot',
-            'price' => 'required|numeric',
-            'discount' => 'nullable|numeric'
+            'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $data = $request->all();
-        $slug = Str::slug($request->title);
+        try {
+            // Generación del slug
+            $slug = Str::slug($validatedData['title']);
+            $slug = $this->generateUniqueSlug($slug);
+
+            // Asignación de valores adicionales
+            $validatedData['slug'] = $slug;
+            $validatedData['is_featured'] = $request->input('is_featured', 0);
+
+            // Creación del producto
+            Product::create($validatedData);
+            return redirect()->route('product.index')->with('success', 'Producto creado exitosamente.');
+        } catch (\Throwable $th) {
+            dd($th);
+            return redirect()->back()->with('error', 'Ocurrió un error, vuelve a intentarlo');
+        }
+    }
+
+    private function generateUniqueSlug($slug)
+    {
         $count = Product::where('slug', $slug)->count();
         if ($count > 0) {
-            $slug = $slug . '-' . date('ymdis') . '-' . rand(0, 999);
+            return $slug . '-' . now()->format('ymdis') . '-' . rand(0, 999);
         }
-        $data['slug'] = $slug;
-        $data['is_featured'] = $request->input('is_featured', 0);
-        $size = $request->input('size');
-        if ($size) {
-            $data['size'] = implode(',', $size);
-        } else {
-            $data['size'] = '';
-        }
-
-        $status = Product::create($data);
-        if ($status) {
-            request()->session()->flash('success', 'Product Successfully added');
-        } else {
-            request()->session()->flash('error', 'Please try again!!');
-        }
-        return redirect()->route('product.index');
+        return $slug;
     }
 
     public function edit($id)
@@ -74,64 +87,55 @@ class ProductController extends Controller
         $brand = Brand::get();
         $product = Product::findOrFail($id);
         $category = Categorie::where('is_parent', 1)->get();
-        $items = Product::where('id', $id)->get();
+        //$items = Product::where('id', $id)->get();
 
-        return Inertia::render('backend.product.edit', [
+        return Inertia::render('Dashboard/Product/Create', [
             'product' => $product,
             'brands' => $brand,
             'categories' => $category,
-            'items' => $items
+            'isEditing' => true
+            //'items' => $items
         ]);
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'title' => 'string|required',
             'summary' => 'string|required',
             'description' => 'string|nullable',
             'photo' => 'string|required',
-            'size' => 'nullable',
-            'stock' => "required|numeric",
-            'cat_id' => 'required|exists:categories,id',
-            'child_cat_id' => 'nullable|exists:categories,id',
-            'is_featured' => 'sometimes|in:1',
-            'brand_id' => 'nullable|exists:brands,id',
+            'size' => 'nullable|string',  // Asegurando que sea un string si se espera un texto
+            'stock' => 'required|numeric|min:0',
+            'cat_id' => 'required|integer|exists:categories,id',
+            'brand_id' => 'nullable|integer|exists:brands,id',
+            'child_cat_id' => 'nullable|integer|exists:categories,id', // Corrección de typo en "intenger"
+            'is_featured' => 'sometimes|boolean',
             'status' => 'required|in:active,inactive',
             'condition' => 'required|in:default,new,hot',
-            'price' => 'required|numeric',
-            'discount' => 'nullable|numeric'
+            'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
         ]);
-        
-        $product = Product::findOrFail($id);
-        $data = $request->all();
-        $data['is_featured'] = $request->input('is_featured', 0);
-        $size = $request->input('size');
-        if ($size) {
-            $data['size'] = implode(',', $size);
-        } else {
-            $data['size'] = '';
+        try {
+            // Generación del slug
+            $product = Product::findOrFail($id);
+            $validatedData = $request->all();
+            $validatedData['is_featured'] = $request->input('is_featured', 0);
+            $product->fill($validatedData)->save();
+            return redirect()->route('product.index')->with('success', 'Producto creado exitosamente.');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Ocurrió un error, vuelve a intentarlo');
         }
-        
-        $status = $product->fill($data)->save();
-        if ($status) {
-            request()->session()->flash('success', 'Product Successfully updated');
-        } else {
-            request()->session()->flash('error', 'Please try again!!');
-        }
-        return redirect()->route('product.index');
     }
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $status = $product->delete();
-
-        if ($status) {
-            request()->session()->flash('success', 'Product successfully deleted');
-        } else {
-            request()->session()->flash('error', 'Error while deleting product');
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+            return redirect()->back()->with('success', 'Producto eliminado con exitosamente.');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Ocurrió un error, vuelve a intentarlo');
         }
-        return redirect()->route('product.index');
     }
 }

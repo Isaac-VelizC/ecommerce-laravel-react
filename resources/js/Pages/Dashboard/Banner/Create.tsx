@@ -1,57 +1,153 @@
-import DangerButton from "@/Components/DangerButton";
+import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
 import Card from "@/Components/Dashboard/Card";
 import InputError from "@/Components/Dashboard/Form/InputError";
 import InputFile from "@/Components/Dashboard/Form/InputFile";
 import InputLabel from "@/Components/Dashboard/Form/InputLabel";
-import InputSelect from "@/Components/Dashboard/Form/InputSelect";
 import TextInput from "@/Components/Dashboard/Form/TextInput";
-import PrimaryButton from "@/Components/PrimaryButton";
+import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Head, useForm } from "@inertiajs/react";
-import { useState } from "react";
+import { Head, router, useForm } from "@inertiajs/react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { FormBannerType } from "@/Interfaces/Banner";
+import { toast } from "react-toastify";
+import EditorText from "@/Components/Dashboard/Form/EditorText";
+import RadioInput from "@/Components/Dashboard/Form/RadioInput";
 
-type Props = {};
+type Props = {
+    banner?: FormBannerType;
+    isEditing: boolean;
+};
 
-export default function Create({}: Props) {
+export default function Create({ banner, isEditing }: Props) {
+    const CLOUD_NAME = "dcvaqzmt9";
+    const UPLOAD_PRESET = "ecommerce-laravel-react";
+    const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const initialData = banner || {
+        id: null,
         title: "",
         description: "",
-        photo: null as File | null,
-        status: "",
-    });
+        photo: "",
+        status: "active",
+    };
+    const { data, setData, post, put, processing, errors, reset } =
+        useForm(initialData);
+
+    useEffect(() => {
+        if (isEditing) {
+            setImagePreview(banner!.photo);
+        }
+    }, []);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setData("photo", file);
+            setImage(file);
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
+            reader.onloadend = () => setImagePreview(reader.result as string);
             reader.readAsDataURL(file);
+        }
+    };
+
+    const uploadImageToCloudinary = async (): Promise<string | null> => {
+        if (!image) {
+            alert("Selecciona una imagen");
+            return null;
+        }
+
+        const formData = new FormData();
+        formData.append("file", image);
+        formData.append("upload_preset", UPLOAD_PRESET); // Debe coincidir con Cloudinary
+        formData.append("folder", "my_uploads"); // Opcional, para organizar imágenes
+
+        try {
+            const response = await axios.post(
+                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                formData,
+                { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            return response.data.secure_url;
+        } catch (error) {
+            console.error("Error subiendo imagen:", error);
+            alert("Error subiendo imagen");
+            return null;
+        }
+    };
+
+    const deleteImageFromCloudinary = async (publicId: string) => {
+        try {
+            await axios.post(
+                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`,
+                { public_id: publicId }
+            );
+            console.log("Imagen eliminada correctamente");
+        } catch (error) {
+            console.error("Error al eliminar la imagen:", error);
         }
     };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        await post(route('banner.store'), {
-          onSuccess({ props}) {
-            console.log('Benner Creado con exito');
-          },
-          onError() {
-            alert('Error al crear banner')
-          }
-        })
+        if (!isEditing && !image) return alert("Selecciona una imagen");
+        try {
+            if (image) {
+                if (isEditing && data.photo) {
+                    const publicId = data.photo.split("/").pop()?.split(".")[0];
+                    await deleteImageFromCloudinary(publicId || "");
+                }
+                const uploadedImageUrl = await uploadImageToCloudinary();
+                if (!uploadedImageUrl) return;
+                data.photo = uploadedImageUrl;
+            }
+            const routeUrl =
+                isEditing && data?.id
+                    ? route("banner.update", data.id)
+                    : route("banner.store");
+            const method = isEditing && data?.id ? put : post;
+            // Enviar los datos al backend
+            method(routeUrl, {
+                onSuccess: () => {
+                    toast.success("Banner registrado con exito!");
+                    reset();
+                    setImage(null);
+                    setImagePreview(null);
+                },
+                onError: () => {
+                    toast.error("Error al enviar los datos del banner");
+                },
+            });
+        } catch (error) {
+            console.error("Error al subir la imagen:", error);
+            toast.error("Error al subir la imagen");
+        }
+    };
+
+    const handleCancelForm = () => {
+        reset();
+        router.get(route("banner.index"));
+    };
+
+    const handleEditorChange = (content: string) => {
+        setData({ ...data, description: content });
+    };
+
+    const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setData((prevData) => ({
+            ...prevData,
+            status: e.target.value,
+        }));
     };
 
     return (
         <Authenticated>
             <Head title="Banner Create" />
             <Card>
-                <h4 className="font-semibold">Add Banner</h4>
+                <h4 className="font-semibold text-text">
+                    {isEditing ? "Editar" : "Agregar "} Banner
+                </h4>
                 <form className="py-4" onSubmit={handleSubmit}>
-                    <div>
+                    <div className="mt-1">
                         <InputLabel htmlFor="title" value="Titulo" required />
                         <TextInput
                             id="title"
@@ -65,16 +161,12 @@ export default function Create({}: Props) {
                         <InputError message={errors.title} className="mt-2" />
                     </div>
 
-                    <div>
+                    <div className="mt-1">
                         <InputLabel htmlFor="description" value="Descripción" />
-                        <textarea
-                            className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-indigo-600 dark:focus:ring-indigo-600"
+                        <EditorText
                             id="description"
-                            name="description"
                             value={data.description}
-                            onChange={(e) =>
-                                setData("description", e.target.value)
-                            }
+                            onEditorChange={handleEditorChange}
                         />
                         <InputError
                             message={errors.description}
@@ -82,12 +174,12 @@ export default function Create({}: Props) {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 mt-1 gap-4">
                         <div>
                             <InputLabel
                                 htmlFor="photo"
                                 value="Imagen"
-                                required
+                                required={!isEditing}
                             />
                             <InputFile
                                 id="photo"
@@ -95,7 +187,7 @@ export default function Create({}: Props) {
                                 onChange={handleFileChange}
                                 className="w-full mt-1 block"
                                 accept="image/*"
-                                required
+                                required={!isEditing}
                             />
                             <InputError
                                 message={errors.photo}
@@ -108,20 +200,22 @@ export default function Create({}: Props) {
                                 value="Estado"
                                 required
                             />
-                            <InputSelect
-                                id="status"
-                                name="status"
-                                value={data.status}
-                                onChange={(e) =>
-                                    setData("status", e.target.value)
-                                }
-                                className="w-full mt-1 block"
-                                required
-                            >
-                                <option value="">Seleccione un estado</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </InputSelect>
+                            <div className="flex space-x-4 p-4">
+                                <RadioInput
+                                    label="Activo"
+                                    name="status"
+                                    value="active"
+                                    checked={data.status === "active"}
+                                    onChange={handleStatusChange}
+                                />
+                                <RadioInput
+                                    label="Inactivo"
+                                    name="status"
+                                    value="inactive"
+                                    checked={data.status === "inactive"}
+                                    onChange={handleStatusChange}
+                                />
+                            </div>
                             <InputError
                                 message={errors.status}
                                 className="mt-2"
@@ -143,7 +237,11 @@ export default function Create({}: Props) {
                             )}
                         </div>
                         <div className="flex md:block justify-end mt-4">
-                            <DangerButton type="reset" onClick={() => reset()} className="mr-2">
+                            <DangerButton
+                                type="reset"
+                                onClick={() => handleCancelForm()}
+                                className="mr-2"
+                            >
                                 Reset
                             </DangerButton>
                             <PrimaryButton

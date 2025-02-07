@@ -1,53 +1,59 @@
 import React from "react";
-import banner from "@/assets/img/banner/banner-1.jpg";
+import { Swiper, SwiperSlide } from "swiper/react"; // Importar componentes principales de Swiper
+import { Autoplay, EffectFade, Navigation, Pagination } from "swiper/modules"; // Importar módulos necesarios
+import "swiper/css"; // Estilos básicos de Swiper
+import "swiper/css/autoplay"; // Estilos para autoplay
+import "swiper/css/navigation"; // Estilos para navegación
+import "swiper/css/pagination"; // Estilos para paginación
+import { BannerInterface } from "@/Interfaces/Banner";
 
-type Props = {};
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/effect-fade';
 
-const Banner: React.FC<Props> = () => {
+type Props = {
+    banners: BannerInterface[];
+};
+
+const Banner: React.FC<Props> = ({ banners }) => {
     return (
-        <section className="h-[500px] bg-cover bg-center" style={{ backgroundImage: `url(${banner})` }}>
-            <div className="container mx-auto h-full">
-                <div className="flex items-center justify-center h-full">
-                    <div className="w-full xl:w-7/12 lg:w-8/12 m-auto">
-                        <div className="banner__slider text-center pt-[150px]">
-                            <div className="banner__item">
-                                <div className="banner__text">
-                                    <span className="text-[18px] text-[#ca1515] uppercase">The Chloe Collection</span>
-                                    <h1 className="text-5xl md:text-7xl text-[#111111] font-cookie mb-[15px]">The Project Jacket</h1>
-                                    <a href="#" className="text-[14px] text-[#111111] uppercase font-bold relative inline-block pb-[3px]">
-                                        Shop now
-                                        <span className="absolute left-0 bottom-0 h-[2px] w-full bg-[#ca1515]"></span>
-                                    </a>
-                                </div>
+        <section className="h-[500px] relative">
+            <Swiper
+                effect={'fade'}
+                modules={[EffectFade, Navigation, Pagination, Autoplay]}
+                slidesPerView={1} // Mostrar una diapositiva a la vez
+                loop={true} // Habilitar bucle infinito
+                autoplay={{
+                    delay: 3000, // Intervalo entre diapositivas (en milisegundos)
+                    disableOnInteraction: false, // No detener autoplay al interactuar con el carrusel
+                }}
+            >
+                {banners.map((banner, index) => (
+                    <SwiperSlide key={index}>
+                        <div
+                            className="h-[500px] bg-cover bg-center"
+                            style={{ backgroundImage: `url(${banner.photo})` }}
+                        >
+                            <div className="w-full h-full absolute bg-black-2 opacity-40"/>
+                            <div className="relative text-center pt-[150px]">
+                                <span className="text-[18px] text-[#ca15b5] uppercase font-medium">
+                                    {banner.title}
+                                </span>
+                                <h1 className="text-5xl md:text-7xl text-white font-cookie mb-[15px]">
+                                    {banner.description}
+                                </h1>
+                                <a
+                                    href="#"
+                                    className="text-[14px] text-white uppercase font-bold relative inline-block pb-[3px]"
+                                >
+                                    Shop now
+                                    <span className="absolute left-0 bottom-0 h-[2px] w-full bg-[#ca15b5]"></span>
+                                </a>
                             </div>
-                            {/* Repetir el banner__item para otros elementos */}
-                            {/*<div className="banner__item">
-                                <div className="banner__text">
-                                    <span className="text-[18px] text-[#ca1515] uppercase">The Chloe Collection</span>
-                                    <h1 className="text-5xl md:text-7xl text-[#111111] font-cookie mb-[15px]">The Project Jacket</h1>
-                                    <a href="#" className="text-[14px] text-[#111111] uppercase font-bold relative inline-block pb-[3px]">
-                                        Shop now
-                                        <span className="absolute left-0 bottom-0 h-[2px] w-full bg-[#ca1515]"></span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div className="banner__item">
-                                <div className="banner__text">
-                                    <span className="text-[18px] text-[#ca1515] uppercase">The Chloe Collection</span>
-                                    <h1 className="text-5xl md:text-7xl text-[#111111] font-cookie mb-[15px]">The Project Jacket</h1>
-                                    <a href="#" className="text-[14px] text-[#111111] uppercase font-bold relative inline-block pb-[3px]">
-                                        Shop now
-                                        <span className="absolute left-0 bottom-0 h-[2px] w-full bg-[#ca1515]"></span>
-                                    </a>
-                                </div>
-                            </div>*/}
                         </div>
-                        <div>*</div>
-                        {/* Dots for carousel */}
-                        {/* Aquí puedes agregar la lógica para los puntos del carrusel si es necesario */}
-                    </div>
-                </div>
-            </div>
+                    </SwiperSlide>
+                ))}
+            </Swiper>
         </section>
     );
 };

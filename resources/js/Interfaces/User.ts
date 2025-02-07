@@ -7,4 +7,15 @@ export interface UserInterface {
     provider: string;
     provider_id: number;
     status: string;
+    [key: string]: unknown;
+}
+
+export type FormUserType = {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+    photo: string;
+    role: string;
+    status: string;
 }

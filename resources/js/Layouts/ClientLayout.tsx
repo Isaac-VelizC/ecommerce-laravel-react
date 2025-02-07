@@ -7,29 +7,49 @@ import Payment1 from "@/assets/img/payment/payment-1.png";
 import Payment2 from "@/assets/img/payment/payment-2.png";
 import Payment3 from "@/assets/img/payment/payment-3.png";
 import Payment4 from "@/assets/img/payment/payment-4.png";
-import BagIcon from "@/assets/svg/bag.svg";
-import HeartIcon from "@/assets/svg/heart.svg";
-import SearchIcon from "@/assets/svg/search.svg";
-import Loader from "@/Common/Loader";
+import { AnimatePresence, motion } from "framer-motion";
+import IconsNavBar from "@/Components/Layout/IconsNavBar";
+
+const pageVariants = {
+    initial: { opacity: 0, x: -20 },
+    animate: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, x: 20, transition: { duration: 0.3 } },
+};
+
+const LoginRegisterLink = () => {
+    const { auth } = usePage().props;
+    return (
+        <>
+            {auth.user ? (
+                <Link
+                    href={route("dashboard")}
+                    className="text-gray-600 text-sm relative"
+                >
+                    Dashboard
+                </Link>
+            ) : (
+                <>
+                    <Link
+                        href={route("login")}
+                        className="text-gray-600 text-sm relative"
+                    >
+                        Login
+                    </Link>
+                    <span className="text-gray-600 text-sm mx-1">/</span>
+                    <Link
+                        href={route("register")}
+                        className="text-gray-600 text-sm relative"
+                    >
+                        Register
+                    </Link>
+                </>
+            )}
+        </>
+    );
+};
 
 export default function Client({ children }: PropsWithChildren) {
     const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const { props } = usePage();
-    let url = props;
-    let auth = props.auth;
-
-    const fetchData = async () => {
-        setLoading(true);
-        // Simula una llamada a la API
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const paymentsImgs = [
         { img: Payment1, description: "Descripción del Pago 1" },
         { img: Payment2, description: "Descripción del Pago 2" },
@@ -72,53 +92,47 @@ export default function Client({ children }: PropsWithChildren) {
 
     return (
         <div className="min-h-screen">
-            {loading && <Loader />}
-
-            {/* Botón para abrir el menú */}
-            {/* Overlay del menú */}
             <div
-                className={`fixed inset-0 bg-black bg-opacity-70 transition-opacity duration-500 ${
+                className={`fixed inset-0 bg-black bg-opacity-70 transition-opacity duration-500 z-[9999] ${
                     isOpen ? "visible opacity-100" : "invisible opacity-0"
                 }`}
                 onClick={toggleMenu}
             />
 
-            {/* Menú Offcanvas */}
+            {/* Menú lateral */}
             <div
-                className={`fixed left-[-270px] w-[270px] h-full bg-white p-[90px] pt-[20px] pb-[30px] transition-all duration-500 ${
-                    isOpen ? "opacity-100 left-0" : "opacity-0"
-                }`}
+                className={`fixed left-0 top-0 w-[300px] h-full bg-white px-6 pt-12 transition-transform duration-500 z-[10000] shadow-lg 
+                ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
+                {/* Botón de cerrar */}
                 <button
-                    className="offcanvas__close absolute right-[30px] top-[25px] border border-gray-300 rounded-full w-[40px] h-[40px] text-xl transform rotate-45 cursor-pointer"
+                    className="absolute right-8 top-8 w-10 h-10 flex items-center justify-center border border-gray-300 rounded-full text-2xl cursor-pointer"
                     onClick={toggleMenu}
                 >
                     &times;
                 </button>
-
-                <div className="mb-[25px]">
-                    <h1 className="text-lg font-bold">Logo</h1>
+                <div className=" float-right px-16 py-10">
+                    <IconsNavBar />
+                </div>
+                {/* Logo */}
+                <div className="mb-6 text-center">
+                    <img src={Logo} alt="Logo" />
                 </div>
 
-                <ul className="mb-[20px] text-center">
-                    <li className="inline-block mr-[20px] cursor-pointer">
-                        <a href="#">Link 1</a>
-                    </li>
-                    <li className="inline-block mr-[20px] cursor-pointer">
-                        <a href="#">Link 2</a>
-                    </li>
-                    <li className="inline-block">
-                        <a href="#">Link 3</a>
-                    </li>
+                {/* Navegación */}
+                <ul className="space-y-4 text-left">
+                    <MenuLink text="Home" href="/" />
+                    <MenuLink text="About Us" href="/" />
+                    <MenuLink href="blog" text="Women’s" />
+                    <MenuLink href="blog" text="Men’s" />
+                    <MenuLink href="shop" text="Shop" />
+                    <MenuLink text="Blog" href="/blog" />
+                    <MenuLink text="Contact" href="/contact" />
                 </ul>
 
-                <div className="">
-                    <a href="#" className="text-gray-800 mr-[8px] font-medium">
-                        Login
-                    </a>
-                    <a href="#" className="text-gray-800 mr-[8px] font-medium">
-                        Register
-                    </a>
+                {/* Botones de Login/Register */}
+                <div className="mt-6 text-center">
+                    <LoginRegisterLink />
                 </div>
             </div>
 
@@ -141,86 +155,29 @@ export default function Client({ children }: PropsWithChildren) {
                                     <MenuLink
                                         href="/"
                                         text="Home"
-                                        isActive={url === "/"}
+                                        //isActive={url == "/"}
                                     />
                                     <MenuLink href="blog" text="Women’s" />
                                     <MenuLink href="blog" text="Men’s" />
-                                    <MenuLink href="blog" text="Shop" />
+                                    <MenuLink href="shop" text="Shop" />
                                     <MenuLink
-                                        href="blog"
+                                        href="/blog"
                                         text="Blog"
-                                        isActive={url === "/blog"}
+                                        //isActive={url === "/blog"}
                                     />
                                     <MenuLink
-                                        href="contact"
+                                        href="/contact"
                                         text="Contact"
-                                        isActive={url === "/contact"}
+                                        //isActive={url === "/contact"}
                                     />
                                 </ul>
                             </nav>
                         </div>
                         <div className="hidden lg:flex justify-end w-full lg:w-1/4 py-7">
                             <div className="inline-block mr-[25px]">
-                                {auth.user ? (
-                                    <Link
-                                        href={route("dashboard")}
-                                        className="text-gray-600 text-sm relative"
-                                    >
-                                        Dashboard
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <Link
-                                            href={route("login")}
-                                            className="text-gray-600 text-sm relative"
-                                        >
-                                            Login
-                                        </Link>
-                                        <span className="text-gray-600 text-sm mx-1">
-                                            /
-                                        </span>
-                                        <Link
-                                            href={route("register")}
-                                            className="text-gray-600 text-sm relative"
-                                        >
-                                            Register
-                                        </Link>
-                                    </>
-                                )}
+                                <LoginRegisterLink />
                             </div>
-                            <ul className="list-none flex space-x-[20px]">
-                                <li>
-                                    <img
-                                        src={SearchIcon}
-                                        alt="Icon Search"
-                                        width={18}
-                                    />
-                                </li>
-                                <li>
-                                    <a href="#" className="relative">
-                                        <img
-                                            src={HeartIcon}
-                                            alt="Icon Heart"
-                                            width={20}
-                                        />
-                                        <div className="absolute -right-3 -top-[11px] h-4 w-4 bg-black text-white text-xs leading-tight rounded-full text-center">
-                                            2
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" className="relative">
-                                        <img
-                                            src={BagIcon}
-                                            alt="Icon Bag"
-                                            width={15}
-                                        />
-                                        <div className="absolute -right-3 -top-[11px] h-4 w-4 bg-black text-white text-xs leading-tight rounded-full text-center">
-                                            2
-                                        </div>
-                                    </a>
-                                </li>
-                            </ul>
+                            <IconsNavBar />
                         </div>
                     </div>
                     <div
@@ -233,7 +190,17 @@ export default function Client({ children }: PropsWithChildren) {
             </header>
 
             {/* End Header */}
-            {children}
+            <AnimatePresence mode="wait">
+                <motion.main
+                    key={location.pathname}
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                >
+                    {children}
+                </motion.main>
+            </AnimatePresence>
             {/* Start Footer Area */}
 
             <footer className="pt-[55px]">
@@ -252,8 +219,8 @@ export default function Client({ children }: PropsWithChildren) {
                                 incididunt cilisis.
                             </p>
                             <div className="footer__payment">
-                                {paymentsImgs.map((payment) => (
-                                    <LinkImg img={payment.img} />
+                                {paymentsImgs.map((payment, index) => (
+                                    <LinkImg key={index} img={payment.img} />
                                 ))}
                             </div>
                         </div>
@@ -365,7 +332,7 @@ export default function Client({ children }: PropsWithChildren) {
                                     rel="noopener noreferrer"
                                     className="text-[#5C5C5C] hover:text-[#ca1515]"
                                 >
-                                    Colorlib
+                                    AIsakVeliz
                                 </a>
                             </p>
                         </div>

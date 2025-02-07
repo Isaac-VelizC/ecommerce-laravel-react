@@ -1,6 +1,6 @@
 import InputError from '@/Components/Dashboard/Form/InputError';
 import InputLabel from '@/Components/Dashboard/Form/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
+import PrimaryButton from '@/Components/Dashboard/Buttons/PrimaryButton';
 import TextInput from '@/Components/Dashboard/Form/TextInput';
 import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';

@@ -13,27 +13,35 @@ class CouponController extends Controller
     public function index()
     {
         $coupon = Coupon::orderBy('id', 'DESC')->paginate('10');
-        return view('backend.coupon.index')->with('coupons', $coupon);
+        return Inertia::render('Dashboard/Coupon/Index', [
+            'coupons' => [
+                'data' => $coupon->items(), // Los productos
+                'current_page' => $coupon->currentPage(), // Página actual
+                'last_page' => $coupon->lastPage(), // Última página
+                'per_page' => $coupon->perPage(), // Elementos por página
+                'total' => $coupon->total(), // Total de elementos
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('backend.coupon.create');
+        return Inertia::render('Dashboard/Coupon/Create');
     }
 
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'string|required',
-            'type' => 'required|in:fixed,percent',
-            'value' => 'required|numeric',
+            'code' => 'string|required|min:5',
+            'type' => 'required|in:Fijo,Porcentaje',
+            'value' => 'required|numeric|min:1',
             'status' => 'required|in:active,inactive'
         ]);
         try {
             Coupon::create($validatedData);
             return redirect()->route('coupon.index')->with('success', 'Coupon successfully added');
         } catch (\Exception $e) {
-            return redirect()->route('coupon.index')->with('error', 'Error, Please try again: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error, Please try again: ' . $e->getMessage());
         }
     }
 
@@ -41,7 +49,7 @@ class CouponController extends Controller
     {
         try {
             $coupon = Coupon::find($id);
-            return Inertia::render('backend.coupon.edit', [
+            return Inertia::render('Dashboard/Coupon/Create', [
                 'coupon' => $coupon
             ]);
         } catch (\Exception $e) {
@@ -52,17 +60,15 @@ class CouponController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'code' => 'string|required',
-            'type' => 'required|in:fixed,percent',
-            'value' => 'required|numeric',
+            'code' => 'string|required|min:5',
+            'type' => 'required|in:Fijo,Porcentaje',
+            'value' => 'required|numeric|min:1',
             'status' => 'required|in:active,inactive'
         ]);
         try {
             $coupon = Coupon::find($id);
             $coupon->fill($validatedData)->save();
-            return Inertia::render('coupon.index', [
-                'success' => 'Coupon Successfully updated'
-            ]);
+            return redirect()->route('coupon.index')->with('success', 'Coupon Successfully updated');
         } catch (\Exception $e) {
             return redirect()->back()->with(
                 'error',
@@ -77,7 +83,7 @@ class CouponController extends Controller
             $coupon = Coupon::find($id);
             $coupon->delete();
             // Mensaje de éxito
-            return redirect()->route('coupon.index')->with('success', 'Coupon successfully deleted');
+            return redirect()->back()->with('success', 'Coupon successfully deleted');
         } catch (\Exception $e) {
             // Manejo de errores
             return redirect()->back()->with('error', 'Error, Please try again: ' . $e->getMessage());

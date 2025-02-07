@@ -4,81 +4,99 @@ namespace App\Http\Controllers;
 
 use App\Models\PostCategorie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class PostCategoryController extends Controller
 {
     public function index()
     {
-        $postCategory=PostCategorie::orderBy('id','DESC')->paginate(10);
-        return view('backend.postcategory.index')->with('postCategories',$postCategory);
-    }
-
-    public function create()
-    {
-        return view('backend.postcategory.create');
+        $postCategory = PostCategorie::orderBy('id', 'DESC')->paginate(10);
+        return Inertia::render('Dashboard/Posts/Categorias/Index', [
+            'postCategories' => [
+                'data' => $postCategory->items(),
+                'current_page' => $postCategory->currentPage(), // Página actual
+                'last_page' => $postCategory->lastPage(), // Última página
+                'per_page' => $postCategory->perPage(), // Elementos por página
+                'total' => $postCategory->total(), // Total de elementos
+            ],
+        ]);
     }
 
     public function store(Request $request)
     {
-        // return $request->all();
-        $this->validate($request,[
-            'title'=>'string|required',
-            'status'=>'required|in:active,inactive'
+        $validatedData = $request->validate([
+            'title' => 'string|required|unique:post_categories,title',
         ]);
-        $data=$request->all();
-        $slug=Str::slug($request->title);
-        $count=PostCategorie::where('slug',$slug)->count();
-        if($count>0){
-            $slug=$slug.'-'.date('ymdis').'-'.rand(0,999);
-        }
-        $data['slug']=$slug;
-        $status=PostCategorie::create($data);
-        if($status){
-            request()->session()->flash('success','Post Category Successfully added');
-        }
-        else{
-            request()->session()->flash('error','Please try again!!');
-        }
-        return redirect()->route('post-category.index');
-    }
 
-    public function edit($id)
-    {
-        $postCategory=PostCategorie::findOrFail($id);
-        return view('backend.postcategory.edit')->with('postCategory',$postCategory);
+        try {
+            // Generar slug único
+            $slug = Str::slug($validatedData['title']);
+            $slug = $this->generateUniqueSlug($slug);
+
+            // Crear la nueva categoría
+            $category = PostCategorie::create([
+                'title' => $validatedData['title'],
+                'slug'  => $slug,
+            ]);
+
+            // Retornar la categoría en JSON
+            return response()->json([
+                'success'  => true,
+                'message'  => 'Categoría creada exitosamente',
+                'category' => $category,
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al crear la categoría',
+                'error'   => $th->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $postCategory=PostCategorie::findOrFail($id);
-         // return $request->all();
-         $this->validate($request,[
-            'title'=>'string|required',
-            'status'=>'required|in:active,inactive'
+        $validatedData = $request->validate([
+            'title' => 'required|string|unique:post_categories,title,' . $id,
         ]);
-        $data=$request->all();
-        $status=$postCategory->fill($data)->save();
-        if($status){
-            request()->session()->flash('success','Post Category Successfully updated');
+
+        try {
+            $postCategory = PostCategorie::findOrFail($id);
+            $postCategory->fill($validatedData)->save();
+
+            return response()->json([
+                'success'  => true,
+                'message'  => 'Categoría actualizada exitosamente',
+                'category' => $postCategory,
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al actualizar la categoría',
+                'error'   => $th->getMessage(),
+            ], 500);
         }
-        else{
-            request()->session()->flash('error','Please try again!!');
-        }
-        return redirect()->route('post-category.index');
     }
 
     public function destroy($id)
     {
-        $postCategory=PostCategorie::findOrFail($id);
-       
-        $status=$postCategory->delete();
-        
-        if($status){
-            request()->session()->flash('success','Post Category successfully deleted');
+        try {
+            $postCategory = PostCategorie::findOrFail($id);
+            $postCategory->delete();
+            return response()->json(['success' => true, 'message' => 'Categoria eliminado exitosamente.'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Ocurrió un error, vuelve a intentarlo.'], 500);
         }
-        else{
-            request()->session()->flash('error','Error while deleting post category');
+    }
+
+    private function generateUniqueSlug($slug)
+    {
+        $count = PostCategorie::where('slug', $slug)->count();
+        if ($count > 0) {
+            return $slug . '-' . now()->format('ymdis') . '-' . rand(0, 999);
         }
-        return redirect()->route('post-category.index');
+        return $slug;
     }
 }

@@ -11,16 +11,23 @@ class BannerController extends Controller
 {
     public function index()
     {
-        $banners = Banner::orderBy('id', 'DESC')->paginate(10);
+        $banners = Banner::orderBy('id', 'ASC')->paginate(10);
         return Inertia::render('Dashboard/Banner/Index', [
-            'banners' => $banners->items(),
-            'pagination' => $banners,
+            'banners' => [
+                'data' => $banners->items(), // Los productos
+                'current_page' => $banners->currentPage(), // Página actual
+                'last_page' => $banners->lastPage(), // Última página
+                'per_page' => $banners->perPage(), // Elementos por página
+                'total' => $banners->total(), // Total de elementos
+            ],
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Dashboard/Banner/Create');
+        return Inertia::render('Dashboard/Banner/Create', [
+            'isEditing' => false,
+        ]);
     }
 
     public function store(Request $request)
@@ -29,23 +36,14 @@ class BannerController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:50',
             'description' => 'nullable|string',
-            'photo' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'required|string',
             'status' => 'required|in:active,inactive',
         ]);
-
         try {
-            // Manejo del archivo
-            if ($request->hasFile('photo')) {
-                $file = $request->file('photo');
-                $path = $file->store('banners', 'public'); // Almacena el archivo en la carpeta public/banners
-                $validatedData['photo'] = $path; // Guarda la ruta del archivo en los datos validados
-            }
-
             // Generación del slug
             $slug = Str::slug($validatedData['title']);
             $slug = $this->generateUniqueSlug($slug);
             $validatedData['slug'] = $slug;
-
             // Creación del banner
             Banner::create($validatedData);
 
@@ -57,7 +55,6 @@ class BannerController extends Controller
 
     private function generateUniqueSlug($slug)
     {
-        // Verificar si el slug ya existe y generar uno nuevo si es necesario
         $count = Banner::where('slug', $slug)->count();
 
         if ($count > 0) {
@@ -71,7 +68,8 @@ class BannerController extends Controller
     {
         $banner = Banner::findOrFail($id);
         return Inertia::render('Dashboard/Banner/Create', [
-            'banner' => $banner
+            'banner' => $banner,
+            'isEditing' => true,
         ]);
     }
 
@@ -85,9 +83,7 @@ class BannerController extends Controller
         ]);
         try {
             $banner = Banner::findOrFail($id);
-            // Llenar el modelo con los datos validados
             $banner->fill($validatedData);
-            // Guardar los cambios
             $banner->save();
             // Mensaje de éxito
             return redirect()->route('banner.index')->with('success', 'Banner successfully updated');
@@ -101,11 +97,9 @@ class BannerController extends Controller
     {
         try {
             Banner::findOrFail($id)->delete();
-            // Mensaje de éxito
-            return redirect()->back()->with('success', 'Banner successfully deleted');
-        } catch (\Exception $e) {
-            // Manejo de errores
-            return redirect()->back()->with('error', 'Error occurred while deleting banner: ' . $e->getMessage());
+            return response()->json(['success' => true, 'message' => 'Banner eliminado exitosamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Error while deleting banner'], 500);
         }
     }
 }

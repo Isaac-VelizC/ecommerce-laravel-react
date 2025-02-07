@@ -54,4 +54,8 @@ class User extends Authenticatable
     public function orders(){
         return $this->hasMany(Order::class);
     }
+
+    public function posts() {
+        return $this->hasMany(Post::class, 'added_by');
+    }
 }

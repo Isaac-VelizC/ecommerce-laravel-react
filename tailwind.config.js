@@ -28,6 +28,11 @@ export default {
         },
         extend: {
             colors: {
+                text: 'var(--text)',
+                body: 'var(--background)',
+                primary: 'var(--primary)',
+                secondary: 'var(--secondary)',
+                accent: 'var(--accent)',
                 current: "currentColor",
                 transparent: "transparent",
                 white: "#FFFFFF",
@@ -40,12 +45,12 @@ export default {
                     ...colors.red,
                     DEFAULT: "#FB5454",
                 },
-                body: "#64748B",
+                //body: "#64748B",
                 bodydark: "#AEB7C0",
                 bodydark1: "#DEE4EE",
                 bodydark2: "#8A99AF",
-                primary: "#3C50E0",
-                secondary: "#80CAEE",
+                //primary: "#3C50E0",
+                //secondary: "#80CAEE",
                 stroke: "#E2E8F0",
                 gray: {
                     ...colors.gray,
@@ -265,8 +270,13 @@ export default {
                     "0%, 100%": { transform: "rotate(360deg)" },
                     "50%": { transform: "rotate(0deg)" },
                 },
+                draw: {
+                  '0%': { width: '0%' },
+                  '100%': { width: '80%' },
+                },
             },
             animation: {
+                draw: 'draw 0.5s ease forwards', // Duración de 0.5 segundos
                 "ping-once": "ping 5s cubic-bezier(0, 0, 0.2, 1)",
                 rotating: "rotating 30s linear infinite",
                 "spin-1.5": "spin 1.5s linear infinite",

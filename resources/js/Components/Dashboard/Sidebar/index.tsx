@@ -58,7 +58,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     return (
         <aside
             ref={sidebar}
-            className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
+            className={`absolute left-0 top-0 z-9999 backdrop-blur-md flex h-screen w-72 flex-col overflow-y-hidden rounded-3xl m-2 bg-gray-500/10 duration-300 ease-linear lg:static lg:translate-x-0 ${
                 sidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >
@@ -92,39 +92,39 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
                     {/* <!-- Menu Group --> */}
                     <div>
-                        <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+                        <h3 className="mb-4 ml-4 text-sm font-semibold text-accent">
                             MENU
                         </h3>
                         <ul className="mb-6 flex flex-col gap-1.5">
-                            <LinkSidebar name="Media Manager" icon={<i className="fa-solid fa-chart-column"></i>} href="/dashboard"/>
-                            <LinkSidebar name="Banner" icon={<i className="fa-solid fa-image"></i>} href={route('banner.index')}/>
-                            <LinkSidebar name="Category" icon={<i className="fa-solid fa-diagram-project"></i>} href={route('category.index')}/>
-                            <LinkSidebar name="Products" icon={<i className="fa-solid fa-boxes-stacked"></i>} href={route('product.index')}/>
-                            <LinkSidebar name="Brands" icon={<i className="fa-solid fa-table-cells"></i>} href={route('brand.index')}/>
-                            <LinkSidebar name="Shipping" icon={<i className="fa-solid fa-truck"></i>} href="#"/>
-                            <LinkSidebar name="Orders" icon={<i className="fa-solid fa-phone"></i>} href="#"/>
-                            <LinkSidebar name="Reviews" icon={<i className="fa-solid fa-comments"></i>} href="#"/>
+                            <LinkSidebar name="Media Manager" icon="fa-chart-column" href="/dashboard"/>
+                            <LinkSidebar name="Banner" icon="fa-image" href={route('banner.index')}/>
+                            <LinkSidebar name="Category" icon="fa-diagram-project" href={route('category.index')}/>
+                            <LinkSidebar name="Products" icon="fa-boxes-stacked" href={route('product.index')}/>
+                            <LinkSidebar name="Brands" icon="fa-table-cells" href={route('brand.index')}/>
+                            <LinkSidebar name="Shipping" icon="fa-truck" href="#"/>
+                            <LinkSidebar name="Orders" icon="fa-phone" href="#"/>
+                            <LinkSidebar name="Reviews" icon="fa-comments" href="#"/>
                         </ul>
                     </div>
                     <div>
-                        <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+                        <h3 className="mb-4 ml-4 text-sm font-semibold text-accent">
                             POST
                         </h3>
                         <ul className="mb-6 flex flex-col gap-1.5">
-                            <LinkSidebar name="Posts" icon={<i className="fa-solid fa-folder"></i>} href="#"/>
-                            <LinkSidebar name="Category" icon={<i className="fa-solid fa-diagram-project"></i>} href="#"/>
-                            <LinkSidebar name="Tags" icon={<i className="fa-solid fa-tags"></i>} href="#"/>
-                            <LinkSidebar name="Comments" icon={<i className="fa-solid fa-comments"></i>} href="#"/>
+                            <LinkSidebar name="Posts" icon="fa-folder" href={route('post.index')}/>
+                            <LinkSidebar name="Category" icon="fa-diagram-project" href={route('post.categories.index')}/>
+                            <LinkSidebar name="Tags" icon="fa-tags" href={route('post.tags.index')}/>
+                            <LinkSidebar name="Comments" icon="fa-comments" href="#"/>
                         </ul>
                     </div>
                     <div>
-                        <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+                        <h3 className="mb-4 ml-4 text-sm font-semibold text-accent">
                             GENERAL
                         </h3>
                         <ul className="mb-6 flex flex-col gap-1.5">
-                            <LinkSidebar name="Coupon" icon={<i className="fa-solid fa-table-cells"></i>} href="#"/>
-                            <LinkSidebar name="Users" icon={<i className="fa-solid fa-users"></i>} href="#"/>
-                            <LinkSidebar name="Settings" icon={<i className="fa-solid fa-gear"></i>} href={route('settings')}/>
+                            <LinkSidebar name="Coupon" icon="fa-table-cells" href={route('coupon.index')}/>
+                            <LinkSidebar name="Users" icon="fa-users" href={route('user.index')}/>
+                            <LinkSidebar name="Settings" icon="fa-gear" href={route('settings')}/>
                         </ul>
                     </div>
                 </nav>

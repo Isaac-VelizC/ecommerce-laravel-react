@@ -1,86 +1,162 @@
-import React from "react";
+import React, { useState } from "react";
+import { IconCart, IconExpanded, IconHeart } from "./IconSvgClient";
+import IconButton from "../Dashboard/Buttons/IconButton";
+import { Link, usePage } from "@inertiajs/react";
+import { ProductInterface } from "@/Interfaces/Product";
+import PreviewImage from "../PreviewImage";
 
 type Props = {
-    title: string;
-    rating: number;
-    price: string;
-    img: string;
-    sale?: boolean;
+    product: ProductInterface;
+    rating?: number;
 };
 
-const ProductCard: React.FC<Props> = ({ title, rating, img, sale, price }) => {
+const ProductCard: React.FC<Props> = ({ product, rating = 5 }) => {
+    const { user } = usePage().props.auth;
+    const originalPrice = product.price;
+    const discountAmount = (originalPrice * product.discount) / 100;
+    const finalPrice = originalPrice - discountAmount;
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [imageUrl, setImageUrl] = useState("");
+
+    const openModal = (url: string) => {
+        setImageUrl(url);
+        setIsOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsOpen(false);
+    };
+
+    const saveFavoriteProduct = () => {
+        if (!user) {
+            // Guardar en Local Storage
+            const favorites = JSON.parse(
+                localStorage.getItem("favorites") || "[]"
+            );
+
+            // Comprobar si ya existe en favoritos
+            if (
+                !favorites.find(
+                    (item: ProductInterface) => item.slug === product.slug
+                )
+            ) {
+                favorites.push(product);
+                localStorage.setItem("favorites", JSON.stringify(favorites));
+                alert("Producto guardado como favorito.");
+            } else {
+                alert("Este producto ya está en tus favoritos.");
+            }
+        } else {
+            //
+            console.log("Enviar al backend");
+        }
+    };
+
     return (
-        <div className="p-0 mb-[35px]">
-            <div className="mb-8">
-                <div className="relative h-80 overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${img})` }}>
-                    {sale && <div className="label sale bg-[#ca1515] text-white text-[12px] font-medium absolute left-2 top-2 px-2 py-1 uppercase">Sale</div>}
-                    <ul className="absolute left-0 w-full text-center inset-x-0 bottom-[30px] flex justify-center opacity-0 hover:top-0 transition-opacity duration-300 hover:opacity-100">
-                        <li>
-                            <a
-                                href="img/product/product-1.jpg"
-                                className="image-popup"
-                            >
-                                <span className="arrow_expand"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                            <i className="fa-regular fa-heart"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <span className="icon_bag_alt"></span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div className="product__item__text text-center pt-[22px]">
-                    <h6>
-                        <a href="#">{title}</a>
-                    </h6>
-                    <div className="rating mb-[5px]">
-                        {[...Array(rating)].map((_, i) => (
-                            <i
-                                key={i}
-                                className="fa fa-star text-[#e3c01c] text-[10px]"
-                            />
-                        ))}
-                    </div>
+        <>
+            <div className="p-0 mb-5 shadow-lg rounded-xl transition-transform transform hover:scale-105">
+                <div className="mb-4">
                     <div
-                        className={`product__price ${
-                            sale ? "text-[#ca1515]" : "text-[#111111]"
-                        } font-semibold`}
+                        className="relative h-90 overflow-hidden bg-cover bg-center rounded-t-xl"
+                        style={{ backgroundImage: `url(${product.photo})` }}
                     >
-                        {price}
-                        {sale && (
-                            <span className="text-[#b1b0b0] line-through ml-[4px]">
-                                $ 69.0
-                            </span>
+                        {product.discount > 0 && (
+                            <div className="bg-[#ca1515] text-white rounded-md text-xs font-semibold absolute left-3 top-3 px-2 py-1 uppercase shadow-md">
+                                Descuento {product.discount}%
+                            </div>
                         )}
+                        {/* Efecto Hover */}
+                        <div className="absolute w-full h-full opacity-0 transition-opacity duration-400 hover:opacity-100 bg-black/40 flex items-center justify-center">
+                            <ul className="flex space-x-4">
+                                <li>
+                                    <IconButton
+                                        event={() => openModal(product.photo)}
+                                        color="bg-white"
+                                        icon={
+                                            <IconExpanded
+                                                size={26}
+                                                color="black"
+                                            />
+                                        }
+                                    />
+                                </li>
+                                <li>
+                                    <IconButton
+                                        event={() => saveFavoriteProduct()}
+                                        color="bg-white"
+                                        icon={
+                                            <IconHeart
+                                                size={26}
+                                                color="black"
+                                            />
+                                        }
+                                    />
+                                </li>
+                                <li>
+                                    <IconButton
+                                        event={() => {}}
+                                        color="bg-white"
+                                        icon={
+                                            <IconCart size={26} color="black" />
+                                        }
+                                    />
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    {/* Contenido del producto */}
+                    <div className="px-4 py-3 bg-white rounded-b-xl">
+                        <div className="flex justify-end">
+                            <div
+                                className={`font-semibold ${
+                                    product.discount != 0
+                                        ? "text-[#ca1515]"
+                                        : "text-black"
+                                }`}
+                            >
+                                {finalPrice.toFixed(2)} €
+                                {product.discount > 0 && (
+                                    <span className="text-gray-400 line-through ml-2 text-xs">
+                                        {originalPrice.toFixed(2)} €
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <h6 className="font-semibold text-base">
+                            <Link
+                                href={route(
+                                    "page.product.detail",
+                                    product.slug
+                                )}
+                                className="hover:text-gray-700 transition-colors"
+                            >
+                                {product.title}
+                            </Link>
+                        </h6>
+                        {/* Estrellas de calificación */}
+                        <div className="flex mt-2">
+                            {[...Array(5)].map((_, i) => (
+                                <i
+                                    key={i}
+                                    className={`fa fa-star text-[10px] ${
+                                        i < rating
+                                            ? "text-[#e3c01c]"
+                                            : "text-gray-300"
+                                    }`}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <PreviewImage
+                imageUrl={imageUrl}
+                isOpen={isOpen}
+                onClose={closeModal}
+            />
+        </>
     );
 };
 
 export default ProductCard;
-
-
-{/*[
-                        {  },
-                    ].map((product, index) => (
-                        <div key={index} className="w-full lg:w-1/4 md:w-1/3 sm:w-1/2 p-0 mb-[35px]">
-                            <div className={`product__item ${product.sale ? 'sale' : ''}`}>
-                                <div className="h-[360px] relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${product.img})` }}>
-                                    {product.sale && <div className="label sale bg-[#ca1515] text-white text-[12px] font-medium absolute left-2 top-2 px-2 py-1 uppercase">Sale</div>}
-                                    <ul className="product__hover absolute left-0 w-full text-center inset-x-0 bottom-[30px] flex justify-center opacity-0 hover:top-0 transition-opacity duration-300 hover:opacity-100">
-                                        <li className=' list-none inline-block mr-2 hover:bg-[#ca1515] relative top-24 opacity-0'><a href={product.img} className="image-popup"><span className="arrow_expand"></span></a></li>
-                                        <li className=' list-none inline-block mr-2 hover:bg-[#ca1515] relative top-24 opacity-0'><a href="#"><span className="fa fa-heart"></span></a></li>
-                                        <li className=' list-none inline-block mr-2 hover:bg-[#ca1515] relative top-24 opacity-0'><a href="#"><span className="icon_bag_alt"></span></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    ))*/}

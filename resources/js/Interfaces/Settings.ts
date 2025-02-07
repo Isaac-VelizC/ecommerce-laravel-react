@@ -1,10 +1,11 @@
 export interface SettingInterface {
     id: number;
-    description: number;
-    short_des: number;
+    description: string;
+    short_des: string;
     logo: string;
     photo: string;
     address: string;
-    phone: number;
+    phone: string;
     email: string;
+    [key: string]: string | number;
 }

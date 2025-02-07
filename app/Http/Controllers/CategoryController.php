@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Categorie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -12,103 +13,104 @@ class CategoryController extends Controller
     {
         $category = Categorie::getAllCategory();
         return Inertia::render('Dashboard/Category/Index', [
-            'categories' => $category
+            'categories' => [
+                'data' => $category->items(),
+                'current_page' => $category->currentPage(), // Página actual
+                'last_page' => $category->lastPage(), // Última página
+                'per_page' => $category->perPage(), // Elementos por página
+                'total' => $category->total(), // Total de elementos
+            ],
         ]);
+    }
+
+    private function generateUniqueSlug($slug)
+    {
+        $count = Categorie::where('slug', $slug)->count();
+        if ($count > 0) {
+            return $slug . '-' . now()->format('ymdHis') . '-' . rand(0, 999);
+        }
+        return $slug;
     }
 
     public function create()
     {
         $parent_cats = Categorie::where('is_parent', 1)->orderBy('title', 'ASC')->get();
-        return view('backend.category.create')->with('parent_cats', $parent_cats);
+        return Inertia::render('Dashboard/Category/Create', ['parent_cats' => $parent_cats, 'isEditing' => false]);
     }
 
     public function store(Request $request)
     {
-        // return $request->all();
-        $request->validate([
-            'title' => 'string|required',
+        $validatedData = $request->validate([
+            'title' => 'string|required|max:25|regex:/^[A-Za-zÑñáéíóúÁÉÍÓÚ ]+$/',
             'summary' => 'string|nullable',
             'photo' => 'string|nullable',
             'status' => 'required|in:active,inactive',
-            'is_parent' => 'sometimes|in:1',
+            'is_parent' => 'sometimes|boolean',
             'parent_id' => 'nullable|exists:categories,id',
         ]);
-        $data = $request->all();
-        $slug = Str::slug($request->title);
-        $count = Categorie::where('slug', $slug)->count();
-        if ($count > 0) {
-            $slug = $slug . '-' . date('ymdis') . '-' . rand(0, 999);
+        try {
+            $slug = Str::slug($request->title);
+            $slug = $this->generateUniqueSlug($slug);
+            $validatedData['slug'] = $slug;
+            $validatedData['is_parent'] = $request->input('is_parent', 0);
+            // return $data;   
+            Categorie::create($validatedData);
+            return redirect()->route('category.index')->with('success', 'Category successfully added');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Error occurred, Please try again!');
         }
-        $data['slug'] = $slug;
-        $data['is_parent'] = $request->input('is_parent', 0);
-        // return $data;   
-        $status = Categorie::create($data);
-        if ($status) {
-            request()->session()->flash('success', 'Category successfully added');
-        } else {
-            request()->session()->flash('error', 'Error occurred, Please try again!');
-        }
-        return redirect()->route('category.index');
     }
 
     public function edit($id)
     {
-        $parent_cats = Categorie::where('is_parent', 1)->get();
+        $parent_cats = Categorie::where('is_parent', 1)
+            ->where('id', '!=', $id)
+            ->get();
         $category = Categorie::findOrFail($id);
-        return view('backend.category.edit')->with('category', $category)->with('parent_cats', $parent_cats);
+        return Inertia::render('Dashboard/Category/Create', [
+            'category' => $category,
+            'parent_cats' => $parent_cats,
+            'isEditing' => true
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        // return $request->all();
-        $category = Categorie::findOrFail($id);
-        $request->validate([
-            'title' => 'string|required',
+        $validatedData = $request->validate([
+            'title' => 'string|required|max:25|regex:/^[A-Za-zÑñáéíóúÁÉÍÓÚ ]+$/',
             'summary' => 'string|nullable',
             'photo' => 'string|nullable',
             'status' => 'required|in:active,inactive',
-            'is_parent' => 'sometimes|in:1',
+            'is_parent' => 'sometimes|boolean',
             'parent_id' => 'nullable|exists:categories,id',
         ]);
-        $data = $request->all();
-        $data['is_parent'] = $request->input('is_parent', 0);
-        // return $data;
-        $status = $category->fill($data)->save();
-        if ($status) {
-            request()->session()->flash('success', 'Category successfully updated');
-        } else {
-            request()->session()->flash('error', 'Error occurred, Please try again!');
+
+        try {
+            $category = Categorie::findOrFail($id);
+            $validatedData['is_parent'] = $request->input('is_parent', 0);
+            $category->fill($validatedData)->update();
+            return redirect()->route('category.index')->with('success', 'Category successfully updated');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Error occurred, Please try again!');
         }
-        return redirect()->route('category.index');
     }
 
     public function destroy($id)
     {
-        $category = Categorie::findOrFail($id);
-        $child_cat_id = Categorie::where('parent_id', $id)->pluck('id');
-        // return $child_cat_id;
-        $status = $category->delete();
-
-        if ($status) {
-            if (count($child_cat_id) > 0) {
-                Categorie::shiftChild($child_cat_id);
-            }
-            request()->session()->flash('success', 'Category successfully deleted');
-        } else {
-            request()->session()->flash('error', 'Error while deleting category');
+        try {
+            $category = Categorie::findOrFail($id);
+            // Si hay categorías hijas, puedes decidir cómo manejarlas aquí
+            Categorie::where('parent_id', $id)->pluck('id');
+            $category->delete();
+            return response()->json(['success' => true, 'message' => 'Category successfully deleted'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Error while deleting category'], 500);
         }
-        return redirect()->route('category.index');
     }
 
-    public function getChildByParent(Request $request)
+    public function getChildByParent($id)
     {
-        $category = Categorie::findOrFail($request->id);
-        $child_cat = Categorie::getChildByParentID($request->id);
-        // return $child_cat;
-        if (count($child_cat) <= 0) {
-            return response()->json(['status' => false, 'msg' => '', 'data' => null]);
-        } else {
-            return response()->json(['status' => true, 'msg' => '', 'data' => $child_cat]);
-        }
+        $children = Categorie::where('parent_id', $id)->get();
+        return response()->json($children);
     }
 }

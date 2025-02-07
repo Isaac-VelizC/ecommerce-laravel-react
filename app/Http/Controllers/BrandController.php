@@ -13,20 +13,21 @@ class BrandController extends Controller
     {
         $brand = Brand::orderBy('id', 'DESC')->paginate();
         return Inertia::render('Dashboard/Brand/Index', [
-            'brands' => $brand,
+            'brands' => [
+                'data' => $brand->items(), // Los productos
+                'current_page' => $brand->currentPage(), // Página actual
+                'last_page' => $brand->lastPage(), // Última página
+                'per_page' => $brand->perPage(), // Elementos por página
+                'total' => $brand->total(), // Total de elementos
+            ],
         ]);
-    }
-
-    public function create()
-    {
-        return view('backend.brand.create');
     }
 
     public function store(Request $request)
     {
-        // Validación del request
         $validatedData = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required|string|unique:brands',
+            'status' => 'required|in:active,inactive',
         ]);
         try {
             // Generar el slug
@@ -35,9 +36,9 @@ class BrandController extends Controller
             // Agregar el slug a los datos
             $validatedData['slug'] = $slug;
             // Crear la marca
-            Brand::create($validatedData);
+            $brand = Brand::create($validatedData);
             // Mensaje de éxito
-            return redirect()->route('brand.index')->with('success', 'Brand successfully created');
+            return redirect()->route('brand.index')->with('success', $brand->title . ' successfully created');
         } catch (\Exception $e) {
             // Manejo de errores
             return redirect()->route('brand.index')->with('error', 'Error, Please try again: ' . $e->getMessage());
@@ -46,49 +47,31 @@ class BrandController extends Controller
 
     private function generateUniqueSlug($slug)
     {
-        // Verificar si el slug ya existe y generar uno nuevo si es necesario
         $count = Brand::where('slug', $slug)->count();
 
         if ($count > 0) {
             return $slug . '-' . now()->format('ymdHis') . '-' . rand(0, 999);
         }
-
         return $slug;
-    }
-
-    public function edit($id)
-    {
-        try {
-            // Buscar la marca por ID
-            $brand = Brand::findOrFail($id);
-
-            // Devolver la vista con la marca encontrada
-            return view('backend.brand.edit', compact('brand'));
-        } catch (\Exception $e) {
-            // Manejo de errores
-            return redirect()->route('brand.index')->with('error', 'Brand not found: ' . $e->getMessage());
-        }
     }
 
     public function update(Request $request, $id)
     {
-        // Validación del request
         $validatedData = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required|string|unique:brands,title,' . $id,
+            'status' => 'required|in:active,inactive',
         ]);
 
         try {
             // Buscar la marca por ID
             $brand = Brand::findOrFail($id);
-
             // Llenar el modelo con los datos validados y guardar
             $brand->fill($validatedData)->save();
-
             // Mensaje de éxito
-            return redirect()->route('brand.index')->with('success', 'Brand successfully updated');
+            return redirect()->back()->with('success', 'Brand successfully updated');
         } catch (\Exception $e) {
             // Manejo de errores
-            return redirect()->route('brand.index')->with('error', 'Error, Please try again: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error, Please try again: ' . $e->getMessage());
         }
     }
 
@@ -97,15 +80,11 @@ class BrandController extends Controller
         try {
             // Buscar la marca por ID
             $brand = Brand::findOrFail($id);
-
             // Eliminar la marca
             $brand->delete();
-
-            // Mensaje de éxito
-            return redirect()->route('brand.index')->with('success', 'Brand successfully deleted');
-        } catch (\Exception $e) {
-            // Manejo de errores
-            return redirect()->route('brand.index')->with('error', 'Error, Please try again: ' . $e->getMessage());
+            return response()->json(['success' => true, 'message' => 'Marca eliminado exitosamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Error while deleting marca'], 500);
         }
     }
 }
