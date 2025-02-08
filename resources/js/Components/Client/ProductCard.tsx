@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IconCart, IconExpanded, IconHeart } from "./IconSvgClient";
 import IconButton from "../Dashboard/Buttons/IconButton";
-import { Link, usePage } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { ProductInterface } from "@/Interfaces/Product";
 import PreviewImage from "../PreviewImage";
 
@@ -72,11 +72,11 @@ const ProductCard: React.FC<Props> = ({ product, rating = 5 }) => {
                                 <li>
                                     <IconButton
                                         event={() => openModal(product.photo)}
-                                        color="bg-white"
+                                        color="bg-accent"
                                         icon={
                                             <IconExpanded
                                                 size={26}
-                                                color="black"
+                                                color="white"
                                             />
                                         }
                                     />
@@ -84,21 +84,28 @@ const ProductCard: React.FC<Props> = ({ product, rating = 5 }) => {
                                 <li>
                                     <IconButton
                                         event={() => saveFavoriteProduct()}
-                                        color="bg-white"
+                                        color="bg-accent"
                                         icon={
                                             <IconHeart
                                                 size={26}
-                                                color="black"
+                                                color="white"
                                             />
                                         }
                                     />
                                 </li>
                                 <li>
                                     <IconButton
-                                        event={() => {}}
-                                        color="bg-white"
+                                        event={() =>
+                                            router.get(
+                                                route(
+                                                    "add-to-cart",
+                                                    product.slug
+                                                )
+                                            )
+                                        }
+                                        color="bg-accent"
                                         icon={
-                                            <IconCart size={26} color="black" />
+                                            <IconCart size={26} color="white" />
                                         }
                                     />
                                 </li>

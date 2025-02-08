@@ -9,7 +9,7 @@ type Props = {};
 export default function Contact({}: Props) {
     const breadcrumbLinks = [
         { href: "./index.html", label: "Home" },
-        { href: "./contact.html", label: "Contact" },
+        { href: "#", label: "Contact" },
     ];
 
     return (
@@ -28,7 +28,7 @@ export default function Contact({}: Props) {
                                     <ul>
                                         <li className="relative mb-5 list-none">
                                             <h6 className="text-gray-900 font-semibold mb-2 flex items-center">
-                                                <i className="fa fa-map-marker text-[#ca1515] text-base mr-2"></i>
+                                                <i className="fa fa-map-marker text-accent text-base mr-2"></i>
                                                 Address
                                             </h6>
                                             <p className="text-gray-600 text-sm">
@@ -39,7 +39,7 @@ export default function Contact({}: Props) {
                                         </li>
                                         <li className="relative mb-5 list-none">
                                             <h6 className="text-gray-900 font-semibold mb-2 flex items-center">
-                                                <i className="fa fa-phone text-[#ca1515] text-base mr-2"></i>
+                                                <i className="fa fa-phone text-accent text-base mr-2"></i>
                                                 Phone
                                             </h6>
                                             <p className="text-gray-600 text-sm">
@@ -51,7 +51,7 @@ export default function Contact({}: Props) {
                                         </li>
                                         <li className="relative mb-5 list-none">
                                             <h6 className="text-gray-900 font-semibold mb-2 flex items-center">
-                                                <i className="fa fa-headphones text-[#ca1515] text-base mr-2"></i>
+                                                <i className="fa fa-headphones text-accent text-base mr-2"></i>
                                                 Support
                                             </h6>
                                             <p className="text-gray-600 text-sm">
@@ -69,25 +69,25 @@ export default function Contact({}: Props) {
                                         <input
                                             type="text"
                                             placeholder="Name"
-                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5"
+                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
                                         />
                                         <input
                                             type="text"
                                             placeholder="Email"
-                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5"
+                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
                                         />
                                         <input
                                             type="text"
                                             placeholder="Website"
-                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5"
+                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
                                         />
                                         <textarea
                                             placeholder="Message"
-                                            className="border border-[#e1e1e1] rounded-lg h-[130px] w-full px-[20px] pt-[12px] text-gray-600 text-sm mb-[14px] resize-none"
+                                            className="border border-[#e1e1e1] rounded-lg h-[130px] w-full px-[20px] pt-[12px] text-gray-600 text-sm mb-[14px] resize-none  focus:border-accent focus:ring-accent"
                                         ></textarea>
                                         <button
                                             type="submit"
-                                            className="site-btn bg-[#F7941D] text-white rounded-md h-[50px]"
+                                            className="site-btn rounded-md h-[50px]"
                                         >
                                             Send Message
                                         </button>

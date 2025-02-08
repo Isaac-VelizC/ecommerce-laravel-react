@@ -21,7 +21,7 @@ const EditorText = ({ height = 300, ...props }) => {
                         "undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
                     language: "en",
                     content_style:
-                        "body { font-family: Arial, sans-serif; font-size: 16px; color: #333; }",
+                        "body { font-family: Arial, sans-serif; font-size: 16px; color: #121212; }",
                 }}
             />
         </div>

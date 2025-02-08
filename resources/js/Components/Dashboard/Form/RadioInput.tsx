@@ -21,9 +21,9 @@ const RadioInput: React.FC<RadioInputProps> = ({ label, name, value, checked, on
       />
       <div
         className={`w-5 h-5 border-2 rounded-full flex items-center justify-center
-          ${checked ? "border-cyan-500" : "border-gray-400"}`}
+          ${checked ? "border-pink-500" : "border-gray-400"}`}
       >
-        {checked && <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>}
+        {checked && <div className="w-3 h-3 bg-pink-500 rounded-full"></div>}
       </div>
       <span className="text-gray-700 dark:text-gray-300">{label}</span>
     </label>

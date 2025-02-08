@@ -17,8 +17,8 @@ const Discount: React.FC = () => {
                         <div className="bg-[#f4f4f4] h-[388px] px-0 md:px-[90px] py-12 md:py-[50px] text-center">
                             <div className="relative z-[1] mb-[60px]">
                                 <span className="text-[12px] text-[#111111] font-medium uppercase">Discount</span>
-                                <h2 className="text-[#ca1515] text-[60px] font-cookie leading-[46px] mb-[10px]">Summer 2019</h2>
-                                <h5 className="text-[#ca1515] font-bold"><span className="text-[14px] text-[#111111] mr-[4px]">Sale</span> 50%</h5>
+                                <h2 className="text-accent text-[60px] font-cookie leading-[46px] mb-[10px]">Summer 2019</h2>
+                                <h5 className="text-accent font-bold"><span className="text-[14px] text-[#111111] mr-[4px]">Sale</span> 50%</h5>
                             </div>
                             {/* Capa circular detrás del título */}
                             <div className="absolute left-1/2 -top-9 h-[183px] w-[183px] bg-white rounded-full z-[-1] transform -translate-x-1/2"></div>
@@ -38,7 +38,7 @@ const Discount: React.FC = () => {
                             </div>
                             <a href="#" className="text-[14px] text-[#111111] uppercase font-bold relative inline-block pb-[3px]">
                                 Shop now
-                                <span className="absolute left-0 bottom-0 h-[2px] w-full bg-[#ca1515]"></span>
+                                <span className="absolute left-0 bottom-0 h-[2px] w-full bg-accent"></span>
                             </a>
                         </div>
                     </div>

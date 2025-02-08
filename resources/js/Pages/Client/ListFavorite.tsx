@@ -46,11 +46,13 @@ export default function ListFavorite({}: Props) {
                             ))}
                         </div>
                     ) : (
-                        <div>No tienes productos favoritos guardados.</div>
+                        <div className="w-full text-center">
+                            <p>No tienes productos favoritos guardados.</p>
+                        </div>
                     )}
                 </div>
             </section>
-            <Instagram/>
+            <Instagram />
         </Client>
     );
 }

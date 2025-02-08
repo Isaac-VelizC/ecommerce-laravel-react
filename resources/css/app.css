@@ -13,21 +13,25 @@ body {
 }
 
 @layer base {
-    :root {
-        --text: #0b0e0e;
-        --background: #f5f9fa;
-        --primary: #47a3c2;
-        --secondary: #7ecbe7;
-        --accent: #32b1fb;
-    }
-    .dark {
-        --text: #f1f4f4;
-        --background: #05090a;
-        --primary: #3d99b8;
-        --secondary: #186581;
-        --accent: #04a5cd;
-    }
+  :root {
+    /* Paleta inspirada en el rosa (tema claro) */
+    --text: #333333; /* Gris oscuro para texto */
+    --background: #FFFFFF; /* Blanco puro para fondo */
+    --primary: #ff6b8e; /* Rosa más claro para detalles primarios */
+    --secondary: #f9a3ff; /* Azul claro complementario */
+    --accent: #FF5D8F; /* Amarillo suave como acento */
+  }
+
+  .dark {
+    /* Paleta inspirada en el rosa (tema oscuro) */
+    --text: #EEEEEE; /* Gris claro para texto */
+    --background: #121212; /* Gris oscuro para fondo */
+    --primary: #fe5f7c; /* Rosa ligeramente más apagado */
+    --secondary: #d964f6; /* Azul más intenso para contraste */
+    --accent: #FF5D8F; /* Naranja para un acento cálido */
+  }
 }
+
 
 h1,
 h2,
@@ -36,7 +40,7 @@ h4,
 h5,
 h6 {
     margin: 0;
-    color: #111111;
+    color: var(--text);
     font-weight: 400;
     font-family: "Montserrat", sans-serif;
 }
@@ -119,7 +123,7 @@ ol {
     bottom: -4px;
     height: 2px;
     width: 70px;
-    background: #ca1515;
+    background: var(--accent);
     content: "";
 }
 
@@ -156,13 +160,13 @@ ol {
     font-weight: 600;
     padding: 12px 30px 10px;
     color: #ffffff;
-    background: #ca1515;
+    background: var(--primary);
 }
 
 .site-btn {
     font-size: 14px;
     color: #ffffff;
-    background: #ca1515;
+    background: var(--primary);
     font-weight: 600;
     border: none;
     text-transform: uppercase;
@@ -174,17 +178,17 @@ ol {
 @keyframes loader {
     0% {
         transform: rotate(0deg);
-        border-color: #f44336;
+        border-color: var(--accent);
         border-left-color: transparent;
     }
     50% {
         transform: rotate(180deg);
-        border-color: #673ab7;
+        border-color: var(--secondary);
         border-left-color: transparent;
     }
     100% {
         transform: rotate(360deg);
-        border-color: #f44336;
+        border-color: var(--accent);
         border-left-color: transparent;
     }
 }
@@ -275,6 +279,7 @@ ol {
 ::-webkit-scrollbar {
     width: 6px;
     z-index: -1;
+    height: 6px;
   }
   
   /* Track */
@@ -284,7 +289,7 @@ ol {
   
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: #0b0e0e;
+    background: var(--text);
     opacity: 10px;
     border-radius: 10px;
   }

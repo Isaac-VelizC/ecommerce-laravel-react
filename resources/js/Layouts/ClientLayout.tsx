@@ -9,6 +9,9 @@ import Payment3 from "@/assets/img/payment/payment-3.png";
 import Payment4 from "@/assets/img/payment/payment-4.png";
 import { AnimatePresence, motion } from "framer-motion";
 import IconsNavBar from "@/Components/Layout/IconsNavBar";
+import { CartInterface } from "@/Interfaces/Cart";
+import axios from "axios";
+import { useCart } from "@/Context/CartContext";
 
 const pageVariants = {
     initial: { opacity: 0, x: -20 },
@@ -49,6 +52,8 @@ const LoginRegisterLink = () => {
 };
 
 export default function Client({ children }: PropsWithChildren) {
+    const {cart, setCart} = useCart();
+    const [error, setError] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const paymentsImgs = [
         { img: Payment1, description: "Descripción del Pago 1" },
@@ -90,6 +95,32 @@ export default function Client({ children }: PropsWithChildren) {
         };
     }, []);
 
+    useEffect(() => {
+        const fetchCartItems = async () => {
+            try {
+                const response = await axios.get(route("api.list.cart"));
+
+                // Verificar si la respuesta es exitosa y los datos están presentes
+                if (
+                    response.status === 200 &&
+                    response.data &&
+                    response.data.items
+                ) {
+                    setCart(response.data.items); // Asignar los datos del carrito
+                    //setLoading(false); // Indicar que la carga ha finalizado
+                } else {
+                    setError("Error al obtener los datos del carrito.");
+                    //setLoading(false);
+                }
+            } catch (e: any) {
+                setError("Error de conexión: " + e.message);
+                //setLoading(false);
+            }
+        };
+
+        fetchCartItems();
+    }, []);
+
     return (
         <div className="min-h-screen">
             <div
@@ -112,7 +143,7 @@ export default function Client({ children }: PropsWithChildren) {
                     &times;
                 </button>
                 <div className=" float-right px-16 py-10">
-                    <IconsNavBar />
+                    <IconsNavBar cartItems={[]} />
                 </div>
                 {/* Logo */}
                 <div className="mb-6 text-center">
@@ -177,7 +208,7 @@ export default function Client({ children }: PropsWithChildren) {
                             <div className="inline-block mr-[25px]">
                                 <LoginRegisterLink />
                             </div>
-                            <IconsNavBar />
+                            <IconsNavBar cartItems={cart} />
                         </div>
                     </div>
                     <div
@@ -286,11 +317,11 @@ export default function Client({ children }: PropsWithChildren) {
                                 <input
                                     type="text"
                                     placeholder="Email"
-                                    className="h-[52px] w-full border border-[#e1e1e1] rounded-full pl-[30px] text-[14px] text-[#666666]"
+                                    className="h-[52px] w-full rounded-full pl-[30px] text-[14px] text-[#666666] focus:border-accent focus:ring-accent"
                                 />
                                 <button
                                     type="submit"
-                                    className="absolute right-0 top-0 h-full px-6 bg-red-600 text-white font-semibold tracking-wider rounded-full"
+                                    className="absolute right-0 top-0 h-full px-6 bg-accent text-white font-semibold tracking-wider rounded-full"
                                 >
                                     Subscribe
                                 </button>
@@ -322,7 +353,7 @@ export default function Client({ children }: PropsWithChildren) {
                                 Copyright &copy; {new Date().getFullYear()} All
                                 rights reserved | This template is made with{" "}
                                 <i
-                                    className="fa fa-heart text-[#ca1515]"
+                                    className="fa fa-heart text-accent"
                                     aria-hidden="true"
                                 ></i>{" "}
                                 by{" "}
@@ -330,7 +361,7 @@ export default function Client({ children }: PropsWithChildren) {
                                     href="https://colorlib.com"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-[#5C5C5C] hover:text-[#ca1515]"
+                                    className="text-[#5C5C5C] hover:text-accent"
                                 >
                                     AIsakVeliz
                                 </a>

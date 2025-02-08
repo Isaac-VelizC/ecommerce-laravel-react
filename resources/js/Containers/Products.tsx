@@ -18,7 +18,7 @@ const Products: React.FC<Props> = ({ products }) => {
                     </div>
                     <div className="w-full lg:w-3/4 md:w-2/3 p-0 md:text-right">
                         <ul className="inline-flex">
-                            <li className="active cursor-pointer  text-[10px] lg:text-lg text-[#111111] mr-3 md:mr-[35px] relative after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-[#ca1515]">
+                            <li className="active cursor-pointer  text-[10px] lg:text-lg text-[#111111] mr-3 md:mr-[35px] relative after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-accent">
                                 All
                             </li>
                             <li className="cursor-pointer text-[10px] lg:text-lg text-[#111111] mr-3 md:mr-[35px] relative">

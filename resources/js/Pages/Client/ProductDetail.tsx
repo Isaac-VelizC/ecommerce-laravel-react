@@ -20,12 +20,14 @@ import {
     IconHeart,
     IconShare,
 } from "@/Components/Client/IconSvgClient";
+import RowProducts from "@/Containers/RowProducts";
 
 type Props = {
     product_detail: ProductInterface;
+    relatedProdcuts: ProductInterface[];
 };
 
-export default function ProductDetail({ product_detail }: Props) {
+export default function ProductDetail({ product_detail, relatedProdcuts }: Props) {
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
     const [quantity, setQuantity] = useState(1);
     const handleIncrease = () => setQuantity((prev) => prev + 1);
@@ -398,11 +400,11 @@ export default function ProductDetail({ product_detail }: Props) {
 
                     <div className="flex flex-wrap">
                         <div className="w-full text-center">
-                            <div className="text-lg font-semibold text-[#111111]">
-                                <h5>RELATED PRODUCTS</h5>
-                            </div>
+                                <h5 className="font-semibold text-lg text-[#111111] ">RELATED PRODUCTS</h5>
                         </div>
-                        productos
+                        <div className="w-full mt-10">
+                            <RowProducts products={relatedProdcuts} />
+                        </div>
                     </div>
                 </div>
             </section>

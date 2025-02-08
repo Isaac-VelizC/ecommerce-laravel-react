@@ -311,7 +311,7 @@ export default function Create({
                                     options={categoryOptions}
                                 />
                                 <IconButton
-                                    color="bg-cyan-500"
+                                    color="bg-accent"
                                     icon={<IconPlus />}
                                     event={() => setCreateCategory(true)}
                                 />
@@ -337,7 +337,7 @@ export default function Create({
                                     multiple={true}
                                 />
                                 <IconButton
-                                    color="bg-cyan-500"
+                                    color="bg-accent"
                                     icon={<IconPlus />}
                                     event={() => setCreateTag(true)}
                                 />

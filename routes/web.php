@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\FrontendController;
@@ -100,5 +101,14 @@ Route::get('favorites', [WishlistController::class, 'index'])->name('page.list.f
 Route::get('shop', [FrontendController::class, 'productLists'])->name('page.shop');
 Route::get('blog', [FrontendController::class, 'PageBlog'])->name('blog');
 Route::get('contact', [FrontendController::class, 'PageContact'])->name('contact');
+
+Route::get('/cart', [CartController::class, 'cart'])->name('cart');
+Route::get('/api/list/cart', [CartController::class, 'listCart'])->name('api.list.cart');
+Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart');
+//Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart');
+Route::get('/cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart.delete');
+Route::post('cart-update', [CartController::class, 'cartUpdate'])->name('cart.update');
+
+Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout')->middleware('user');
 
 require __DIR__.'/auth.php';

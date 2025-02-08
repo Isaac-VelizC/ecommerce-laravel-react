@@ -16,12 +16,12 @@ const LinkSidebar: React.FC<Props> = ({ name, icon, href }) => {
             <Link
                 href={href}
                 className={`group relative flex items-center gap-2.5 rounded-xl py-2 px-4 font-medium 
-                    text-gray-800 dark:text-gray-200 duration-300 ease-in-out 
-                    hover:text-blue-600 dark:hover:text-blue-400 ${
-                        isActive ? "bg-blue-500 text-white dark:bg-blue-700/60" : ""
+                    text-text duration-300 ease-in-out 
+                    hover:text-accent dark:hover:text-pink-400 ${
+                        isActive ? "bg-secondary text-text" : ""
                     }`}
             >
-                <i className={`fa-solid ${icon} text-blue-500 dark:text-blue-400 ${isActive ? "text-white" : ""}`}></i>
+                <i className={`fa-solid ${icon} text-primary ${isActive ? "text-white" : ""}`}></i>
                 {name}
             </Link>
         </li>

@@ -17,8 +17,8 @@ type Props<T> = {
 const customStyles = {
     headRow: {
         style: {
-            backgroundColor: "#3d99b8", // Color oscuro para el encabezado
-            color: "#0b0e0e",
+            backgroundColor: "#FF5D8F", // Color oscuro para el encabezado
+            color: "#FADDE1",
             fontSize: "16px",
             fontWeight: "600",
         },
@@ -45,14 +45,14 @@ const customStyles = {
     rows: {
         style: {
             backgroundColor: "transparent",
-            color: "#1E293B",
+            color: "#121212",
             fontSize: "14px",
             minHeight: "50px",
             "&:nth-child(odd)": {
-                backgroundColor: "#E2E8F0",
+                backgroundColor: "#FADDE1",
             },
             "&:hover": {
-                backgroundColor: "#D1E7DD",
+                backgroundColor: "#FFC4D6",
                 cursor: "pointer",
                 transition: "background-color 0.3s ease-in-out",
             },
@@ -78,7 +78,7 @@ const NoDataTable = () => {
 const LoadingTable = () => {
     return (
         <div className="h-50 flex justify-center items-center ">
-            <div className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-t-accent border-gray-300 rounded-full animate-spin" />
         </div>
     );
 };

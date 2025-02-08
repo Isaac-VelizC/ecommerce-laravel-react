@@ -28,7 +28,7 @@ const Categories: React.FC<Props> = () => {
                             </p>
                             <a
                                 href="#"
-                                className="text-[14px] text-[#111111] uppercase font-semibold relative pb-[3px] inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#ca1515] after:content-['']"
+                                className="text-[14px] text-[#111111] uppercase font-semibold relative pb-[3px] inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-accent after:content-['']"
                             >
                                 Shop now
                             </a>
@@ -75,7 +75,7 @@ const Categories: React.FC<Props> = () => {
                                         <p>{category.items}</p>
                                         <a
                                             href="#"
-                                            className="text-[14px] text-[#111111] uppercase font-semibold relative pb-[3px] inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#ca1515] after:content-['']"
+                                            className="text-[14px] text-[#111111] uppercase font-semibold relative pb-[3px] inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-accent after:content-['']"
                                         >
                                             Shop now
                                         </a>

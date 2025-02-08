@@ -22,7 +22,13 @@ class FrontendController extends Controller
 
     public function PageBlog()
     {
-        return Inertia::render('Client/Blog');
+        $posts = Post::with('author_info')->where('status', 'active')
+        ->latest()
+        ->take(10)
+        ->get();
+        return Inertia::render('Client/Blog', [
+            'posts' => $posts
+        ]);
     }
 
     public function index(Request $request)
@@ -38,7 +44,8 @@ class FrontendController extends Controller
     public function productDetail($slug)
     {
         $product_detail = Product::getProductBySlug($slug);
-        return Inertia::render('Client/ProductDetail', ['product_detail' => $product_detail]);
+        $relatedProdcuts = Product::take(4)->get();
+        return Inertia::render('Client/ProductDetail', ['product_detail' => $product_detail, 'relatedProdcuts' => $relatedProdcuts]);
     }
 
     public function productGrids()

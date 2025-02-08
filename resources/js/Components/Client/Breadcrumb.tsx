@@ -13,14 +13,18 @@ const Breadcrumb = ({ links }: Props) => {
                         <div className="flex items-center">
                             {links.map((link, index) => (
                                 <React.Fragment key={index}>
-                                    <a 
-                                        href={link.href} 
-                                        className="text-gray-900 font-medium text-sm mr-4 relative inline-block"
+                                    <a
+                                        href={link.href}
+                                        className={`font-medium text-sm mr-4 relative inline-block ${index === links.length - 1 ? "text-rose-500" : "text-gray-900"} `}
                                     >
-                                        {index === 0 && <i className="fa fa-home mr-1"></i>}
+                                        {index === 0 && (
+                                            <i className="fa fa-home mr-1"></i>
+                                        )}
                                         {link.label}
                                         {index < links.length - 1 && (
-                                            <span className="absolute right-[-14px] top-0 text-gray-900">{">"}</span>
+                                            <span className="absolute right-[-14px] top-0 text-gray-900">
+                                                {">"}
+                                            </span>
                                         )}
                                     </a>
                                 </React.Fragment>

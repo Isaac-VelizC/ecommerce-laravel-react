@@ -12,7 +12,7 @@ const IconButton: React.FC<Props> = ({ color, icon, event }) => {
             type="button"
             onClick={event}
             className={
-                "group flex justify-center p-1 rounded-md drop-shadow-xl from-gray-800 hover:translate-y-1 hover:rounded-[50%] transition-all duration-500 " +
+                "group flex justify-center p-1.5 rounded-md drop-shadow-xl from-gray-800 hover:translate-y-1 hover:rounded-[50%] transition-all duration-500 " +
                 color
             }
         >

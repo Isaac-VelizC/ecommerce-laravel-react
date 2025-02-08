@@ -48,9 +48,15 @@ export default function Shop({ products, categorias }: Props) {
                                         <h4 className="text-lg">Categories</h4>
                                     </div>
                                     {categorias.map((item, index) => (
-                                        <div key={index} className="border-b border-gray-200">
+                                        <div
+                                            key={index}
+                                            className="border-b border-gray-200"
+                                        >
                                             {/* Título del acordeón */}
-                                            <button onClick={() => toggleAccordion(index)}
+                                            <button
+                                                onClick={() =>
+                                                    toggleAccordion(index)
+                                                }
                                                 className="flex justify-between items-center w-full border-none rounded-none py-2 border-b-[1px] border-b-solid border-b-[#f2f2f2]"
                                             >
                                                 <span className="text-sm font-medium text-[#111111] block">
@@ -85,13 +91,20 @@ export default function Shop({ products, categorias }: Props) {
                                                 }`}
                                             >
                                                 <ul className="text-[#818181] font-base py-1">
-                                                    {item.children.map((child, index) => (
-                                                        <li key={index} className="relative pl-4 text-sm ">
-                                                            <a href="#">
-                                                                - {child.title}
-                                                            </a>
-                                                        </li>
-                                                    )
+                                                    {item.children.map(
+                                                        (child, index) => (
+                                                            <li
+                                                                key={index}
+                                                                className="relative pl-4 text-sm "
+                                                            >
+                                                                <a href="#">
+                                                                    -{" "}
+                                                                    {
+                                                                        child.title
+                                                                    }
+                                                                </a>
+                                                            </li>
+                                                        )
                                                     )}
                                                 </ul>
                                             </div>
@@ -282,21 +295,41 @@ export default function Shop({ products, categorias }: Props) {
                                 </div>
                             )}
 
-                            <div className="w-full text-center py-20">
+                            <div className="w-full text-center py-10">
                                 {Array.from(
                                     { length: products.last_page },
                                     (_, index) => (
                                         <Link
                                             key={index}
                                             href={`/shop?page=${index + 1}`}
-                                            className={` bg-white rounded-full px-4 py-2 border-gray-200 border-[1px] mr-2
-                                                        ${
-                                                            products.current_page ===
-                                                            index + 1
-                                                                ? "bg-rose-500"
-                                                                : ""
-                                                        }
-                                                        `}
+                                            className={`
+                                                inline-flex
+                                                items-center
+                                                justify-center
+                                                px-4
+                                                py-2
+                                                text-sm
+                                                font-medium
+                                                font-mono  // Added monospace font
+                                                rounded-full
+                                                bg-accent
+                                                border
+                                                border-gray-300
+                                                text-gray-700
+                                                hover:bg-gray-50
+                                                mr-2
+                                                transition-colors
+                                                duration-200
+                                                focus:outline-none
+                                                focus:ring-2
+                                                focus:ring-rose-500
+                                                focus:ring-opacity-50
+                                                ${
+                                                    products.current_page === index + 1
+                                                        ? "bg-rose-600 text-white hover:bg-rose-700 border-rose-600"
+                                                        : ""
+                                                }
+                                            `}
                                         >
                                             {index + 1}
                                         </Link>
