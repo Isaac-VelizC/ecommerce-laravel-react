@@ -1,6 +1,7 @@
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import Card from "@/Components/Dashboard/Card";
+import EditorText from "@/Components/Dashboard/Form/EditorText";
 import InputError from "@/Components/Dashboard/Form/InputError";
 import InputFile from "@/Components/Dashboard/Form/InputFile";
 import InputLabel from "@/Components/Dashboard/Form/InputLabel";
@@ -65,6 +66,10 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
             console.error("Error al subir la imagen:", error);
             toast.error("Error al subir la imagen");
         }
+    };
+
+    const handleEditorChange = (content: string) => {
+        setData({ ...data, description: content });
     };
 
     return (
@@ -162,14 +167,10 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                     </div>
                     <div>
                         <InputLabel htmlFor="description" value="Descripción" />
-                        <textarea
+                        <EditorText
                             id="description"
-                            name="description"
                             value={data.description}
-                            onChange={(e) =>
-                                setData("description", e.target.value)
-                            }
-                            className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-700 bg-gray-500/20 dark:text-gray-300 dark:focus:border-cyan-600 dark:focus:ring-cyan-600"
+                            onEditorChange={handleEditorChange}
                         />
                         <InputError
                             message={errors.description}

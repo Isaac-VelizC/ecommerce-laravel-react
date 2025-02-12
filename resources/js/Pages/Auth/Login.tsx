@@ -1,7 +1,7 @@
 import Checkbox from "@/Components/Dashboard/Form/Checkbox";
 import InputError from "@/Components/Dashboard/Form/InputError";
 import TextInput from "@/Components/Dashboard/Form/TextInput";
-import Logo from "@/assets/img/logo.png";
+import Logo from "@/assets/AshStyle.svg";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
@@ -30,11 +30,11 @@ export default function Login({
     return (
         <>
             <Head title="Log in" />
-            {/*status && (
+            {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
                     {status}
                 </div>
-            )*/}
+            )}
             <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
                 <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
                     <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
@@ -69,14 +69,13 @@ export default function Login({
                                             </svg>
                                         </div>
                                         <span className="ml-4">
-                                            Sign In with Google
+                                            Iniciar Sesión con Google
                                         </span>
                                     </button>
                                 </div>
-
                                 <div className="my-12 border-b text-center">
                                     <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                                        Or sign In with Cartesian E-mail
+                                        O inicie sesión con correo electrónico
                                     </div>
                                 </div>
                                 <form onSubmit={submit}>
@@ -86,7 +85,7 @@ export default function Login({
                                             type="email"
                                             name="email"
                                             value={data.email}
-                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 text-text border-none placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                                             autoComplete="username"
                                             isFocused={true}
                                             onChange={(e) =>
@@ -103,7 +102,7 @@ export default function Login({
                                             type="password"
                                             name="password"
                                             value={data.password}
-                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
+                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 text-text border-none placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                                             autoComplete="current-password"
                                             onChange={(e) =>
                                                 setData(
@@ -132,7 +131,7 @@ export default function Login({
                                                         }
                                                     />
                                                     <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">
-                                                        Remember me
+                                                        Recuerdame
                                                     </span>
                                                 </label>
                                             </div>
@@ -144,14 +143,15 @@ export default function Login({
                                                         )}
                                                         className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                                                     >
-                                                        Forgot your password?
+                                                        ¿Olvidaste tu
+                                                        contraseña?
                                                     </Link>
                                                 )}
                                             </div>
                                         </div>
                                         <button
                                             disabled={processing}
-                                            className="mt-5 tracking-wide font-semibold bg-rose-400 text-white-500 w-full py-4 rsounded-lg hover:bg-rose-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
+                                            className="mt-5 tracking-wide font-semibold bg-accent text-white w-full py-4 hover:bg-pink-500 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                                         >
                                             <svg
                                                 className="w-6 h-6 -ml-2"
@@ -165,23 +165,26 @@ export default function Login({
                                                 <circle cx="8.5" cy="7" r="4" />
                                                 <path d="M20 8v6M23 11h-6" />
                                             </svg>
-                                            <span className="ml-">Sign In</span>
+                                            <span className="ml-2">
+                                                Iniciar sesión
+                                            </span>
                                         </button>
                                         <p className="mt-6 text-xs text-gray-600 text-center">
-                                            I agree to abide by Cartesian
-                                            Kinetics
+                                            Acepto respetar el criterio
+                                            cartesiano. Cinética
                                             <a
                                                 href="#"
                                                 className="border-b border-gray-500 border-dotted"
                                             >
-                                                Terms of Service
-                                            </a>
-                                            and its
+                                                {" "}
+                                                Términos de Servicio
+                                            </a>{" "}
+                                            y su{" "}
                                             <a
                                                 href="#"
                                                 className="border-b border-gray-500 border-dotted"
                                             >
-                                                Privacy Policy
+                                                Política de privacidad
                                             </a>
                                         </p>
                                     </div>
@@ -189,7 +192,7 @@ export default function Login({
                             </div>
                         </div>
                     </div>
-                    <div className="flex-1 bg-rose-100 text-center hidden lg:flex">
+                    <div className="flex-1 bg-pink-100 text-center hidden lg:flex">
                         <div
                             className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
                             style={{

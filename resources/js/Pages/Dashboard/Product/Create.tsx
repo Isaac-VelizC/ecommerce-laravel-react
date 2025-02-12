@@ -64,7 +64,7 @@ export default function Create({
         child_cat_id: "",
         price: null,
         brand_id: null,
-        discount: null,
+        discount: 0,
         status: "active",
         size: "",
         stock: null,

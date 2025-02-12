@@ -2,7 +2,6 @@ import Breadcrumb from "@/Components/Client/Breadcrumb";
 import Instagram from "@/Containers/Instagram";
 import Client from "@/Layouts/ClientLayout";
 import { Head } from "@inertiajs/react";
-import React from "react";
 
 type Props = {};
 

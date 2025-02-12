@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Logo from "@/assets/img/logo.png";
+import Logo from "@/assets/AshStyle.svg";
 import LinkSidebar from "./LinkSidebar";
 
 interface SidebarProps {
@@ -64,7 +64,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         >
             <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
                 <a href="/">
-                    <img src={Logo} alt="Logo" />
+                    <img src={Logo} alt="Logo" width={150} />
                 </a>
                 <button
                     ref={trigger}

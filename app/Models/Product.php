@@ -28,10 +28,21 @@ class Product extends Model
     {
         return $this->hasMany(ProductReview::class, 'product_id', 'id')->with('user_info')->where('status', 'active')->orderBy('id', 'DESC');
     }
-    public static function getProductBySlug($slug)
+    
+    public static function getProductBySlug($slug, $userId)
     {
-        return Product::with(['cat_info', 'rel_prods', 'getReview', 'brand'])->where('slug', $slug)->first();
+        $product = Product::withAvg('getReview', 'rate')
+            ->with(['cat_info', 'rel_prods', 'getReview', 'brand'])
+            ->where('slug', $slug)
+            ->first();
+
+        if ($product && $userId) {
+            $product->is_in_wishlist = $product->isInWishlist($userId, $product->id);
+        }
+
+        return $product;
     }
+
     public static function countActiveProduct()
     {
         $data = Product::where('status', 'active')->count();
@@ -46,9 +57,12 @@ class Product extends Model
         return $this->hasMany(Cart::class)->whereNotNull('order_id');
     }
 
-    public function wishlists()
+    public function isInWishlist($userId, $productId)
     {
-        return $this->hasMany(Wishlist::class)->whereNotNull('cart_id');
+        return $this->hasMany(Wishlist::class, 'product_id')
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->exists();
     }
 
     public function brand()

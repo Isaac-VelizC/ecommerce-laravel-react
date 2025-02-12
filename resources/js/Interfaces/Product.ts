@@ -1,5 +1,6 @@
 import { BrandInterface } from "./Brand";
 import { CategoryInterface } from "./Category";
+import { ProductReviewInterface } from "./ProducReview";
 
 export interface PaginatedResponse<T> {
     data: T[];
@@ -16,7 +17,11 @@ export interface ProductInterface {
     summary: string;
     description: string;
     photo: string;
+    cat_id: number;
     cat_info: CategoryInterface;
+    get_review_avg_rate: number | null;
+    get_review: ProductReviewInterface[];
+    is_in_wishlist: boolean;
     child_cat_id: string;
     price: number;
     brand?: BrandInterface;
@@ -45,4 +50,4 @@ export type FormProductType = {
     stock: number;
     is_featured: boolean;
     condition: string;
-}
+};

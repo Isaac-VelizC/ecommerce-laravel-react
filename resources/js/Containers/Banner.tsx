@@ -5,11 +5,8 @@ import "swiper/css"; // Estilos básicos de Swiper
 import "swiper/css/autoplay"; // Estilos para autoplay
 import "swiper/css/navigation"; // Estilos para navegación
 import "swiper/css/pagination"; // Estilos para paginación
-import { BannerInterface } from "@/Interfaces/Banner";
-
-// Import Swiper styles
-import 'swiper/css';
 import 'swiper/css/effect-fade';
+import { BannerInterface } from "@/Interfaces/Banner";
 
 type Props = {
     banners: BannerInterface[];
@@ -21,11 +18,11 @@ const Banner: React.FC<Props> = ({ banners }) => {
             <Swiper
                 effect={'fade'}
                 modules={[EffectFade, Navigation, Pagination, Autoplay]}
-                slidesPerView={1} // Mostrar una diapositiva a la vez
-                loop={true} // Habilitar bucle infinito
+                slidesPerView={1}
+                loop={true}
                 autoplay={{
-                    delay: 3000, // Intervalo entre diapositivas (en milisegundos)
-                    disableOnInteraction: false, // No detener autoplay al interactuar con el carrusel
+                    delay: 3000,
+                    disableOnInteraction: false,
                 }}
             >
                 {banners.map((banner, index) => (

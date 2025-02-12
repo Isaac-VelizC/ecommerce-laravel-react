@@ -17,6 +17,7 @@ class Categorie extends Model
     {
         return $this->hasOne(Categorie::class, 'id', 'parent_id');
     }
+
     public static function getAllCategory()
     {
         return  Categorie::orderBy('id', 'DESC')->with('parent_info')->paginate(10);
@@ -26,6 +27,7 @@ class Categorie extends Model
     {
         return Categorie::whereIn('id', $cat_id)->update(['is_parent' => 1]);
     }
+    
     public static function getChildByParentID($id)
     {
         return Categorie::where('parent_id', $id)->orderBy('id', 'ASC')->pluck('title', 'id');
@@ -46,17 +48,6 @@ class Categorie extends Model
     public function sub_products()
     {
         return $this->hasMany(Product::class, 'child_cat_id', 'id')->where('status', 'active');
-    }
-    public static function getProductByCat($slug)
-    {
-        // dd($slug);
-        return Categorie::with('products')->where('slug', $slug)->first();
-        // return Product::where('cat_id',$id)->where('child_cat_id',null)->paginate(10);
-    }
-    public static function getProductBySubCat($slug)
-    {
-        // return $slug;
-        return Categorie::with('sub_products')->where('slug', $slug)->first();
     }
     public static function countActiveCategoryriCategorie()
     {

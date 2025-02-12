@@ -12,7 +12,9 @@ use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostTagController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -23,13 +25,13 @@ Route::get('/', function () {
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
     ]);
-});
+})->name('home');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'checkrole:admin'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -95,20 +97,41 @@ Route::middleware('auth')->group(function () {
     Route::patch('/settings/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
 });
 
-Route::get('api/welcome', [HomeController::class, 'pageWelcome'])->name('page.welcome');
-Route::get('product/detail/{slug}', [FrontendController::class, 'productDetail'])->name('page.product.detail');
-Route::get('favorites', [WishlistController::class, 'index'])->name('page.list.favorite');
-Route::get('shop', [FrontendController::class, 'productLists'])->name('page.shop');
-Route::get('blog', [FrontendController::class, 'PageBlog'])->name('blog');
-Route::get('contact', [FrontendController::class, 'PageContact'])->name('contact');
+Route::middleware(['auth', 'checkrole:user'])->group(function () {
+    //Carrito
+    Route::get('/cart', [CartController::class, 'cart'])->name('cart');
+    Route::get('/api/list/cart', [CartController::class, 'listCart'])->name('api.list.cart');
+    Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart');
+    Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart');
+    Route::get('/cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart.delete');
+    Route::post('/cart-update/{id}/{quantity}', [CartController::class, 'cartUpdate'])->name('cart.update');
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+    // Favoritos
+    Route::get('/api/wishlist', [WishlistController::class, 'getFavorites'])->name('get-favorites');
+    Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist');//->middleware('user');
+    Route::delete('/wishlist-delete/{id}', [WishlistController::class, 'wishlistDelete'])->name('wishlist-delete');
+    Route::get('/wishlist-delete-all', [WishlistController::class, 'wishlistDeleteAll'])->name('delete.all.favorites');
+    // Product Review
+    //Route::resource('/review', 'ProductReviewController');
+    Route::post('/product/{slug}/review', [ProductReviewController::class, 'store'])->name('review.store');
+});
 
-Route::get('/cart', [CartController::class, 'cart'])->name('cart');
-Route::get('/api/list/cart', [CartController::class, 'listCart'])->name('api.list.cart');
-Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart');
-//Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart');
-Route::get('/cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart.delete');
-Route::post('cart-update', [CartController::class, 'cartUpdate'])->name('cart.update');
+// Frontend Routes
+Route::get('/api/welcome', [HomeController::class, 'pageWelcome'])->name('page.welcome');
+Route::get('/product/detail/{slug}', [FrontendController::class, 'productDetail'])->name('page.product.detail');
+Route::get('/shop/{slug}', [FrontendController::class, 'productLists'])->name('page.product.category');
 
-Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout')->middleware('user');
+Route::get('/product-cat/{slug}', [FrontendController::class, 'productCat'])->name('product.cat');
+Route::get('/product-sub-cat/{slug}/{sub_slug}', [FrontendController::class, 'productSubCat'])->name('product.sub.cat');
+Route::get('/product-brand/{slug}', [FrontendController::class, 'productBrand'])->name('product.brand');
+
+Route::get('/api/product/suggestions', [SearchController::class, 'search'])->name('search');
+Route::get('/api/product/search/{search?}', [SearchController::class, 'productSearch'])->name('product.search');
+Route::get('/api/popular-searches', [SearchController::class, 'popularSearches']);
+Route::post('/api/save-search', [SearchController::class, 'saveSearch']);
+
+Route::get('/blog', [FrontendController::class, 'PageBlog'])->name('blog');
+Route::get('/favorites', [WishlistController::class, 'index'])->name('page.list.favorite');
+Route::get('/contact', [FrontendController::class, 'PageContact'])->name('contact');
 
 require __DIR__.'/auth.php';

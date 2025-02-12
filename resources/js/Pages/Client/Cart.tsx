@@ -7,6 +7,7 @@ import Client from "@/Layouts/ClientLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import axios from "axios";
 import React, { useState } from "react";
+import { debounce } from "lodash";
 
 type Props = {
     //cartItems: CartInterface[];
@@ -42,20 +43,66 @@ export default function Cart({}: Props) {
         return discount > 0 ? price - (price * discount) / 100 : price;
     };
 
-    // Función para disminuir la cantidad
+    let controller = new AbortController(); // Controlador para cancelar peticiones
+
+    // Función para actualizar el stock en el backend
+    const updateCartItem = async (id: number, quantity: number) => {
+        // Cancela la petición anterior si existe
+        if (controller) controller.abort();
+        // Crea un nuevo controlador para la petición actual
+        controller = new AbortController();
+        try {
+            const response = await axios.post(
+                route("cart.update", [id, quantity]),
+                { id, quantity },
+                { signal: controller.signal }
+            );
+            if (response.status === 200) {
+                return;
+            } else {
+                console.error(
+                    "Error al actualizar el carrito:",
+                    response.status
+                );
+            }
+        } catch (error: any) {
+            if (axios.isCancel(error)) {
+                console.log("Petición cancelada por nueva actualización");
+            } else {
+                console.error("Error de red al actualizar carrito:", error);
+            }
+        }
+    };
+
+    // Debounce optimizado con cancelación
+    const debouncedUpdateCartItem = debounce(updateCartItem, 500);
+
+    // Función para disminuir cantidad
     const handleDecrease = (index: number) => {
         const updatedCart = [...cart];
         if (updatedCart[index].quantity > 1) {
             updatedCart[index].quantity -= 1;
-            setCart(updatedCart); // Actualizar el estado del carrito
+            setCart(updatedCart); // UI se actualiza de inmediato
+            debouncedUpdateCartItem(
+                updatedCart[index].id,
+                updatedCart[index].quantity
+            );
         }
     };
 
-    // Función para aumentar la cantidad
+    // Función para aumentar cantidad
     const handleIncrease = (index: number) => {
         const updatedCart = [...cart];
+        if (updatedCart[index].quantity >= updatedCart[index].product.stock) {
+            console.log("No se puede agregar más: Stock máximo alcanzado");
+            return;
+        }
         updatedCart[index].quantity += 1;
-        setCart(updatedCart); // Actualizar el estado del carrito
+        setCart(updatedCart);
+        debouncedUpdateCartItem(
+            updatedCart[index].id,
+            updatedCart[index].quantity
+        );
     };
 
     // Calcular subtotal
@@ -178,7 +225,10 @@ export default function Cart({}: Props) {
                                                     </div>
                                                 </td>
                                                 <td className="py-8 px-4 text-center text-red-600 font-semibold">
-                                                    ${item.product.price} {item.product.discount >= 1 && `(${item.product.discount}%)`}
+                                                    ${item.product.price}{" "}
+                                                    {item.product.discount >=
+                                                        1 &&
+                                                        `(${item.product.discount}%)`}
                                                 </td>
                                                 <td className="py-8 px-4 text-center">
                                                     <div className="flex items-center justify-center text-gray-600">
@@ -201,7 +251,12 @@ export default function Cart({}: Props) {
                                                             className="w-12 text-center text-sm font-medium border-none focus:outline-none focus:ring-0"
                                                         />
                                                         <button
-                                                            className="w-8 h-8 flex items-center justify-center"
+                                                            className={`w-8 h-8 flex items-center justify-center ${
+                                                                item.quantity >=
+                                                                    item.product
+                                                                        .stock &&
+                                                                "text-red"
+                                                            }`}
                                                             onClick={() =>
                                                                 handleIncrease(
                                                                     index
@@ -241,19 +296,13 @@ export default function Cart({}: Props) {
                             </table>
                         </div>
                     </div>
-                    <div className="flex flex-wrap justify-between gap-4 mb-14">
+                    <div className="relative mb-14">
                         <Link
-                            href={route("page.shop")}
-                            className="bg-gray-200 hover:bg-gray-300 font-medium py-3 px-8 uppercase text-sm transition-colors duration-200"
+                            href={"/"}
+                            className="bg-gray-200 hover:bg-gray-300 font-medium py-3 px-8 uppercase rounded text-sm transition-colors duration-200"
                         >
-                            Continuar Comprando
+                         Continuar Comprando
                         </Link>
-                        <a
-                            href="#"
-                            className="bg-gray-200 hover:bg-gray-300 font-medium py-3 px-8 uppercase text-sm transition-colors duration-200"
-                        >
-                            Actualizar Carrito
-                        </a>
                     </div>
 
                     <div className="flex flex-wrap justify-between">
@@ -311,9 +360,9 @@ export default function Cart({}: Props) {
                                         </span>
                                     </li>
                                 </ul>
-                                <a href="#" className="site-btn">
+                                <Link href={route('checkout')} className="site-btn">
                                     Proceed to checkout
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>

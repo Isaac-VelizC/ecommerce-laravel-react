@@ -1,5 +1,5 @@
 import { PropsWithChildren, useEffect, useState } from "react";
-import Logo from "@/assets/img/logo.png";
+import Logo from "@/assets/AshStyle.svg";
 import MenuLink from "@/Components/Layout/MenuLink";
 import { Link, usePage } from "@inertiajs/react";
 import LinkImg from "@/Components/Layout/LinkImg";
@@ -9,9 +9,9 @@ import Payment3 from "@/assets/img/payment/payment-3.png";
 import Payment4 from "@/assets/img/payment/payment-4.png";
 import { AnimatePresence, motion } from "framer-motion";
 import IconsNavBar from "@/Components/Layout/IconsNavBar";
-import { CartInterface } from "@/Interfaces/Cart";
 import axios from "axios";
 import { useCart } from "@/Context/CartContext";
+import Search from "@/Components/Client/Search";
 
 const pageVariants = {
     initial: { opacity: 0, x: -20 },
@@ -19,42 +19,12 @@ const pageVariants = {
     exit: { opacity: 0, x: 20, transition: { duration: 0.3 } },
 };
 
-const LoginRegisterLink = () => {
-    const { auth } = usePage().props;
-    return (
-        <>
-            {auth.user ? (
-                <Link
-                    href={route("dashboard")}
-                    className="text-gray-600 text-sm relative"
-                >
-                    Dashboard
-                </Link>
-            ) : (
-                <>
-                    <Link
-                        href={route("login")}
-                        className="text-gray-600 text-sm relative"
-                    >
-                        Login
-                    </Link>
-                    <span className="text-gray-600 text-sm mx-1">/</span>
-                    <Link
-                        href={route("register")}
-                        className="text-gray-600 text-sm relative"
-                    >
-                        Register
-                    </Link>
-                </>
-            )}
-        </>
-    );
-};
-
 export default function Client({ children }: PropsWithChildren) {
-    const {cart, setCart} = useCart();
+    const { user } = usePage().props.auth;
+    const { cart, setCart } = useCart();
     const [error, setError] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [isOpenSearch, setIsOpenSearch] = useState(false);
     const paymentsImgs = [
         { img: Payment1, description: "Descripción del Pago 1" },
         { img: Payment2, description: "Descripción del Pago 2" },
@@ -72,14 +42,14 @@ export default function Client({ children }: PropsWithChildren) {
             if (navbar) {
                 if (window.scrollY > 40) {
                     navbar.classList.add(
-                        "bg-rose-400/10",
+                        "bg-white",
                         "shadow-md",
                         "backdrop-filter",
                         "backdrop-blur-lg"
                     );
                 } else {
                     navbar.classList.remove(
-                        "bg-rose-400/10",
+                        "bg-white",
                         "shadow-md",
                         "backdrop-filter",
                         "backdrop-blur-lg"
@@ -123,6 +93,9 @@ export default function Client({ children }: PropsWithChildren) {
 
     return (
         <div className="min-h-screen">
+            {isOpenSearch && (
+                <Search toggleSearch={() => setIsOpenSearch(false)} />
+            )}
             <div
                 className={`fixed inset-0 bg-black bg-opacity-70 transition-opacity duration-500 z-[9999] ${
                     isOpen ? "visible opacity-100" : "invisible opacity-0"
@@ -143,28 +116,25 @@ export default function Client({ children }: PropsWithChildren) {
                     &times;
                 </button>
                 <div className=" float-right px-16 py-10">
-                    <IconsNavBar cartItems={[]} />
+                    <IconsNavBar
+                        cartItems={[]}
+                        toggleSearch={() => setIsOpenSearch(true)}
+                    />
                 </div>
                 {/* Logo */}
                 <div className="mb-6 text-center">
-                    <img src={Logo} alt="Logo" />
+                    <img src={Logo} alt="Logo" width={100} />
                 </div>
 
                 {/* Navegación */}
                 <ul className="space-y-4 text-left">
-                    <MenuLink text="Home" href="/" />
-                    <MenuLink text="About Us" href="/" />
-                    <MenuLink href="blog" text="Women’s" />
-                    <MenuLink href="blog" text="Men’s" />
-                    <MenuLink href="shop" text="Shop" />
-                    <MenuLink text="Blog" href="/blog" />
-                    <MenuLink text="Contact" href="/contact" />
+                    <MenuLink href="/" text="Home" />
+                    <MenuLink href="/shop/products" text="Products" />
+                    <MenuLink href="/blog" text="Tendencies" />
+                    <MenuLink href="/blog" text="Blog" />
+                    <MenuLink href="/contact" text="About Us" />
+                    <MenuLink href="/contact" text="Contact" />
                 </ul>
-
-                {/* Botones de Login/Register */}
-                <div className="mt-6 text-center">
-                    <LoginRegisterLink />
-                </div>
             </div>
 
             <header
@@ -182,33 +152,27 @@ export default function Client({ children }: PropsWithChildren) {
                         </div>
                         <div className="hidden lg:block w-full lg:w-1/2">
                             <nav className="py-4">
-                                <ul className="list-none flex justify-center space-x-10 relative">
+                                <ul className="list-none flex justify-center space-x-6 relative">
+                                    <MenuLink href="/" text="Home" />
+                                    {user && user.role === "admin" &&
+                                        <MenuLink href="/dashboard" text="Dashboard" />
+                                    }
                                     <MenuLink
-                                        href="/"
-                                        text="Home"
-                                        //isActive={url == "/"}
+                                        href="/shop/products"
+                                        text="Products"
                                     />
-                                    <MenuLink href="blog" text="Women’s" />
-                                    <MenuLink href="blog" text="Men’s" />
-                                    <MenuLink href="shop" text="Shop" />
-                                    <MenuLink
-                                        href="/blog"
-                                        text="Blog"
-                                        //isActive={url === "/blog"}
-                                    />
-                                    <MenuLink
-                                        href="/contact"
-                                        text="Contact"
-                                        //isActive={url === "/contact"}
-                                    />
+                                    <MenuLink href="/blog" text="Tendencies" />
+                                    <MenuLink href="/blog" text="Blog" />
+                                    <MenuLink href="/contact" text="About Us" />
+                                    <MenuLink href="/contact" text="Contact" />
                                 </ul>
                             </nav>
                         </div>
                         <div className="hidden lg:flex justify-end w-full lg:w-1/4 py-7">
-                            <div className="inline-block mr-[25px]">
-                                <LoginRegisterLink />
-                            </div>
-                            <IconsNavBar cartItems={cart} />
+                            <IconsNavBar
+                                cartItems={cart}
+                                toggleSearch={() => setIsOpenSearch(true)}
+                            />
                         </div>
                     </div>
                     <div

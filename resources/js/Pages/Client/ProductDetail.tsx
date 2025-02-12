@@ -2,10 +2,10 @@ import Breadcrumb from "@/Components/Client/Breadcrumb";
 import Instagram from "@/Containers/Instagram";
 import { ProductInterface } from "@/Interfaces/Product";
 import Client from "@/Layouts/ClientLayout";
-import { Head } from "@inertiajs/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Head, router, usePage } from "@inertiajs/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Swiper as SwiperClass } from "swiper";
-
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -13,37 +13,187 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
 // import required modules
-import { FreeMode, Navigation, Thumbs } from "swiper/modules";
-import { useState } from "react";
+import { FreeMode, Thumbs } from "swiper/modules";
+import { useEffect, useState } from "react";
 import {
     IconCart,
     IconHeart,
+    IconHeartFull,
     IconShare,
 } from "@/Components/Client/IconSvgClient";
 import RowProducts from "@/Containers/RowProducts";
+import axios from "axios";
+import { useCart } from "@/Context/CartContext";
+import InputLabel from "@/Components/Dashboard/Form/InputLabel";
+import { saveFavoriteProduct } from "@/Utils/api/consultas";
+import LikeButton from "@/Components/Animated/ButtonLike";
 
 type Props = {
     product_detail: ProductInterface;
     relatedProdcuts: ProductInterface[];
 };
 
-export default function ProductDetail({ product_detail, relatedProdcuts }: Props) {
+export default function ProductDetail({
+    product_detail,
+    relatedProdcuts,
+}: Props) {
+    const breadcrumbLinks = [
+        { href: "/", label: "Home" },
+        { href: route('product.cat', product_detail.cat_info.slug), label: product_detail.cat_info.slug },
+        { href: "#", label: product_detail.title },
+    ];
+    const [isInWishlist, setIsInWishlist] = useState(
+        product_detail.is_in_wishlist
+    );
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
     const [quantity, setQuantity] = useState(1);
     const handleIncrease = () => setQuantity((prev) => prev + 1);
     const handleDecrease = () =>
         setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+    const { user } = usePage().props.auth;
+    const { setCart } = useCart();
     const [activeTab, setActiveTab] = useState("descripcion");
-
-    const breadcrumbLinks = [
-        { href: "/", label: "Home" },
-        { href: "#", label: product_detail.title },
-    ];
-
-    // Convertir el precio a número
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [rating, setRating] = useState<number>(1);
+    const [hover, setHover] = useState(1);
+    const [review, setReview] = useState("");
     const originalPrice = product_detail.price;
     const discountAmount = (originalPrice * product_detail.discount) / 100;
     const finalPrice = originalPrice - discountAmount;
+
+    const handleAddCartSingle = async (
+        event: React.FormEvent<HTMLFormElement>
+    ) => {
+        event.preventDefault();
+        try {
+            const response = await axios.post(route("single-add-to-cart"), {
+                slug: product_detail.slug, // Enviar el slug del producto
+                quant: quantity, // Enviar la cantidad seleccionada
+            });
+            if (response.status === 200) {
+                setCart(response.data.cartItems);
+            } else {
+                console.error(
+                    response.data.error || "Error al agregar el producto"
+                );
+            }
+        } catch (error) {
+            console.error("Error de red:", error);
+        }
+    };
+
+    const handleReviewProduct = async (
+        event: React.FormEvent<HTMLFormElement>
+    ) => {
+        event.preventDefault();
+        setErrorMessage(null); // Resetea el error al inicio
+
+        if (!rating) {
+            setErrorMessage("Por favor selecciona una calificación.");
+            return;
+        }
+        setIsSubmitting(true);
+
+        try {
+            await router.post(`/product/${product_detail.slug}/review`, {
+                rate: rating,
+                review: review.trim(),
+            });
+        } catch (error: any) {
+            setErrorMessage(
+                `Error: ${error.message || "Unknown error occurred"}`
+            );
+            console.error("Error:", error);
+        } finally {
+            setRating(1);
+            setReview("");
+            setIsSubmitting(false);
+        }
+    };
+
+    const shareProduct = () => {
+        if (navigator.share) {
+            navigator
+                .share({
+                    title: product_detail.title,
+                    url: window.location.href,
+                })
+                .then(() => console.log("Compartido con éxito"))
+                .catch((error) => console.error("Error al compartir:", error));
+        } else {
+            alert("Tu navegador no soporta la función de compartir.");
+        }
+    };
+
+    /*const shareOnSocialMedia = (platform: string) => {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(
+            `${product_detail.title} - ${product_detail.price}`
+        );
+        const imageUrl = encodeURIComponent(product_detail.photo); // Asegurar que la imagen tenga un link válido
+
+        let shareUrl = "";
+
+        switch (platform) {
+            case "facebook":
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                break;
+            case "twitter":
+                shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+                break;
+            case "whatsapp":
+                shareUrl = `https://api.whatsapp.com/send?text=${text}%0A${imageUrl}`;
+                break;
+            case "telegram":
+                shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+                break;
+            case "linkedin":
+                shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${text}`;
+                break;
+            default:
+                return;
+        }
+
+        window.open(shareUrl, "_blank");
+    };*/
+
+    const renderStars = (rating: number) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(
+                <i
+                    key={i}
+                    className={`fa fa-star ${
+                        i <= rating ? "text-yellow-400" : "text-gray-300"
+                    }`}
+                ></i>
+            );
+        }
+        return stars;
+    };
+
+    useEffect(() => {
+        setIsInWishlist(product_detail.is_in_wishlist);
+    }, [product_detail.is_in_wishlist]);
+
+    const handleLikeClick = () => {
+        saveFavoriteProduct({
+            slug: product_detail.slug,
+            onSuccess: () => {
+                setIsInWishlist(!isInWishlist);
+                // Notificar al componente padre si la función está definida
+                //onWishlistChange?.(product_detail.id, !isInWishlist);
+            },
+            onError: (error) => {
+                console.error("Error al actualizar la lista de deseos:", error);
+                // Manejar el error (mostrar un mensaje al usuario, etc.)
+                alert(
+                    "No se pudo agregar/quitar de favoritos. Inténtalo de nuevo."
+                );
+            },
+        });
+    };
 
     return (
         <Client>
@@ -110,7 +260,7 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                         </div>
                                     </SwiperSlide>
                                     <SwiperSlide>
-                                    <div className="w-full h-32 overflow-hidden relative">
+                                        <div className="w-full h-32 overflow-hidden relative">
                                             <img
                                                 src="https://swiperjs.com/demos/images/nature-2.jpg"
                                                 className="w-full h-full object-cover bg-center"
@@ -119,7 +269,7 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                         </div>
                                     </SwiperSlide>
                                     <SwiperSlide>
-                                    <div className="w-full h-32 overflow-hidden relative">
+                                        <div className="w-full h-32 overflow-hidden relative">
                                             <img
                                                 src="https://swiperjs.com/demos/images/nature-3.jpg"
                                                 className="w-full h-full object-cover bg-center"
@@ -128,7 +278,7 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                         </div>
                                     </SwiperSlide>
                                     <SwiperSlide>
-                                    <div className="w-full h-32 overflow-hidden relative">
+                                        <div className="w-full h-32 overflow-hidden relative">
                                             <img
                                                 src="https://swiperjs.com/demos/images/nature-4.jpg"
                                                 className="w-full h-full object-cover bg-center"
@@ -136,7 +286,8 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                             />
                                         </div>
                                     </SwiperSlide>
-                                    <SwiperSlide><div className="w-full h-32 overflow-hidden relative">
+                                    <SwiperSlide>
+                                        <div className="w-full h-32 overflow-hidden relative">
                                             <img
                                                 src="https://swiperjs.com/demos/images/nature-5.jpg"
                                                 className="w-full h-full object-cover bg-center"
@@ -156,75 +307,80 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                     </span>
                                 </h3>
                                 <div className="rating mb-4">
-                                    <i className="fa fa-star text-xs text-[#e3c01c] -mr-1"></i>
-                                    <i className="fa fa-star text-xs text-[#e3c01c] -mr-1"></i>
-                                    <i className="fa fa-star text-xs text-[#e3c01c] -mr-1"></i>
-                                    <i className="fa fa-star text-xs text-[#e3c01c] -mr-1"></i>
-                                    <i className="fa fa-star text-xs text-[#e3c01c] -mr-1"></i>
+                                    {renderStars(
+                                        product_detail.get_review_avg_rate || 0
+                                    )}
                                     <span className="text-xs ml-1 text-[#666666]">
-                                        ( 138 reviews )
+                                        ( {product_detail.get_review.length}{" "}
+                                        reseñas )
                                     </span>
                                 </div>
                                 <div className="text-[30px] font-semibold text-[#ca1515] mb-7">
                                     $ {finalPrice}{" "}
-                                    <span className="text-lg text-[#b1b0b0] ml-3 inline-block line-through">
-                                        $ {originalPrice}
-                                    </span>
+                                    {product_detail.discount > 0 && (
+                                        <span className="text-lg text-[#b1b0b0] ml-3 inline-block line-through">
+                                            $ {originalPrice}
+                                        </span>
+                                    )}
                                 </div>
                                 <p className="mb-7 text-[#444444]">
-                                    {product_detail.description}
+                                    <div
+                                        dangerouslySetInnerHTML={{
+                                            __html: product_detail.summary,
+                                        }}
+                                    />
                                 </p>
                                 <div className="overflow-hidden mb-6">
-                                    <div className="quantity float-left mr-2 mb-4">
-                                        <div className="flex items-center space-x-3">
-                                            <span className="text-sm text-[#111111] font-semibold">
-                                                Cantidad:
-                                            </span>
-                                            <div className="flex items-center border border-gray-300 rounded-full overflow-hidden">
-                                                <button
-                                                    className="w-10 h-10 flex justify-center items-center bg-transparent transition"
-                                                    onClick={handleDecrease}
-                                                >
-                                                    −
-                                                </button>
-                                                <input
-                                                    type="text"
-                                                    value={quantity}
-                                                    readOnly
-                                                    onChange={() => {}}
-                                                    className="w-12 text-center text-sm font-medium border-none focus:outline-none focus:ring-0 "
-                                                />
-                                                <button
-                                                    className="w-10 h-10 flex justify-center items-center bg-transparent transition"
-                                                    onClick={handleIncrease}
-                                                >
-                                                    +
-                                                </button>
+                                    <form onSubmit={handleAddCartSingle}>
+                                        <div className="quantity float-left mr-2 mb-4">
+                                            <div className="flex items-center space-x-3">
+                                                <span className="text-sm text-[#111111] font-semibold">
+                                                    Cantidad:
+                                                </span>
+                                                <div className="flex items-center border border-gray-300 rounded-full overflow-hidden">
+                                                    <button
+                                                        type="button"
+                                                        className="w-10 h-10 flex justify-center items-center bg-transparent transition"
+                                                        onClick={handleDecrease}
+                                                    >
+                                                        −
+                                                    </button>
+                                                    <input
+                                                        type="text"
+                                                        name="quant"
+                                                        value={quantity}
+                                                        readOnly
+                                                        className="w-12 text-center text-sm font-medium border-none focus:outline-none focus:ring-0"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="w-10 h-10 flex justify-center items-center bg-transparent transition"
+                                                        onClick={handleIncrease}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <a
-                                        href="#"
-                                        className="inline-flex float-left items-center text-[12px] px-2 py-3 text-white font-semibold uppercase rounded-full bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-50 transition duration-200 mr-2"
-                                    >
-                                        <IconCart size={16} /> Añadir a carrito
-                                    </a>
+                                        <button
+                                            type="submit"
+                                            className="inline-flex float-left items-center text-[12px] px-2 py-3 text-white font-semibold uppercase rounded-full bg-accent hover:bg-primary transition duration-200 mr-2"
+                                        >
+                                            <IconCart size={16} /> Añadir al
+                                            carrito
+                                        </button>
+                                    </form>
                                     <ul className="float-left">
-                                        <li className="inline-block rounded-full border border-gray-300 p-3 mr-2">
-                                            <a href="#">
-                                                <IconHeart
-                                                    size={18}
-                                                    color="black"
-                                                />
-                                            </a>
-                                        </li>
-                                        <li className="inline-block rounded-full border border-gray-300 p-3 mr-2">
-                                            <a href="#">
-                                                <IconShare
-                                                    size={18}
-                                                    color="black"
-                                                />
-                                            </a>
+                                        <LikeButton
+                                            isLiked={isInWishlist}
+                                            onClick={() => handleLikeClick()}
+                                            classname="rounded-full border border-gray-300 bg-gray-100/20 p-3 mr-2 "
+                                        />
+                                        <li
+                                            className="inline-block rounded-full border border-gray-300 hover:bg-gray-100 p-3 mr-2 cursor-pointer"
+                                            onClick={() => shareProduct()}
+                                        >
+                                            <IconShare color="black" />
                                         </li>
                                     </ul>
                                 </div>
@@ -340,7 +496,7 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                     >
                                         Descripción
                                         {activeTab === "descripcion" ? (
-                                            <span className="absolute left-0 bottom-0 h-[2px] w-[80%] bg-[#ca15b5] animate-draw"></span>
+                                            <span className="absolute left-0 bottom-0 h-[2px] w-[80%] bg-accent animate-draw"></span>
                                         ) : null}
                                     </button>
                                 </li>
@@ -353,9 +509,9 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                         }`}
                                         onClick={() => setActiveTab("review")}
                                     >
-                                        Reviews
+                                        Reseñas
                                         {activeTab === "review" ? (
-                                            <span className="absolute left-0 bottom-0 h-[2px] w-[80%] bg-[#ca15b5] animate-draw"></span>
+                                            <span className="absolute left-0 bottom-0 h-[2px] w-[80%] bg-accent animate-draw"></span>
                                         ) : null}
                                     </button>
                                 </li>
@@ -374,9 +530,12 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                     <h6 className="text-lg font-bold">
                                         Descripción
                                     </h6>
-                                    <p className="text-gray-700 mt-2">
-                                        {product_detail.description}
-                                    </p>
+
+                                    <div
+                                        dangerouslySetInnerHTML={{
+                                            __html: product_detail.description,
+                                        }}
+                                    />
                                 </div>
 
                                 <div
@@ -387,12 +546,226 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
                                     }`}
                                     id="review"
                                 >
-                                    <h6 className="text-lg font-bold">
-                                        Reviews
-                                    </h6>
-                                    <p className="text-gray-700 mt-2">
-                                        Se mostrarán las vistas y comentarios.
-                                    </p>
+                                    <div className=" mt-2">
+                                        <div className="comment-review">
+                                            <div className="add-review">
+                                                <h5 className="font-semibold">
+                                                    Agregar una reseña
+                                                </h5>
+                                                <p>
+                                                    Su dirección de correo
+                                                    electrónico no será
+                                                    publicada. Los campos
+                                                    obligatorios están marcados
+                                                </p>
+                                            </div>
+                                            <h4 className="text-base font-medium">
+                                                <InputLabel
+                                                    htmlFor="calificacion"
+                                                    value="Tu calificación"
+                                                    required
+                                                />
+                                            </h4>
+                                            <div className="review-inner">
+                                                {user ? (
+                                                    <form
+                                                        className="form"
+                                                        onSubmit={
+                                                            handleReviewProduct
+                                                        }
+                                                    >
+                                                        <div className="flex flex-wrap">
+                                                            {/* Rating Stars */}
+                                                            <div className="w-full">
+                                                                <div className="rating">
+                                                                    {[
+                                                                        1, 2, 3,
+                                                                        4, 5,
+                                                                    ].map(
+                                                                        (
+                                                                            value
+                                                                        ) => (
+                                                                            <label
+                                                                                key={
+                                                                                    value
+                                                                                }
+                                                                                htmlFor={`star${value}`}
+                                                                            >
+                                                                                <input
+                                                                                    id={`star${value}`}
+                                                                                    type="radio"
+                                                                                    name="rating"
+                                                                                    value={
+                                                                                        value
+                                                                                    }
+                                                                                    onChange={() =>
+                                                                                        setRating(
+                                                                                            value
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                                <span
+                                                                                    className={`star ${
+                                                                                        value <=
+                                                                                        (hover ||
+                                                                                            rating!)
+                                                                                            ? "filled"
+                                                                                            : ""
+                                                                                    }`}
+                                                                                    onMouseEnter={() =>
+                                                                                        setHover(
+                                                                                            value
+                                                                                        )
+                                                                                    }
+                                                                                    onMouseLeave={() =>
+                                                                                        setHover(
+                                                                                            0
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    ★
+                                                                                </span>
+                                                                            </label>
+                                                                        )
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Textarea para la reseña */}
+                                                            <div className="w-full mt-2">
+                                                                <textarea
+                                                                    name="review"
+                                                                    placeholder="Escribe una reseña"
+                                                                    className="border border-gray-300 rounded-lg h-32 w-full px-4 pt-2 text-gray-600 text-sm mb-4 resize-none focus:border-accent focus:ring-accent"
+                                                                    value={
+                                                                        review
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setReview(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                ></textarea>
+                                                            </div>
+
+                                                            {/* Botón de envío */}
+                                                            <button
+                                                                type="submit"
+                                                                className="primary-btn"
+                                                                disabled={
+                                                                    isSubmitting
+                                                                }
+                                                            >
+                                                                {isSubmitting
+                                                                    ? "Enviando Reseña"
+                                                                    : "Enviar Reseña"}
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                ) : (
+                                                    <p className="text-center p-5">
+                                                        Necesitas{" "}
+                                                        <a
+                                                            href={route(
+                                                                "login"
+                                                            )}
+                                                            className="text-black hover:text-accent underline"
+                                                        >
+                                                            Iniciar Sesión
+                                                        </a>{" "}
+                                                        o{" "}
+                                                        <a
+                                                            className="text-black hover:text-accent underline"
+                                                            href={route(
+                                                                "register"
+                                                            )}
+                                                        >
+                                                            Registrarte
+                                                        </a>
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <div className="mt-10">
+                                                <h4 className="text-lg font-bold">
+                                                    {(
+                                                        product_detail.get_review_avg_rate ||
+                                                        0
+                                                    ).toFixed(1)}{" "}
+                                                    <span>(Overall)</span>
+                                                </h4>
+
+                                                <span className="text-sm">
+                                                    Basado en{" "}
+                                                    {
+                                                        product_detail
+                                                            .get_review.length
+                                                    }{" "}
+                                                    Comentarios
+                                                </span>
+
+                                                <div className="bg-gray-100 mt-4 rounded-lg p-6">
+                                                    {product_detail.get_review.map(
+                                                        (review, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex gap-6 items-center mb-4"
+                                                            >
+                                                                <div>
+                                                                    <img
+                                                                        className="w-16 h-16 rounded-full object-cover"
+                                                                        src={
+                                                                            review
+                                                                                .user_info
+                                                                                .photo
+                                                                        }
+                                                                        alt={
+                                                                            review
+                                                                                .user_info
+                                                                                .name
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <h6 className="font-semibold text-sm">
+                                                                        {
+                                                                            review
+                                                                                .user_info
+                                                                                .name
+                                                                        }
+                                                                    </h6>
+
+                                                                    {/* 🔹 Estrellas dinámicas */}
+                                                                    <div className="flex items-center text-sm">
+                                                                        {renderStars(
+                                                                            review.rate
+                                                                        )}
+                                                                        <span className="ml-2 text-gray-600">
+                                                                            (
+                                                                            {
+                                                                                review.rate
+                                                                            }
+                                                                            )
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <p className="text-gray-700">
+                                                                        {
+                                                                            review.review
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -400,7 +773,9 @@ export default function ProductDetail({ product_detail, relatedProdcuts }: Props
 
                     <div className="flex flex-wrap">
                         <div className="w-full text-center">
-                                <h5 className="font-semibold text-lg text-[#111111] ">RELATED PRODUCTS</h5>
+                            <h5 className="font-semibold text-lg text-[#111111] ">
+                                PRODUCTOS RELACIONADOS
+                            </h5>
                         </div>
                         <div className="w-full mt-10">
                             <RowProducts products={relatedProdcuts} />

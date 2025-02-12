@@ -1,4 +1,4 @@
-import Logo from "@/assets/img/logo.png";
+import Logo from "@/assets/Logo.svg";
 import DarkModeSwitcher from "./DarkModeSwitcher";
 import DropdownNotification from "./DropdownNotification";
 import DropdownMessage from "./DropdownMessage";
@@ -57,9 +57,8 @@ const Header = (props: {
                         </span>
                     </button>
                     {/* <!-- Hamburger Toggle BTN --> */}
-
-                    <a className="block flex-shrink-0 lg:hidden" href="/">
-                        <img src={Logo} alt="Logo" />
+                    <a className="block flex-shrink-0 lg:hidden ml-3" href="/">
+                        <img src={Logo} alt="Logo" width={45} height={45} />
                     </a>
                 </div>
                 <div></div>

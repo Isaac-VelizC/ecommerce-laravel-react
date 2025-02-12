@@ -1,3 +1,5 @@
+import { ProductInterface } from "./Product";
+
 export interface CategoryInterface {
     id: number;
     title: string;
@@ -9,6 +11,8 @@ export interface CategoryInterface {
     parent_info?: CategoryParentInterface;
     added_by: number;
     status: string;
+    products_count: number
+    products: ProductInterface[];
     [key: string]: unknown;
 }
 
@@ -22,8 +26,6 @@ export interface CategoryParentInterface {
     added_by: number;
     status: string;
 }
-
-
 
 export type FormCategoryType = {
     id: number;

@@ -1,168 +1,101 @@
-import React, { useState } from "react";
-import { IconCart, IconExpanded, IconHeart } from "./IconSvgClient";
+import React, { useEffect, useState } from "react";
+import { IconCart, IconHeart } from "./IconSvgClient";
 import IconButton from "../Dashboard/Buttons/IconButton";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { ProductInterface } from "@/Interfaces/Product";
-import PreviewImage from "../PreviewImage";
+import axios from "axios";
+import { useCart } from "@/Context/CartContext";
+import { saveFavoriteProduct } from "@/Utils/api/consultas";
+import LikeButton from "../Animated/ButtonLike";
 
 type Props = {
     product: ProductInterface;
-    rating?: number;
 };
 
-const ProductCard: React.FC<Props> = ({ product, rating = 5 }) => {
-    const { user } = usePage().props.auth;
+const ProductCard: React.FC<Props> = ({ product }) => {
+    //const { setCart } = useCart();
+    const [isInWishlist, setIsInWishlist] = useState(product.is_in_wishlist);
     const originalPrice = product.price;
     const discountAmount = (originalPrice * product.discount) / 100;
     const finalPrice = originalPrice - discountAmount;
-
-    const [isOpen, setIsOpen] = useState(false);
-    const [imageUrl, setImageUrl] = useState("");
-
-    const openModal = (url: string) => {
-        setImageUrl(url);
-        setIsOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsOpen(false);
-    };
-
-    const saveFavoriteProduct = () => {
-        if (!user) {
-            // Guardar en Local Storage
-            const favorites = JSON.parse(
-                localStorage.getItem("favorites") || "[]"
+    /*const handleAddCart = async () => {
+        try {
+            const response = await axios.get(
+                route("add-to-cart", product.slug)
             );
-
-            // Comprobar si ya existe en favoritos
-            if (
-                !favorites.find(
-                    (item: ProductInterface) => item.slug === product.slug
-                )
-            ) {
-                favorites.push(product);
-                localStorage.setItem("favorites", JSON.stringify(favorites));
-                alert("Producto guardado como favorito.");
+            if (response.status === 200) {
+                setCart(response.data.cartItems);
             } else {
-                alert("Este producto ya está en tus favoritos.");
+                console.error(
+                    "Error al añadir el producto al carrito:",
+                    response.status
+                );
             }
-        } else {
-            //
-            console.log("Enviar al backend");
+        } catch (error: any) {
+            console.error(
+                "Error de red al añadir el producto al carrito:",
+                error
+            );
         }
+    };*/
+
+    useEffect(() => {
+        setIsInWishlist(product.is_in_wishlist);
+    }, [product.is_in_wishlist]);
+
+    const handleLikeClick = () => {
+        saveFavoriteProduct({
+            slug: product.slug,
+            onSuccess: () => {
+                setIsInWishlist(!isInWishlist);
+                // Notificar al componente padre si la función está definida
+                //onWishlistChange?.(product_detail.id, !isInWishlist);
+            },
+            onError: (error) => {
+                console.error("Error al actualizar la lista de deseos:", error);
+                // Manejar el error (mostrar un mensaje al usuario, etc.)
+                alert(
+                    "No se pudo agregar/quitar de favoritos. Inténtalo de nuevo."
+                );
+            },
+        });
     };
 
     return (
-        <>
-            <div className="p-0 mb-5 shadow-lg rounded-xl transition-transform transform hover:scale-105">
-                <div className="mb-4">
+            <div className="mb-4">
+                <Link href={route("page.product.detail", product.slug)}>
                     <div
-                        className="relative h-90 overflow-hidden bg-cover bg-center rounded-t-xl"
+                        className="relative h-90 overflow-hidden bg-cover bg-center"
                         style={{ backgroundImage: `url(${product.photo})` }}
                     >
                         {product.discount > 0 && (
-                            <div className="bg-[#ca1515] text-white rounded-md text-xs font-semibold absolute left-3 top-3 px-2 py-1 uppercase shadow-md">
+                            <div className="bg-[#ca1515] text-white text-xs font-semibold absolute left-0 top-0 px-1 py-1 uppercase">
                                 Descuento {product.discount}%
                             </div>
                         )}
-                        {/* Efecto Hover */}
-                        <div className="absolute w-full h-full opacity-0 transition-opacity duration-400 hover:opacity-100 bg-black/40 flex items-center justify-center">
-                            <ul className="flex space-x-4">
-                                <li>
-                                    <IconButton
-                                        event={() => openModal(product.photo)}
-                                        color="bg-accent"
-                                        icon={
-                                            <IconExpanded
-                                                size={26}
-                                                color="white"
-                                            />
-                                        }
-                                    />
-                                </li>
-                                <li>
-                                    <IconButton
-                                        event={() => saveFavoriteProduct()}
-                                        color="bg-accent"
-                                        icon={
-                                            <IconHeart
-                                                size={26}
-                                                color="white"
-                                            />
-                                        }
-                                    />
-                                </li>
-                                <li>
-                                    <IconButton
-                                        event={() =>
-                                            router.get(
-                                                route(
-                                                    "add-to-cart",
-                                                    product.slug
-                                                )
-                                            )
-                                        }
-                                        color="bg-accent"
-                                        icon={
-                                            <IconCart size={26} color="white" />
-                                        }
-                                    />
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                     {/* Contenido del producto */}
-                    <div className="px-4 py-3 bg-white rounded-b-xl">
-                        <div className="flex justify-end">
-                            <div
-                                className={`font-semibold ${
-                                    product.discount != 0
-                                        ? "text-[#ca1515]"
-                                        : "text-black"
-                                }`}
-                            >
-                                {finalPrice.toFixed(2)} €
-                                {product.discount > 0 && (
-                                    <span className="text-gray-400 line-through ml-2 text-xs">
-                                        {originalPrice.toFixed(2)} €
-                                    </span>
-                                )}
-                            </div>
+                </Link>
+                <div className="px-4 py-3">
+                    <div className="flex justify-between mb-4">
+                        <div className={`font-semibold text-[#ca1515]`}>
+                            {finalPrice.toFixed(2)} €
+                            {product.discount > 0 && (
+                                <span className="text-gray-400 line-through ml-2 text-xs">
+                                    {originalPrice.toFixed(2)} €
+                                </span>
+                            )}
                         </div>
-                        <h6 className="font-semibold text-base">
-                            <Link
-                                href={route(
-                                    "page.product.detail",
-                                    product.slug
-                                )}
-                                className="hover:text-gray-700 transition-colors"
-                            >
-                                {product.title}
-                            </Link>
-                        </h6>
-                        {/* Estrellas de calificación */}
-                        <div className="flex mt-2">
-                            {[...Array(5)].map((_, i) => (
-                                <i
-                                    key={i}
-                                    className={`fa fa-star text-[10px] ${
-                                        i < rating
-                                            ? "text-[#e3c01c]"
-                                            : "text-gray-300"
-                                    }`}
-                                />
-                            ))}
-                        </div>
+                        <LikeButton
+                            isLiked={isInWishlist}
+                            onClick={() => handleLikeClick()}
+                        />
                     </div>
+                    <h6 className="text-base font-semibold hover:text-gray-700 transition-colors">
+                        {product.title}
+                    </h6>
                 </div>
             </div>
-            <PreviewImage
-                imageUrl={imageUrl}
-                isOpen={isOpen}
-                onClose={closeModal}
-            />
-        </>
     );
 };
 

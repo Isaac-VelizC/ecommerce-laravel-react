@@ -22,8 +22,8 @@ export default function Blog({ posts }: Props) {
                 <div className="container mx-auto">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {posts.length <= 0 ? (
-                            <div>
-                                <p>No hay publicaciones</p>
+                            <div className="col-span-3">
+                                <p className="text-center">No hay publicaciones</p>
                             </div>
                         ) : (
                             posts.map((post, index) => (
@@ -36,14 +36,13 @@ export default function Blog({ posts }: Props) {
                                 />
                             ))
                         )}
-                        <div className="w-full text-center mt-10 col-span-full">
-                            <a
-                                href="#"
-                                className="primary-btn load-btn text-gray-900 bg-gray-200 rounded-full py-[12px] px-[85px]"
-                            >
-                                Más publicaciones
-                            </a>
-                        </div>
+                        {posts.length > 0 && (
+                            <div className="w-full text-center mt-10 col-span-full">
+                                <a href="#" className="site-btn">
+                                    Más publicaciones
+                                </a>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

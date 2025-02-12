@@ -8,14 +8,13 @@ import Services from '@/Containers/Services';
 import Trend from '@/Containers/Trend';
 import Client from '@/Layouts/ClientLayout';
 import { PageProps } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 export default function Welcome({ auth }: PageProps) {
     const [data, setData] = useState({
         featured: [],
-        posts: [],
         banners: [],
         products: [],
         categories: [],
@@ -45,11 +44,11 @@ export default function Welcome({ auth }: PageProps) {
 
     return (
         <Client>
-            <Head title="Welcome" />
-            <Categories/>
-            <Products products={data.products}/>
+            <Head title="Inicio" />
+            <Categories categories={data.categories}/>
+            <Products products={data.products} categorias={data.categories}/>
             <Banner banners={data.banners} />
-            <Trend/>
+            <Trend featured={data.featured}/>
             <Discount/>
             <Services/>
             <Instagram/>

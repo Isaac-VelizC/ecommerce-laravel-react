@@ -11,7 +11,7 @@ class BrandController extends Controller
 {
     public function index()
     {
-        $brand = Brand::orderBy('id', 'DESC')->paginate();
+        $brand = Brand::orderBy('id', 'DESC')->paginate(10);
         return Inertia::render('Dashboard/Brand/Index', [
             'brands' => [
                 'data' => $brand->items(), // Los productos

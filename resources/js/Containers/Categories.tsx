@@ -1,13 +1,13 @@
 import React from "react";
 import Img1 from "@/assets/img/categories/category-1.jpg";
-import Img2 from "@/assets/img/categories/category-2.jpg";
-import Img3 from "@/assets/img/categories/category-3.jpg";
-import Img4 from "@/assets/img/categories/category-4.jpg";
-import Img5 from "@/assets/img/categories/category-5.jpg";
+import { CategoryInterface } from "@/Interfaces/Category";
+import { Link } from "@inertiajs/react";
 
-type Props = {};
+type Props = {
+    categories: CategoryInterface[];
+};
 
-const Categories: React.FC<Props> = () => {
+const Categories: React.FC<Props> = ({ categories }) => {
     return (
         <section className="overflow-hidden">
             <div className="flex flex-wrap mt-24">
@@ -39,46 +39,25 @@ const Categories: React.FC<Props> = () => {
                 {/* Categorías pequeñas */}
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-wrap">
-                        {[
-                            {
-                                title: "Men’s fashion",
-                                items: "358 items",
-                                img: Img2,
-                            },
-                            {
-                                title: "Kid’s fashion",
-                                items: "273 items",
-                                img: Img3,
-                            },
-                            {
-                                title: "Cosmetics",
-                                items: "159 items",
-                                img: Img4,
-                            },
-                            {
-                                title: "Accessories",
-                                items: "792 items",
-                                img: Img5,
-                            },
-                        ].map((category, index) => (
+                        {categories.map((category, index) => (
                             <div key={index} className="w-full md:w-1/2 p-0">
                                 <div
                                     className="h-[314px] flex items-center pl-8 mb-2 md:ml-2 bg-cover bg-center"
                                     style={{
-                                        backgroundImage: `url('${category.img}')`,
+                                        backgroundImage: `url('${category.photo}')`,
                                     }}
                                 >
                                     <div>
                                         <h4 className="text-[#111111] font-bold">
                                             {category.title}
                                         </h4>
-                                        <p>{category.items}</p>
-                                        <a
-                                            href="#"
+                                        <p>{category.products_count} productos</p>
+                                        <Link
+                                            href={route('product.cat', category.slug)}
                                             className="text-[14px] text-[#111111] uppercase font-semibold relative pb-[3px] inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-accent after:content-['']"
                                         >
                                             Shop now
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>

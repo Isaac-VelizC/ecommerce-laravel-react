@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -16,13 +15,13 @@ class CouponSeeder extends Seeder
         $data=array(
             array(
                 'code'=>'July202',
-                'type'=>'fixed',
+                'type'=>'Fijo',
                 'value'=>'300',
                 'status'=>'active'
             ),
             array(
                 'code'=>'Rachel012',
-                'type'=>'percent',
+                'type'=>'Porcentaje',
                 'value'=>'10',
                 'status'=>'active'
             ),

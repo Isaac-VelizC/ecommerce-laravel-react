@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Banner;
 use App\Models\Brand;
 use App\Models\Categorie;
 use App\Models\Post;
 use App\Models\PostCategorie;
 use App\Models\PostTag;
 use App\Models\Product;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class FrontendController extends Controller
@@ -43,67 +42,14 @@ class FrontendController extends Controller
 
     public function productDetail($slug)
     {
-        $product_detail = Product::getProductBySlug($slug);
-        $relatedProdcuts = Product::take(4)->get();
+        $product_detail = Product::getProductBySlug($slug, Auth::id());
+        $relatedProdcuts = Product::where('cat_id', $product_detail->cat_id)->take(4)->get();
         return Inertia::render('Client/ProductDetail', ['product_detail' => $product_detail, 'relatedProdcuts' => $relatedProdcuts]);
     }
 
-    public function productGrids()
+    public function productLists($slug)
     {
         $products = Product::query();
-
-        if (!empty($_GET['category'])) {
-            $slug = explode(',', $_GET['category']);
-            // dd($slug);
-            $cat_ids = Categorie::select('id')->whereIn('slug', $slug)->pluck('id')->toArray();
-            // dd($cat_ids);
-            $products->whereIn('cat_id', $cat_ids);
-            // return $products;
-        }
-        if (!empty($_GET['brand'])) {
-            $slugs = explode(',', $_GET['brand']);
-            $brand_ids = Brand::select('id')->whereIn('slug', $slugs)->pluck('id')->toArray();
-            return $brand_ids;
-            $products->whereIn('brand_id', $brand_ids);
-        }
-        if (!empty($_GET['sortBy'])) {
-            if ($_GET['sortBy'] == 'title') {
-                $products = $products->where('status', 'active')->orderBy('title', 'ASC');
-            }
-            if ($_GET['sortBy'] == 'price') {
-                $products = $products->orderBy('price', 'ASC');
-            }
-        }
-
-        if (!empty($_GET['price'])) {
-            $price = explode('-', $_GET['price']);
-            // return $price;
-            // if(isset($price[0]) && is_numeric($price[0])) $price[0]=floor(Helper::base_amount($price[0]));
-            // if(isset($price[1]) && is_numeric($price[1])) $price[1]=ceil(Helper::base_amount($price[1]));
-
-            $products->whereBetween('price', $price);
-        }
-
-        $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
-        // Sort by number
-        if (!empty($_GET['show'])) {
-            $products = $products->where('status', 'active')->paginate($_GET['show']);
-        } else {
-            $products = $products->where('status', 'active')->paginate(9);
-        }
-        // Sort by name , price, category
-
-
-        return Inertia::render('Client/Shop', [
-            'products' => $products,
-            'recent_products' => $recent_products
-        ]);
-    }
-
-    public function productLists()
-    {
-        $products = Product::query();
-
         // Filtrar por categoría
         if (!empty($_GET['category'])) {
             $slug = explode(',', $_GET['category']);
@@ -130,14 +76,19 @@ class FrontendController extends Controller
         // Filtrar por rango de precio
         if (!empty($_GET['price'])) {
             $price = explode('-', $_GET['price']);
-            $products->whereBetween('price', array_map('floatval', $price)); // Asegúrate de que los valores sean numéricos
+            $products->whereBetween('price', array_map('floatval', $price));
         }
-
         // Obtener productos recientes
         $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
-
-        // Aplicar estado activo y paginación
-        $products = $products->where('status', 'active')->paginate(request()->get('show', 9)); // Paginación con valor predeterminado
+        // Obtener productos activos con el promedio de calificación
+        $products = Product::where('status', 'active')->withAvg('getReview', 'rate')->paginate(request('show', 12));
+        // Verificar si el usuario está autenticado antes de calcular wishlist
+        if (Auth::check()) {
+            $userId = Auth::id();
+            foreach ($products as $product) {
+                $product->is_in_wishlist = $product->isInWishlist($userId, $product->id);
+            }
+        }
         $categorias = Categorie::with('children')->where('is_parent', true)->take(6)->get();
 
         return Inertia::render('Client/Shop', [
@@ -146,7 +97,6 @@ class FrontendController extends Controller
             'categorias' => $categorias
         ]);
     }
-
 
     public function productFilter(Request $request)
     {
@@ -195,52 +145,48 @@ class FrontendController extends Controller
             return redirect()->route('product-lists', $catURL . $brandURL . $priceRangeURL . $showURL . $sortByURL);
         }
     }
-    public function productSearch(Request $request)
-    {
-        $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
-        $products = Product::orwhere('title', 'like', '%' . $request->search . '%')
-            ->orwhere('slug', 'like', '%' . $request->search . '%')
-            ->orwhere('description', 'like', '%' . $request->search . '%')
-            ->orwhere('summary', 'like', '%' . $request->search . '%')
-            ->orwhere('price', 'like', '%' . $request->search . '%')
-            ->orderBy('id', 'DESC')
-            ->paginate('9');
-        return view('frontend.pages.product-grids')->with('products', $products)->with('recent_products', $recent_products);
-    }
 
     public function productBrand(Request $request)
     {
-        $products = Brand::getProductByBrand($request->slug);
+        $slug = $request->slug;
+        $products = Brand::getProductByBrand($slug);
         $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
-        if (request()->is('e-shop.loc/product-grids')) {
-            return view('frontend.pages.product-grids')->with('products', $products->products)->with('recent_products', $recent_products);
-        } else {
-            return view('frontend.pages.product-lists')->with('products', $products->products)->with('recent_products', $recent_products);
-        }
+        return Inertia::render('Client/Shop', [
+            'products' => $products->products()->paginate(10),
+            'recent_products' => $recent_products,
+            'slug' => $slug
+        ]);
     }
+
     public function productCat(Request $request)
     {
-        $products = Categorie::getProductByCat($request->slug);
-        // return $request->slug;
+        $slug = $request->slug;
+        $products = Categorie::with(['products' => function ($query) {
+                $query->paginate(10);
+            }])->where('slug', $slug)->firstOrFail();
         $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
-
-        if (request()->is('e-shop.loc/product-grids')) {
-            return view('frontend.pages.product-grids')->with('products', $products->products)->with('recent_products', $recent_products);
-        } else {
-            return view('frontend.pages.product-lists')->with('products', $products->products)->with('recent_products', $recent_products);
-        }
+        $brands = Brand::all();
+        return Inertia::render('Client/Shop', [
+            'products' => $products->products()->paginate(10),
+            'recent_products' => $recent_products,
+            'slug' => $slug,
+            'brands' => $brands
+        ]);
     }
+
     public function productSubCat(Request $request)
     {
-        $products = Categorie::getProductBySubCat($request->sub_slug);
-        // return $products;
+        
+        $slug = $request->slug;
+        $products = Categorie::with(['sub_products' => function ($query) {
+                $query->paginate(10);
+            }])->where('slug', $slug)->firstOrFail();
         $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
-
-        if (request()->is('e-shop.loc/product-grids')) {
-            return view('frontend.pages.product-grids')->with('products', $products->sub_products)->with('recent_products', $recent_products);
-        } else {
-            return view('frontend.pages.product-lists')->with('products', $products->sub_products)->with('recent_products', $recent_products);
-        }
+        return Inertia::render('Client/Shop', [
+            'products' => $products->products()->paginate(10),
+            'recent_products' => $recent_products,
+            'slug' => $slug
+        ]);
     }
 
     public function blog()
@@ -342,7 +288,7 @@ class FrontendController extends Controller
         return view('frontend.pages.blog')->with('posts', $post)->with('recent_posts', $rcnt_post);
     }
 
-    public function subscribe(Request $request)
+    /*public function subscribe(Request $request)
     {
         if (! Newsletter::isSubscribed($request->email)) {
             Newsletter::subscribePending($request->email);
@@ -357,5 +303,5 @@ class FrontendController extends Controller
             request()->session()->flash('error', 'Already Subscribed');
             return back();
         }
-    }
+    }*/
 }

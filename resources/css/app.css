@@ -13,25 +13,24 @@ body {
 }
 
 @layer base {
-  :root {
-    /* Paleta inspirada en el rosa (tema claro) */
-    --text: #333333; /* Gris oscuro para texto */
-    --background: #FFFFFF; /* Blanco puro para fondo */
-    --primary: #ff6b8e; /* Rosa más claro para detalles primarios */
-    --secondary: #f9a3ff; /* Azul claro complementario */
-    --accent: #FF5D8F; /* Amarillo suave como acento */
-  }
+    :root {
+        /* Paleta inspirada en el rosa (tema claro) */
+        --text: #333333; /* Gris oscuro para texto */
+        --background: #ffffff; /* Blanco puro para fondo */
+        --primary: #ff6b8e; /* Rosa más claro para detalles primarios */
+        --secondary: #f9a3ff; /* Azul claro complementario */
+        --accent: #ff5d8f; /* Amarillo suave como acento */
+    }
 
-  .dark {
-    /* Paleta inspirada en el rosa (tema oscuro) */
-    --text: #EEEEEE; /* Gris claro para texto */
-    --background: #121212; /* Gris oscuro para fondo */
-    --primary: #fe5f7c; /* Rosa ligeramente más apagado */
-    --secondary: #d964f6; /* Azul más intenso para contraste */
-    --accent: #FF5D8F; /* Naranja para un acento cálido */
-  }
+    .dark {
+        /* Paleta inspirada en el rosa (tema oscuro) */
+        --text: #eeeeee; /* Gris claro para texto */
+        --background: #121212; /* Gris oscuro para fondo */
+        --primary: #fe5f7c; /* Rosa ligeramente más apagado */
+        --secondary: #d964f6; /* Azul más intenso para contraste */
+        --accent: #ff5d8f; /* Naranja para un acento cálido */
+    }
 }
-
 
 h1,
 h2,
@@ -280,31 +279,59 @@ ol {
     width: 6px;
     z-index: -1;
     height: 6px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
+}
+
+/* Track */
+::-webkit-scrollbar-track {
     border-radius: 10px;
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
     background: var(--text);
     opacity: 10px;
     border-radius: 10px;
-  }
-  /* Handle */
-  ::-webkit-scrollbar-thumb:hover {
+}
+/* Handle */
+::-webkit-scrollbar-thumb:hover {
     opacity: 10px;
     border-radius: 10px;
-  }
-  
-  .scrollbar-hide {
+}
+
+.scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
+}
+
+.scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
-  }
-  
+}
+
+/****STARRS*****/
+.rating {
+    display: flex;
+    gap: 5px;
+}
+
+.rating input {
+    display: none; /* Mantener los radios ocultos */
+}
+
+.star {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.star.filled {
+    color: #ffc300;
+    transform: scale(1.2);
+}
+
+.star:hover,
+.star:hover ~ .star {
+    color: #ffc300;
+    transform: scale(1.2);
+    transition: color 0.3s, transform 0.3s;
+}

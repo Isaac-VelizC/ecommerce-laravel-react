@@ -1,31 +1,39 @@
 import Breadcrumb from "@/Components/Client/Breadcrumb";
 import ProductCard from "@/Components/Client/ProductCard";
+import RecentCard from "@/Components/Client/RecentCard";
 import Instagram from "@/Containers/Instagram";
-import { CategoryInterface } from "@/Interfaces/Category";
+import { BrandInterface } from "@/Interfaces/Brand";
 import { PaginatedResponse, ProductInterface } from "@/Interfaces/Product";
 import Client from "@/Layouts/ClientLayout";
-import { Head, Link, router } from "@inertiajs/react";
-import React, { useState } from "react";
+import { Head, Link } from "@inertiajs/react";
+import { useState } from "react";
 
 type Props = {
     products: PaginatedResponse<ProductInterface>;
     recent_products: ProductInterface[];
-    categorias: CategoryInterface[];
+    brands: [];
+    slug: string;
 };
 
-export default function Shop({ products, categorias }: Props) {
+export default function Shop({
+    products,
+    slug,
+    brands,
+    recent_products,
+}: Props) {
     const [productsList, setProductsList] = useState<ProductInterface[]>(
         products.data
     );
+    const [brandsList, setbrandsList] = useState<BrandInterface[]>(brands);
     const [currentPage, setCurrentPage] = useState<number>(
         products.current_page
     );
-
     const [totalPages, setTotalPages] = useState<number>(products.last_page);
 
     const breadcrumbLinks = [
         { href: "/", label: "Home" },
-        { href: "#", label: "Shop" },
+        { href: "#", label: "Categorias" },
+        { href: "#", label: slug },
     ];
 
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -43,7 +51,7 @@ export default function Shop({ products, categorias }: Props) {
                     <div className="flex flex-wrap">
                         <div className="w-full md:w-1/4 md:pr-6">
                             <div className="shop__sidebar">
-                                <div className="mb-12">
+                                {/*<div className="mb-12">
                                     <div className="section-title">
                                         <h4 className="text-lg">Categories</h4>
                                     </div>
@@ -52,7 +60,6 @@ export default function Shop({ products, categorias }: Props) {
                                             key={index}
                                             className="border-b border-gray-200"
                                         >
-                                            {/* Título del acordeón */}
                                             <button
                                                 onClick={() =>
                                                     toggleAccordion(index)
@@ -82,7 +89,6 @@ export default function Shop({ products, categorias }: Props) {
                                                 </svg>
                                             </button>
 
-                                            {/* Contenido del acordeón */}
                                             <div
                                                 className={`overflow-hidden pl-0 mb-2 transition-[max-height] duration-300 ease-in-out ${
                                                     activeIndex === index
@@ -110,7 +116,7 @@ export default function Shop({ products, categorias }: Props) {
                                             </div>
                                         </div>
                                     ))}
-                                </div>
+                                </div>*/}
                                 <div className="sidebar__filter relative mb-15">
                                     <div className="section-title mb-9">
                                         <h4 className="text-lg">
@@ -226,56 +232,46 @@ export default function Shop({ products, categorias }: Props) {
                                         <h4>Shop by size</h4>
                                     </div>
                                     <div className="size__list color__list">
-                                        <label htmlFor="black">
-                                            Blacks
-                                            <input type="checkbox" id="black" />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
-                                        <label htmlFor="whites">
-                                            Whites
-                                            <input
-                                                type="checkbox"
-                                                id="whites"
-                                            />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
-                                        <label htmlFor="reds">
-                                            Reds
-                                            <input type="checkbox" id="reds" />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
                                         <label htmlFor="greys">
                                             Greys
                                             <input type="checkbox" id="greys" />
                                             <span className="checkmark border-red-600 after:opacity-100"></span>
                                         </label>
-                                        <label htmlFor="blues">
-                                            Blues
-                                            <input type="checkbox" id="blues" />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
-                                        <label htmlFor="beige">
-                                            Beige Tones
-                                            <input type="checkbox" id="beige" />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
-                                        <label htmlFor="greens">
-                                            Greens
-                                            <input
-                                                type="checkbox"
-                                                id="greens"
-                                            />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
-                                        <label htmlFor="yellows">
-                                            Yellows
-                                            <input
-                                                type="checkbox"
-                                                id="yellows"
-                                            />
-                                            <span className="checkmark border-red-600 after:opacity-100"></span>
-                                        </label>
                                     </div>
+                                </div>
+                                <div className="mb-10">
+                                    <div className="section-title">
+                                        <h4>Recientes</h4>
+                                    </div>
+                                    <div>
+                                        {recent_products.map((item, index) => (
+                                            <RecentCard
+                                                key={index}
+                                                title={item.title}
+                                                img={item.photo}
+                                                price={item.price}
+                                                discount={item.discount}
+                                                slug={item.slug}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="mb-10">
+                                    <div className="section-title">
+                                        <h4>Por Marca</h4>
+                                    </div>
+                                    {brandsList.map((brand, index) => (
+                                        <div
+                                            key={index}
+                                            className="border-b border-gray-200"
+                                        >
+                                            <button className="flex w-full py-2">
+                                                <span className="text-sm font-medium text-[#111111] block">
+                                                    {brand.title}
+                                                </span>
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -325,7 +321,8 @@ export default function Shop({ products, categorias }: Props) {
                                                 focus:ring-rose-500
                                                 focus:ring-opacity-50
                                                 ${
-                                                    products.current_page === index + 1
+                                                    products.current_page ===
+                                                    index + 1
                                                         ? "bg-rose-600 text-white hover:bg-rose-700 border-rose-600"
                                                         : ""
                                                 }
