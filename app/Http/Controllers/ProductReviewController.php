@@ -72,9 +72,6 @@ class ProductReviewController extends Controller
     {
         $review = ProductReview::find($id);
         if ($review) {
-            // $product_info=Product::getProductBySlug($request->slug);
-            //  return $product_info;
-            // return $request->all();
             $data = $request->all();
             $status = $review->fill($data)->update();
 

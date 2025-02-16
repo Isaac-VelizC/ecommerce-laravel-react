@@ -10,7 +10,9 @@ use App\Notifications\StatusNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\PDF;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
@@ -115,45 +117,76 @@ class OrderController extends Controller
 
     public function update(Request $request, $id)
     {
-        $order = Order::find($id);
-        $this->validate($request, [
+        $request->validate([
             'status' => 'required|in:new,process,delivered,cancel'
         ]);
-        $data = $request->all();
-        // return $request->status;
-        if ($request->status == 'delivered') {
-            foreach ($order->cart as $cart) {
-                $product = $cart->product;
-                // return $product;
-                $product->stock -= $cart->quantity;
-                $product->save();
+        $order = Order::findOrFail($id);
+        try {
+            // Si el estado es 'delivered', actualiza el stock de los productos
+            if ($request->status === 'delivered') {
+                foreach ($order->cart as $cart) {
+                    $product = $cart->product;
+                    $product->decrement('stock', $cart->quantity); // Usa decrement para simplificar
+                }
             }
+            // Actualiza el estado de la orden
+            $order->fill($request->all());
+            $order->save();
+
+            return response()->json(['status' => 'success', 'message' => 'Successfully updated order']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Error while updating order'], 500);
         }
-        $status = $order->fill($data)->save();
-        if ($status) {
-            request()->session()->flash('success', 'Successfully updated order');
-        } else {
-            request()->session()->flash('error', 'Error while updating order');
-        }
-        return redirect()->route('order.index');
     }
 
     public function destroy($id)
     {
-        $order = Order::find($id);
-        if ($order) {
-            $status = $order->delete();
-            if ($status) {
-                request()->session()->flash('success', 'Order Successfully deleted');
-            } else {
-                request()->session()->flash('error', 'Order can not deleted');
+        try {
+            $order = Order::findOrFail($id);
+
+            // Verifica si el estado del pedido es "delivered"
+            if ($order->status === 'delivered') {
+                return response()->json(['status' => 'error', 'message' => 'Cannot delete an order with status "delivered"'], 400);
             }
-            return redirect()->route('order.index');
-        } else {
-            request()->session()->flash('error', 'Order can not found');
-            return redirect()->back();
+            $order->delete();
+            return response()->json(['status' => 'success', 'message' => 'Order successfully deleted']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Order cannot be deleted'], 500);
         }
     }
+
+    public function returnOrder($id)
+    {
+        DB::beginTransaction();
+        try {
+            $order = Order::findOrFail($id);
+            // Verifica que el estado sea "delivered" antes de marcarlo como "returned"
+            if ($order->status !== 'delivered') {
+                return response()->json(['status' => 'error', 'message' => 'Order must be "delivered" before it can be returned'], 400);
+            }
+
+            // Cambia el estado a "returned"
+            $order->status = 'returned';
+            $order->save();
+
+            // Devuelve el stock
+            foreach ($order->cart as $cart) {
+                $product = $cart->product;
+                $product->increment('stock', $cart->quantity);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => 'Order successfully marked as returned']);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Order cannot be returned'], 500);
+        }
+    }
+
 
     public function orderTrack()
     {
@@ -162,25 +195,19 @@ class OrderController extends Controller
 
     public function productTrackOrder(Request $request)
     {
-        // return $request->all();
-        $order = Order::where('user_id', auth()->user()->id)->where('order_number', $request->order_number)->first();
+        $order = Order::where('user_id', Auth::id())->where('order_number', $request->order_number)->first();
         if ($order) {
             if ($order->status == "new") {
-                request()->session()->flash('success', 'Your order has been placed. please wait.');
-                return redirect()->route('home');
+                return response()->json(['success', 'Su pedido ha sido realizado. espere por favor.'], 200);
             } elseif ($order->status == "process") {
-                request()->session()->flash('success', 'Your order is under processing please wait.');
-                return redirect()->route('home');
+                return response()->json(['success', 'Su pedido está en proceso, espere por favor.'], 200);
             } elseif ($order->status == "delivered") {
-                request()->session()->flash('success', 'Your order is successfully delivered.');
-                return redirect()->route('home');
+                return response()->json(['success', 'Su pedido se entregó con éxito.'], 200);
             } else {
-                request()->session()->flash('error', 'Your order canceled. please try again');
-                return redirect()->route('home');
+                return response()->json(['error', 'Tu pedido cancelado. por favor intenta de nuevo'], 200);
             }
         } else {
-            request()->session()->flash('error', 'Invalid order numer please try again');
-            return back();
+            return response()->json(['error', 'Número de pedido no válido, inténtelo de nuevo.'], 200);
         }
     }
 

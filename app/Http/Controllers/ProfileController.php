@@ -13,6 +13,10 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+    public function PagePerfilUser() {
+        $user = Auth::user();
+        return Inertia::render('Client/Account', ['user' => $user]);
+    }
     /**
      * Display the user's profile form.
      */

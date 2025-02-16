@@ -8,12 +8,31 @@ use App\Models\Post;
 use App\Models\PostCategorie;
 use App\Models\PostTag;
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class FrontendController extends Controller
 {
+    public function PageProducts() {
+        $products = Product::where('status', 'active')->orderBy('id', 'ASC')->paginate(40);
+        return Inertia::render('Client/Products', [
+            'products' => [
+                'data' => $products->items(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ],
+        ]);
+    }
+
+    public function settingsApp()
+    {
+        return response()->json(Setting::first());
+    }
+
     public function PageContact()
     {
         return Inertia::render('Client/Contact');
@@ -35,9 +54,9 @@ class FrontendController extends Controller
         return redirect()->route($request->user()->role);
     }
 
-    public function aboutUs()
+    public function PageAboutUs()
     {
-        return view('frontend.pages.about-us');
+        return Inertia::render('Client/AboutUs');
     }
 
     public function productDetail($slug)

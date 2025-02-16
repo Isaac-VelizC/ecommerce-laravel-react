@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface MenuLinkProps {
     href: string;
     text: string;
-    isActive?: boolean;
 }
 
-const MenuLink: React.FC<MenuLinkProps> = ({ href, text, isActive }) => {
+const MenuLink: React.FC<MenuLinkProps> = ({ href, text }) => {
+    const [isActive, setIsActive] = useState(false);
+
+    useEffect(() => {
+        // Actualiza el estado cuando cambia la ruta
+        setIsActive(window.location.pathname === href);
+    }, [window.location.pathname]);
+
     return (
-        <li className={`relative`}>
+        <li className="relative">
             <a
                 href={href}
                 className={`text-sm font-medium uppercase text-gray-800 block relative py-1 

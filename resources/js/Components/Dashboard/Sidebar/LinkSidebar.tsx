@@ -9,7 +9,8 @@ type Props = {
 
 const LinkSidebar: React.FC<Props> = ({ name, icon, href }) => {
     const { url } = usePage();
-    const isActive = url === href || url.startsWith(href);
+    const cleanHref = new URL(href, window.location.origin).pathname;
+    const isActive = url === cleanHref || url.startsWith(cleanHref);
 
     return (
         <li>

@@ -31,6 +31,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+
 Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
     Route::get('/dashboard/totals', [AdminController::class, 'getTotals'])->name('get.totals');
@@ -147,6 +148,8 @@ Route::middleware(['auth', 'checkrole:user'])->group(function () {
     Route::post('/product/{slug}/review', [ProductReviewController::class, 'store'])->name('review.store');
 });
 
+Route::get('/settings/app', [FrontendController::class, 'settingsApp'])->name('settings.app');
+
 // Frontend Routes
 Route::get('/api/welcome', [HomeController::class, 'pageWelcome'])->name('page.welcome');
 Route::get('/product/detail/{slug}', [FrontendController::class, 'productDetail'])->name('page.product.detail');
@@ -163,7 +166,10 @@ Route::post('/api/save-search', [SearchController::class, 'saveSearch']);
 
 Route::get('/blog', [FrontendController::class, 'PageBlog'])->name('blog');
 Route::get('/favorites', [WishlistController::class, 'index'])->name('page.list.favorite');
+Route::get('/products/all', [FrontendController::class, 'PageProducts'])->name('page.products');
+Route::get('/about-us', [FrontendController::class, 'PageAboutUs'])->name('page.about.us');
 Route::get('/contact', [FrontendController::class, 'PageContact'])->name('contact');
 Route::post('/contact/message', [MessageController::class, 'store'])->name('contact.store');
+Route::get('/perfil', [ProfileController::class, 'PagePerfilUser'])->name('perfil.account');
 
 require __DIR__.'/auth.php';

@@ -12,6 +12,7 @@ import IconsNavBar from "@/Components/Layout/IconsNavBar";
 import axios from "axios";
 import { useCart } from "@/Context/CartContext";
 import Search from "@/Components/Client/Search";
+import { useSettings } from "@/Context/SettingsContext";
 
 const pageVariants = {
     initial: { opacity: 0, x: -20 },
@@ -22,6 +23,7 @@ const pageVariants = {
 export default function Client({ children }: PropsWithChildren) {
     const { user } = usePage().props.auth;
     const { cart, setCart } = useCart();
+    const { settings } = useSettings();
     const [error, setError] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
@@ -66,30 +68,32 @@ export default function Client({ children }: PropsWithChildren) {
     }, []);
 
     useEffect(() => {
-        const fetchCartItems = async () => {
-            try {
-                const response = await axios.get(route("api.list.cart"));
+        if (user) {
+            fetchCartItems();
+        }
+    }, []);
 
-                // Verificar si la respuesta es exitosa y los datos están presentes
-                if (
-                    response.status === 200 &&
-                    response.data &&
-                    response.data.items
-                ) {
-                    setCart(response.data.items); // Asignar los datos del carrito
-                    //setLoading(false); // Indicar que la carga ha finalizado
-                } else {
-                    setError("Error al obtener los datos del carrito.");
-                    //setLoading(false);
-                }
-            } catch (e: any) {
-                setError("Error de conexión: " + e.message);
+    const fetchCartItems = async () => {
+        try {
+            const response = await axios.get(route("api.list.cart"));
+
+            // Verificar si la respuesta es exitosa y los datos están presentes
+            if (
+                response.status === 200 &&
+                response.data &&
+                response.data.items
+            ) {
+                setCart(response.data.items); // Asignar los datos del carrito
+                //setLoading(false); // Indicar que la carga ha finalizado
+            } else {
+                setError("Error al obtener los datos del carrito.");
                 //setLoading(false);
             }
-        };
-
-        fetchCartItems();
-    }, []);
+        } catch (e: any) {
+            setError("Error de conexión: " + e.message);
+            //setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen">
@@ -129,13 +133,13 @@ export default function Client({ children }: PropsWithChildren) {
                 {/* Navegación */}
                 <ul className="space-y-4 text-left">
                     <MenuLink href="/" text="Home" />
-                    {user && user.role === "admin" &&
-                        <MenuLink href="/dashboard" text="Dashboard"/>
-                    }
-                    <MenuLink href="/shop/products" text="Products" />
+                    {user && user.role === "admin" && (
+                        <MenuLink href="/dashboard" text="Dashboard" />
+                    )}
+                    <MenuLink href="/products/all" text="Products" />
                     <MenuLink href="/blog" text="Tendencies" />
                     <MenuLink href="/blog" text="Blog" />
-                    <MenuLink href="/contact" text="About Us" />
+                    <MenuLink href="/about-us" text="About Us" />
                     <MenuLink href="/contact" text="Contact" />
                 </ul>
             </div>
@@ -157,16 +161,22 @@ export default function Client({ children }: PropsWithChildren) {
                             <nav className="py-4">
                                 <ul className="list-none flex justify-center space-x-6 relative">
                                     <MenuLink href="/" text="Home" />
-                                    {user && user.role === "admin" &&
-                                        <MenuLink href="/dashboard" text="Dashboard" />
-                                    }
+                                    {user && user.role === "admin" && (
+                                        <MenuLink
+                                            href="/dashboard"
+                                            text="Dashboard"
+                                        />
+                                    )}
                                     <MenuLink
-                                        href="/shop/products"
+                                        href="/products/all"
                                         text="Products"
                                     />
                                     <MenuLink href="/blog" text="Tendencies" />
                                     <MenuLink href="/blog" text="Blog" />
-                                    <MenuLink href="/contact" text="About Us" />
+                                    <MenuLink
+                                        href="/about-us"
+                                        text="About Us"
+                                    />
                                     <MenuLink href="/contact" text="Contact" />
                                 </ul>
                             </nav>
@@ -207,14 +217,15 @@ export default function Client({ children }: PropsWithChildren) {
                         {/* Sección About */}
                         <div className="w-full lg:w-1/3 md:w-1/2 sm:w-7/12 mb-[30px] pr-10">
                             <div className="mb-[20px]">
-                                <a href="./index.html">
-                                    <img src={Logo} alt="Shoping" />
+                                <a href="/">
+                                    <img
+                                        src={settings ? settings.logo : Logo}
+                                        alt="Shoping"
+                                    />
                                 </a>
                             </div>
                             <p className="mb-[20px]">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit, sed do eiusmod tempor
-                                incididunt cilisis.
+                                {settings && settings.short_des}
                             </p>
                             <div className="footer__payment">
                                 {paymentsImgs.map((payment, index) => (
@@ -230,7 +241,7 @@ export default function Client({ children }: PropsWithChildren) {
                                     Quick links
                                 </h6>
                                 <ul>
-                                    {["About", "Blogs", "Contact", "FAQ"].map(
+                                    {["About", "Blogs", "Contact"].map(
                                         (link, index) => (
                                             <li
                                                 key={index}
@@ -259,7 +270,6 @@ export default function Client({ children }: PropsWithChildren) {
                                     {[
                                         "My Account",
                                         "Orders Tracking",
-                                        "Checkout",
                                         "Wishlist",
                                     ].map((link, index) => (
                                         <li key={index} className="list-none">
@@ -317,13 +327,13 @@ export default function Client({ children }: PropsWithChildren) {
                         {/* Copyright Section */}
                         <div className="w-full mt-[35px] border-t border-[#e1e1e1] pt-[18px] pb-[25px] text-center">
                             <p className="mb-0 text-[#5C5C5C]">
-                                Copyright &copy; {new Date().getFullYear()} All
-                                rights reserved | This template is made with{" "}
+                                Copyright &copy; {new Date().getFullYear()} Todo
+                                derechos reservados | Hecha con{" "}
                                 <i
                                     className="fa fa-heart text-accent"
                                     aria-hidden="true"
                                 ></i>{" "}
-                                by{" "}
+                                por{" "}
                                 <a
                                     href="https://colorlib.com"
                                     target="_blank"

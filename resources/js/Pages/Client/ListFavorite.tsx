@@ -1,6 +1,5 @@
 import Breadcrumb from "@/Components/Client/Breadcrumb";
 import CardFavorite from "@/Components/Client/CardFavorite";
-import ProductCard from "@/Components/Client/ProductCard";
 import Loading from "@/Components/Loading";
 import Instagram from "@/Containers/Instagram";
 import { WishlistInterface } from "@/Interfaces/WishList";
@@ -28,6 +27,7 @@ export default function ListFavorite({}: Props) {
                 localStorage.getItem("favorites") || "[]"
             );
             setFavorites(favorites);
+            setLoading(false);
         } else {
             // Si el usuario está autenticado, obtener los favoritos desde el backend
             const fetchFavorites = async () => {

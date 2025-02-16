@@ -2,14 +2,16 @@ import Breadcrumb from "@/Components/Client/Breadcrumb";
 import TextInput from "@/Components/Client/TextInput";
 import InputError from "@/Components/Dashboard/Form/InputError";
 import Instagram from "@/Containers/Instagram";
+import { useSettings } from "@/Context/SettingsContext";
 import Client from "@/Layouts/ClientLayout";
 import { Head, useForm } from "@inertiajs/react";
 
 type Props = {};
 
 export default function Contact({}: Props) {
+    const { settings } = useSettings();
     const breadcrumbLinks = [
-        { href: "./index.html", label: "Home" },
+        { href: "/", label: "Home" },
         { href: "#", label: "Contact" },
     ];
 
@@ -54,39 +56,36 @@ export default function Contact({}: Props) {
                             <div className="contact__content">
                                 <div className="contact__address mb-11">
                                     <h5 className="text-gray-900 text-lg font-semibold uppercase mb-5">
-                                        Contact info
+                                        Información del contacto
                                     </h5>
                                     <ul>
                                         <li className="relative mb-5 list-none">
                                             <h6 className="text-gray-900 font-semibold mb-2 flex items-center">
                                                 <i className="fa fa-map-marker text-accent text-base mr-2"></i>
-                                                Address
+                                                Dirección
                                             </h6>
                                             <p className="text-gray-600 text-sm">
-                                                160 Pennsylvania Ave NW,
-                                                Washington, Castle, PA
-                                                16101-5161
+                                                {settings && settings.address}
                                             </p>
                                         </li>
                                         <li className="relative mb-5 list-none">
                                             <h6 className="text-gray-900 font-semibold mb-2 flex items-center">
                                                 <i className="fa fa-phone text-accent text-base mr-2"></i>
-                                                Phone
+                                                Telefono
                                             </h6>
                                             <p className="text-gray-600 text-sm">
                                                 <span className="mr-6">
-                                                    125-711-811
+                                                    {settings && settings.phone}
                                                 </span>
-                                                <span>125-668-886</span>
                                             </p>
                                         </li>
                                         <li className="relative mb-5 list-none">
                                             <h6 className="text-gray-900 font-semibold mb-2 flex items-center">
                                                 <i className="fa fa-headphones text-accent text-base mr-2"></i>
-                                                Support
+                                                Soporte
                                             </h6>
                                             <p className="text-gray-600 text-sm">
-                                                Support.photography@gmail.com
+                                                {settings && settings.email}
                                             </p>
                                         </li>
                                     </ul>

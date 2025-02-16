@@ -8,9 +8,10 @@ import { ProductInterface } from "@/Interfaces/Product";
 
 type Props = {
     featured: ProductInterface[];
+    topProducts: ProductInterface[];
 };
 
-const Trend: React.FC<Props> = ({ featured }) => {
+const Trend: React.FC<Props> = ({ featured, topProducts }) => {
     return (
         <section className="trend pt-[80px] pb-[50px]">
             <div className="mx-4 sm:mx-10 xl:mx-44">
@@ -20,21 +21,18 @@ const Trend: React.FC<Props> = ({ featured }) => {
                         <div className="trend__content">
                             <div className="section-title mb-[20px]">
                                 <h4 className="text-[20px] after:-bottom-1">
-                                    Hot Trend
+                                    Mas Vendidos
                                 </h4>
                             </div>
-                            <TrendCard
-                                img={Ht1}
-                                title="Chain bucket bag"
-                                price={59}
-                                discount={10}
-                            />
-                            <TrendCard
-                                img={Ht2}
-                                title="Pendant earrings"
-                                price={59}
-                                discount={10}
-                            />
+                            {topProducts.map((item, index) => (
+                                <TrendCard
+                                    key={index}
+                                    img={item.photo}
+                                    title={item.title}
+                                    price={item.price}
+                                    discount={item.discount}
+                                />
+                            ))}
                         </div>
                     </div>
 

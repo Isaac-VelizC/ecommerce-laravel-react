@@ -1,51 +1,44 @@
 import React from 'react';
-import discount from "@/assets/img/discount.jpg";
+import { ProductInterface } from '@/Interfaces/Product';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import { Link } from '@inertiajs/react';
 
-const Discount: React.FC = () => {
-    return (
-        <section className="discount">
-            <div className="mx-4 sm:mx-10 xl:mx-44">
-                <div className="flex flex-wrap">
-                    {/* Imagen de descuento */}
-                    <div className="w-full lg:w-1/2 p-0">
-                        <div className="discount__pic">
-                            <img src={discount} alt="" className="min-w-full h-auto" />
-                        </div>
-                    </div>
-                    {/* Texto de descuento */}
-                    <div className="w-full lg:w-1/2 p-0">
-                        <div className="bg-[#f4f4f4] h-[388px] px-0 md:px-[90px] py-12 md:py-[50px] text-center">
-                            <div className="relative z-[1] mb-[60px]">
-                                <span className="text-[12px] text-[#111111] font-medium uppercase">Discount</span>
-                                <h2 className="text-accent text-[60px] font-cookie leading-[46px] mb-[10px]">Summer 2019</h2>
-                                <h5 className="text-accent font-bold"><span className="text-[14px] text-[#111111] mr-[4px]">Sale</span> 50%</h5>
-                            </div>
-                            {/* Capa circular detrás del título */}
-                            <div className="absolute left-1/2 -top-9 h-[183px] w-[183px] bg-white rounded-full z-[-1] transform -translate-x-1/2"></div>
-                            {/* Contador de descuento */}
-                            <div className="flex justify-center mb-[10px]" id="countdown-time">
-                                {[
-                                    { value: 22, label: 'Days' },
-                                    { value: 18, label: 'Hour' },
-                                    { value: 46, label: 'Min' },
-                                    { value: 5, label: 'Sec' }
-                                ].map((item, index) => (
-                                    <div key={index} className="countdown__item mx-2 text-center w-1/4">
-                                        <span className="text-[30px] font-semibold text-[#111111]">{item.value}</span>
-                                        <p className="text-[#111111] font-medium">{item.label}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            <a href="#" className="text-[14px] text-[#111111] uppercase font-bold relative inline-block pb-[3px]">
-                                Shop now
-                                <span className="absolute left-0 bottom-0 h-[2px] w-full bg-accent"></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
+// Tipado de Props
+type PropsDiscount = {
+  discountProducts: ProductInterface[];
+};
+
+const Discount: React.FC<PropsDiscount> = ({ discountProducts }) => {
+  return (
+    <section className="discount">
+      {/* Carrusel de productos en descuento */}
+      <div className="mx-4 sm:mx-10 xl:mx-44 mt-8">
+        <Swiper
+          modules={[Navigation, Pagination]}
+          spaceBetween={20}
+          slidesPerView={1}
+          navigation
+          pagination={{ clickable: true }}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          }}
+        >
+          {discountProducts.map((product) => (
+            <SwiperSlide key={product.id}>
+              <div className="bg-white shadow-lg p-4 rounded-lg text-center">
+                <img src={product.photo} alt={product.title} className="w-full h-48 object-cover mb-4" />
+                <h4 className="text-lg font-semibold">{product.title}</h4>
+                <p className="text-gray-600">${product.price} <span className="line-through text-red-500">${product.price}</span></p>
+                <Link href={route("product.detail", product.slug)} className="text-accent font-semibold mt-2 inline-block">View</Link>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </section>
+  );
 };
 
 export default Discount;

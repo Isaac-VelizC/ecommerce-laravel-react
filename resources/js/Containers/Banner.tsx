@@ -1,11 +1,6 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react"; // Importar componentes principales de Swiper
 import { Autoplay, EffectFade, Navigation, Pagination } from "swiper/modules"; // Importar módulos necesarios
-import "swiper/css"; // Estilos básicos de Swiper
-import "swiper/css/autoplay"; // Estilos para autoplay
-import "swiper/css/navigation"; // Estilos para navegación
-import "swiper/css/pagination"; // Estilos para paginación
-import 'swiper/css/effect-fade';
 import { BannerInterface } from "@/Interfaces/Banner";
 
 type Props = {

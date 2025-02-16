@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use App\Models\Cart;
 use App\Models\Categorie;
-use App\Models\Post;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -16,7 +17,7 @@ class HomeController extends Controller
             ->where('is_parent', 1)
             ->withCount('products') // Cuenta la cantidad de productos por categoría
             ->orderBy('products_count', 'DESC') // Ordena por cantidad de productos
-            ->limit(4)
+            ->limit(5)
             ->get();
 
         $banners = Banner::where('status', 'active')
@@ -27,6 +28,17 @@ class HomeController extends Controller
         $featured = Product::where('status', 'active')
             ->where('is_featured', 1)
             ->orderBy('price', 'DESC')
+            ->limit(2)
+            ->get();
+        
+        $topProducts = Cart::with('product')
+            ->whereNotNull('order_id')
+            ->join('products', 'carts.product_id', '=', 'products.id')
+            ->select(
+                'products.title',
+                'carts.quantity'
+            )
+            ->orderByDesc('carts.quantity')
             ->limit(2)
             ->get();
         
@@ -48,14 +60,14 @@ class HomeController extends Controller
             ->limit(6)
             ->get();
         
-    
         // Devolver los datos en formato JSON
         return response()->json([
             'featured' => $featured,
             'banners' => $banners,
             'products' => $products,
             'categories' => $categories,
-            'discounted_products' => $discounted_products
+            'discounted_products' => $discounted_products,
+            'topProducts' => $topProducts
         ]);
     }
     

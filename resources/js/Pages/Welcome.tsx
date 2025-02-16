@@ -1,3 +1,8 @@
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/autoplay";
+import 'swiper/css/effect-fade';
 import Loader from '@/Common/Loader';
 import Banner from '@/Containers/Banner';
 import Categories from '@/Containers/Categories';
@@ -18,6 +23,8 @@ export default function Welcome({ auth }: PageProps) {
         banners: [],
         products: [],
         categories: [],
+        discounted_products: [],
+        topProducts: [],
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
@@ -48,8 +55,8 @@ export default function Welcome({ auth }: PageProps) {
             <Categories categories={data.categories}/>
             <Products products={data.products} categorias={data.categories}/>
             <Banner banners={data.banners} />
-            <Trend featured={data.featured}/>
-            <Discount/>
+            <Trend featured={data.featured} topProducts={data.topProducts}/>
+            <Discount discountProducts={data.discounted_products}/>
             <Services/>
             <Instagram/>
         </Client>
