@@ -3,6 +3,7 @@ import DarkModeSwitcher from "./DarkModeSwitcher";
 import DropdownNotification from "./DropdownNotification";
 import DropdownMessage from "./DropdownMessage";
 import DropdownUser from "./DropdownUser";
+import { Link } from "@inertiajs/react";
 
 const Header = (props: {
     sidebarOpen: string | boolean | undefined;

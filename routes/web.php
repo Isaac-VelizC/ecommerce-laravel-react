@@ -37,10 +37,6 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/dashboard/totals', [AdminController::class, 'getTotals'])->name('get.totals');
     Route::get('/api/sales-data', [AdminController::class, 'salesData'])->name('sales.data');
     Route::get('/api/top-products', [AdminController::class, 'topProducts'])->name('top.products');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     //Banner
     Route::get('/banners', [BannerController::class, 'index'])->name('banner.index');
     Route::get('/banners/create', [BannerController::class, 'create'])->name('banner.create');
@@ -146,6 +142,13 @@ Route::middleware(['auth', 'checkrole:user'])->group(function () {
     // Product Review
     //Route::resource('/review', 'ProductReviewController');
     Route::post('/product/{slug}/review', [ProductReviewController::class, 'store'])->name('review.store');
+    // Perfil
+    Route::get('/account/profile', [ProfileController::class, 'edit'])->name('perfil.account');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/account/orders', [ProfileController::class, 'TagOrderClient'])->name('account.orders');
+    Route::get('/account/reviews', [ProfileController::class, 'TagReviewClient'])->name('account.reviews');
+    
 });
 
 Route::get('/settings/app', [FrontendController::class, 'settingsApp'])->name('settings.app');
@@ -170,6 +173,5 @@ Route::get('/products/all', [FrontendController::class, 'PageProducts'])->name('
 Route::get('/about-us', [FrontendController::class, 'PageAboutUs'])->name('page.about.us');
 Route::get('/contact', [FrontendController::class, 'PageContact'])->name('contact');
 Route::post('/contact/message', [MessageController::class, 'store'])->name('contact.store');
-Route::get('/perfil', [ProfileController::class, 'PagePerfilUser'])->name('perfil.account');
 
 require __DIR__.'/auth.php';

@@ -17,21 +17,21 @@ const DropdownMessage = () => {
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <li className="relative">
-        <a
+        <button
           onClick={() => {
             setNotifying(false);
             setDropdownOpen(!dropdownOpen);
             markAsRead();
           }}
           className="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
-          href="#"
         >
           {messages.some((msg) => !msg.read) && notifying && (
             <span className="absolute -top-0.5 -right-0.5 z-1 h-2 w-2 rounded-full bg-meta-1">
               <span className="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75"></span>
             </span>
           )}
-        </a>
+          💌
+        </button>
 
         {dropdownOpen && (
           <div className="absolute -right-16 mt-2.5 flex h-90 w-75 flex-col rounded-xl border border-stroke bg-white shadow-default dark:border-[#121212] dark:bg-[#121212] opacity-95 sm:right-0 sm:w-80">

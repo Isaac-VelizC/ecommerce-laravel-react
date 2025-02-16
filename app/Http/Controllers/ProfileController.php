@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Order;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,10 +14,28 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
-    public function PagePerfilUser() {
-        $user = Auth::user();
-        return Inertia::render('Client/Account', ['user' => $user]);
+    public function TagOrderClient(): Response
+    {
+        $orders = Order::where('user_id', Auth::id())->paginate(10);
+        return Inertia::render('Client/Account/OrderClient', [
+            'orders' => [
+                'data' => $orders->items(),
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'per_page' => $orders->perPage(),
+                'total' => $orders->total(),
+            ],
+            'status' => session('status'),
+        ]);
     }
+
+    public function TagReviewClient(): Response
+    {
+        return Inertia::render('Client/Account/ReviewClient', [
+            'status' => session('status'),
+        ]);
+    }
+
     /**
      * Display the user's profile form.
      */
@@ -41,7 +60,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        return Redirect::route('perfil.account');
     }
 
     /**

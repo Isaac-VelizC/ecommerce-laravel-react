@@ -53,11 +53,14 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
 
     return (
         <ul className="list-none flex space-x-7">
-            <li onClick={toggleSearch} className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer">
+            <li
+                onClick={toggleSearch}
+                className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer"
+            >
                 <img src={SearchIcon} alt="Icon Search" width={23} />
             </li>
             <li className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer">
-                <Link href={ user ? route('perfil.account') : route("login")}>
+                <Link href={user ? route("perfil.account") : route("login")}>
                     <img src={AccountIcon} alt="Icon account" width={20} />
                 </Link>
             </li>
@@ -113,7 +116,10 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                                             {item.product.title}
                                         </p>
                                         <p className="text-xs m-0">
-                                            Precio: <span className="text-[#ca1515]">{item.price}</span>
+                                            Precio:{" "}
+                                            <span className="text-[#ca1515]">
+                                                {item.price}
+                                            </span>
                                         </p>
                                         <p className="text-xs">
                                             Cantidad: {item.quantity}
