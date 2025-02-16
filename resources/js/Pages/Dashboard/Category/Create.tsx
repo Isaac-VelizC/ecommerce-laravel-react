@@ -28,6 +28,10 @@ export default function Create({ isEditing, category, parent_cats }: Props) {
     const UPLOAD_PRESET = "ecommerce-laravel-react";
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [selectedParent, setSelectedParent] = useState<{
+        value: number;
+        label: string;
+    } | null>(null);
     const initialData = category || {
         id: null,
         title: "",
@@ -134,6 +138,19 @@ export default function Create({ isEditing, category, parent_cats }: Props) {
         }));
     };
 
+    // Crear las opciones en el formato que espera react-select
+    const categoryParentsOptions = parent_cats.map((categorie) => ({
+        value: categorie.id,
+        label: categorie.title,
+    }));
+
+    const handleCategoryParentChange = (
+        selectedOption: { value: number; label: string } | null
+    ) => {
+        setSelectedParent(selectedOption);
+        setData("parent_id", selectedOption?.value!);
+    };
+
     const handleCancelForm = () => {
         reset();
         router.get(route("category.index"));
@@ -202,29 +219,10 @@ export default function Create({ isEditing, category, parent_cats }: Props) {
                                 <InputSelect
                                     id="parent_id"
                                     name="parent_id"
-                                    value={data.parent_id || ""}
-                                    onChange={(e) =>
-                                        setData(
-                                            "parent_id",
-                                            parseInt(e.target.value)
-                                        )
-                                    }
-                                    className="w-full mt-1 block"
-                                    required
-                                >
-                                    {parent_cats.length <= 0 ? (
-                                        <option value="">No hay Datos</option>
-                                    ) : (
-                                        parent_cats.map((item) => (
-                                            <option
-                                                key={item.id}
-                                                value={item.id}
-                                            >
-                                                {item.title}
-                                            </option>
-                                        ))
-                                    )}
-                                </InputSelect>
+                                    value={selectedParent}
+                                    onChange={handleCategoryParentChange}
+                                    options={categoryParentsOptions}
+                                />
                                 <InputError
                                     message={errors.parent_id}
                                     className="mt-2"

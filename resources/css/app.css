@@ -335,3 +335,16 @@ ol {
     transform: scale(1.2);
     transition: color 0.3s, transform 0.3s;
 }
+
+/* Para navegadores WebKit (Chrome, Safari) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none; /* Oculta las flechas */
+    margin: 0;
+}
+
+/* Para Firefox */
+input[type="number"] {
+    -moz-appearance: textfield; /* Oculta las flechas */
+    appearance: textfield; /* Oculta las flechas */
+}

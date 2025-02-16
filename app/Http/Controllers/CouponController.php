@@ -26,7 +26,7 @@ class CouponController extends Controller
 
     public function create()
     {
-        return Inertia::render('Dashboard/Coupon/Create');
+        return Inertia::render('Dashboard/Coupon/Create', ['isEditing' =>  false]);
     }
 
     public function store(Request $request)
@@ -50,7 +50,8 @@ class CouponController extends Controller
         try {
             $coupon = Coupon::find($id);
             return Inertia::render('Dashboard/Coupon/Create', [
-                'coupon' => $coupon
+                'coupon' => $coupon,
+                'isEditing' =>  true
             ]);
         } catch (\Exception $e) {
             return redirect()->route('backend.coupon.index')->with('success', 'Coupon not found');
@@ -82,11 +83,9 @@ class CouponController extends Controller
         try {
             $coupon = Coupon::find($id);
             $coupon->delete();
-            // Mensaje de éxito
-            return redirect()->back()->with('success', 'Coupon successfully deleted');
-        } catch (\Exception $e) {
-            // Manejo de errores
-            return redirect()->back()->with('error', 'Error, Please try again: ' . $e->getMessage());
+        return response()->json(['success' => true, 'message' => 'Cupón eliminado exitosamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Error, inténtelo de nuevo: '], 500);
         }
     }
 

@@ -24,6 +24,7 @@ export interface ProductInterface {
     is_in_wishlist: boolean;
     child_cat_id: string;
     price: number;
+    date: string;
     brand?: BrandInterface;
     discount: number;
     status: string;

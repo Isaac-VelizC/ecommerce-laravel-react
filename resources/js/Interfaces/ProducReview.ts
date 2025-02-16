@@ -10,4 +10,6 @@ export interface ProductReviewInterface {
     rate: number;
     status: string;
     review: string;
+    created_at: string;
+    [key: string]: unknown;
 }

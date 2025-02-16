@@ -1,20 +1,18 @@
-import React from "react";
+import { forwardRef, InputHTMLAttributes } from "react";
 
-type Props = {
-    name: string;
-    type?: string;
-    placeholder?: string;
-};
-
-const TextInput: React.FC<Props> = ({ name, type = "text", placeholder }) => {
+export default forwardRef(function TextInput({
+    type = "text",
+    className = "",
+    ...props
+}: InputHTMLAttributes<HTMLInputElement>) {
     return (
         <input
-            name={name}
+            {...props}
             type={type}
-            placeholder={placeholder}
-            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
+            className={
+                "border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent " +
+                className
+            }
         />
     );
-};
-
-export default TextInput;
+});

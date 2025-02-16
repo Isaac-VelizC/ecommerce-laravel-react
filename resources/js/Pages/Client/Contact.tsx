@@ -1,7 +1,9 @@
 import Breadcrumb from "@/Components/Client/Breadcrumb";
+import TextInput from "@/Components/Client/TextInput";
+import InputError from "@/Components/Dashboard/Form/InputError";
 import Instagram from "@/Containers/Instagram";
 import Client from "@/Layouts/ClientLayout";
-import { Head } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 
 type Props = {};
 
@@ -10,6 +12,36 @@ export default function Contact({}: Props) {
         { href: "./index.html", label: "Home" },
         { href: "#", label: "Contact" },
     ];
+
+    const initialData = {
+        name: "",
+        subject: "",
+        email: "",
+        phone: "",
+        message: "",
+    };
+    const { data, setData, post, processing, errors, reset } =
+        useForm(initialData);
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        try {
+            // Enviar los datos al backend
+            post(route("contact.store"), {
+                onSuccess: () => {
+                    //toast.success("Banner registrado con exito!");
+                    reset();
+                },
+                onError: () => {
+                    console.log("error");
+
+                    //toast.error("Error al enviar los datos del banner");
+                },
+            });
+        } catch (error) {
+            console.error("Error al subir la imagen:", error);
+        }
+    };
 
     return (
         <Client>
@@ -62,33 +94,81 @@ export default function Contact({}: Props) {
 
                                 <div className="contact__form">
                                     <h5 className="text-gray-900 text-lg font-semibold uppercase mb-9">
-                                        SEND MESSAGE
+                                        ENVIAR MENSAJE
                                     </h5>
-                                    <form action="#">
-                                        <input
-                                            type="text"
-                                            placeholder="Name"
-                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
+                                    <form onSubmit={handleSubmit}>
+                                        <TextInput
+                                            id="name"
+                                            name="name"
+                                            value={data.name}
+                                            onChange={(e) =>
+                                                setData("name", e.target.value)
+                                            }
+                                            placeholder="Nombre"
                                         />
-                                        <input
-                                            type="text"
-                                            placeholder="Email"
-                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
+                                        <InputError message={errors.name}/>
+                                        <TextInput
+                                            id="email"
+                                            name="email"
+                                            value={data.email}
+                                            onChange={(e) =>
+                                                setData("email", e.target.value)
+                                            }
+                                            placeholder="E-mail"
                                         />
-                                        <input
-                                            type="text"
-                                            placeholder="Website"
-                                            className="border border-[#e1e1e1] rounded-lg h-[50px] w-full px-[20px] text-gray-600 text-sm mb-5 focus:border-accent focus:ring-accent"
-                                        />
+                                        <InputError message={errors.email}/>
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                            <div>
+                                                <TextInput
+                                                    id="phone"
+                                                    name="phone"
+                                                    value={data.phone}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "phone",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder="Telefono"
+                                                />
+
+                                                <InputError message={errors.phone}/>
+                                            </div>
+                                            <div>
+                                                <TextInput
+                                                    id="subject"
+                                                    name="subject"
+                                                    value={data.subject}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "subject",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder="Asunto"
+                                                />
+                                                <InputError message={errors.subject}/>
+                                            </div>
+                                        </div>
                                         <textarea
+                                            id="message"
+                                            name="message"
+                                            value={data.message}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "message",
+                                                    e.target.value
+                                                )
+                                            }
                                             placeholder="Message"
                                             className="border border-[#e1e1e1] rounded-lg h-[130px] w-full px-[20px] pt-[12px] text-gray-600 text-sm mb-[14px] resize-none  focus:border-accent focus:ring-accent"
                                         ></textarea>
+                                        <InputError message={errors.message}/>
                                         <button
                                             type="submit"
                                             className="site-btn rounded-md h-[50px]"
                                         >
-                                            Send Message
+                                            Enviar mensaje
                                         </button>
                                     </form>
                                 </div>

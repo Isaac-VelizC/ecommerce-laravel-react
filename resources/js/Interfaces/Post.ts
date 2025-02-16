@@ -11,6 +11,7 @@ export interface PostInterface {
     tags: string;
     status: string;
     post_cat_id: number;
+    date: string;
     cat_info: PostCategoryInterface;
     added_by: number;
     author_info: UserInterface;

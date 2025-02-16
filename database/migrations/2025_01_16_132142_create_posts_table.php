@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('post_cat_id')->nullable();
             $table->unsignedBigInteger('post_tag_id')->nullable();
             $table->unsignedBigInteger('added_by')->nullable();
+            $table->dateTime('date')->default(now());
             $table->enum('status',['active','inactive'])->default('active');
             $table->foreign('post_cat_id')->references('id')->on('post_categories')->onDelete('SET NULL');
             $table->foreign('post_tag_id')->references('id')->on('post_tags')->onDelete('SET NULL');

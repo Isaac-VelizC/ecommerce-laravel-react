@@ -1,4 +1,4 @@
-export interface Message {
+export interface MessageInterface {
     id: number;
     name: string;
     subject: string;
@@ -7,4 +7,6 @@ export interface Message {
     phone: string;
     message: string;
     read_at: string;
+    created_at: string;
+    [key: string]: unknown;
 }

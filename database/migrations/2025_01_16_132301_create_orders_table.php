@@ -20,6 +20,7 @@ return new class extends Migration
             $table->float('coupon')->nullable();
             $table->float('total_amount');
             $table->integer('quantity');
+            $table->datetime('date')->default(now());
             $table->enum('payment_method',['cod','paypal'])->default('cod');
             $table->enum('payment_status',['paid','unpaid'])->default('unpaid');
             $table->enum('status',['new','process','delivered','cancel'])->default('new');

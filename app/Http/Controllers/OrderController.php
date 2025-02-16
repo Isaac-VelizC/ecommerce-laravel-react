@@ -4,251 +4,223 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Shipping;
 use App\Models\User;
+use App\Notifications\StatusNotification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\PDF;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Response;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $orders=Order::orderBy('id','DESC')->paginate(10);
-        return view('backend.order.index')->with('orders',$orders);
+        $orders = Order::with('shipping')->orderBy('id', 'DESC')->paginate(10);
+        return Inertia::render('Dashboard/Order/Index', [
+            'orders' => [
+                'data' => $orders->items(), // Los productos
+                'current_page' => $orders->currentPage(), // Página actual
+                'last_page' => $orders->lastPage(), // Última página
+                'per_page' => $orders->perPage(), // Elementos por página
+                'total' => $orders->total(), // Total de elementos
+            ],
+        ]);
     }
 
     public function store(Request $request)
     {
-        $this->validate($request,[
-            'first_name'=>'string|required',
-            'last_name'=>'string|required',
-            'address1'=>'string|required',
-            'address2'=>'string|nullable',
-            'coupon'=>'nullable|numeric',
-            'phone'=>'numeric|required',
-            'post_code'=>'string|nullable',
-            'email'=>'string|required'
+        $order_data = $request->validate([
+            'first_name'      => 'required|string|min:3|max:50|regex:/^[\pL\s]+$/u',
+            'last_name'       => 'required|string|min:3|max:50|regex:/^[\pL\s]+$/u',
+            'email'           => 'required|string|email|max:255',
+            'phone'           => 'required|string|regex:/^[0-9]+$/|min:7|max:15',
+            'address1'        => 'required|string|max:255',
+            'address2'        => 'nullable|string|max:255',
+            'coupon'          => 'nullable|string|max:15',
+            'post_code'       => 'nullable|string|max:10',
+            "sub_total"       => 'required|numeric|min:0',
+            "total_amount"    => 'required|numeric|min:0',
+            "shipping_id"     => 'required|integer|exists:shippings,id',
+            "payment_method"  => 'required|string|in:cod,paypal',
+            "country"         => "required|string|min:2",
+            //'expiry_date'     => 'nullable|string',
+            //'card_number'     => 'nullable|string',
+            //'cvv'             => 'nullable|integer|digits:3',
         ]);
-        // return $request->all();
-
-        if(empty(Cart::where('user_id',auth()->user()->id)->where('order_id',null)->first())){
-            request()->session()->flash('error','Cart is Empty !');
-            return back();
-        }
-        // $cart=Cart::get();
-        // // return $cart;
-        // $cart_index='ORD-'.strtoupper(uniqid());
-        // $sub_total=0;
-        // foreach($cart as $cart_item){
-        //     $sub_total+=$cart_item['amount'];
-        //     $data=array(
-        //         'cart_id'=>$cart_index,
-        //         'user_id'=>$request->user()->id,
-        //         'product_id'=>$cart_item['id'],
-        //         'quantity'=>$cart_item['quantity'],
-        //         'amount'=>$cart_item['amount'],
-        //         'status'=>'new',
-        //         'price'=>$cart_item['price'],
-        //     );
-
-        //     $cart=new Cart();
-        //     $cart->fill($data);
-        //     $cart->save();
-        // }
-
-        // $total_prod=0;
-        // if(session('cart')){
-        //         foreach(session('cart') as $cart_items){
-        //             $total_prod+=$cart_items['quantity'];
-        //         }
-        // }
-
-        $order=new Order();
-        $order_data=$request->all();
-        $order_data['order_number']='ORD-'.strtoupper(Str::random(10));
-        $order_data['user_id']=$request->user()->id;
-        $order_data['shipping_id']=$request->shipping;
-        $shipping=Shipping::where('id',$order_data['shipping_id'])->pluck('price');
-        // return session('coupon')['value'];
-        $order_data['sub_total']=Helper::totalCartPrice();
-        $order_data['quantity']=Helper::cartCount();
-        if(session('coupon')){
-            $order_data['coupon']=session('coupon')['value'];
-        }
-        if($request->shipping){
-            if(session('coupon')){
-                $order_data['total_amount']=Helper::totalCartPrice()+$shipping[0]-session('coupon')['value'];
+        try {
+            $userId = Auth::id();
+            // Verificar si el carrito está vacío sin cargar datos innecesarios
+            if (!Cart::where('user_id', $userId)->whereNull('order_id')->exists()) {
+                return redirect()->back()->with('error', 'Tu carrito está vacío.');
             }
-            else{
-                $order_data['total_amount']=Helper::totalCartPrice()+$shipping[0];
-            }
-        }
-        else{
-            if(session('coupon')){
-                $order_data['total_amount']=Helper::totalCartPrice()-session('coupon')['value'];
-            }
-            else{
-                $order_data['total_amount']=Helper::totalCartPrice();
-            }
-        }
-        // return $order_data['total_amount'];
-        $order_data['status']="new";
-        if(request('payment_method')=='paypal'){
-            $order_data['payment_method']='paypal';
-            $order_data['payment_status']='paid';
-        }
-        else{
-            $order_data['payment_method']='cod';
-            $order_data['payment_status']='Unpaid';
-        }
-        $order->fill($order_data);
-        $status=$order->save();
-        if($order)
-        // dd($order->id);
-        $users=User::where('role','admin')->first();
-        $details=[
-            'title'=>'New order created',
-            'actionURL'=>route('order.show',$order->id),
-            'fas'=>'fa-file-alt'
-        ];
-        Notification::send($users, new StatusNotification($details));
-        if(request('payment_method')=='paypal'){
-            return redirect()->route('payment')->with(['id'=>$order->id]);
-        }
-        else{
-            session()->forget('cart');
-            session()->forget('coupon');
-        }
-        Cart::where('user_id', auth()->user()->id)->where('order_id', null)->update(['order_id' => $order->id]);
+            // Obtener costo de envío de manera eficiente
+            $shippingPrice = Shipping::where('id', $order_data['shipping_id'])->value('price') ?? 0;
+            // Crear orden
+            $order = Order::create([
+                'order_number'   => 'ORD-' . strtoupper(Str::random(10)),
+                'user_id'        => $userId,
+                'sub_total'      => $order_data['sub_total'],
+                'shipping_id'    => $order_data['shipping_id'],
+                'coupon'         => $order_data['coupon'] ?? null,
+                'total_amount'   => $order_data['total_amount'] + $shippingPrice,
+                'quantity'       => Cart::where('user_id', $userId)->whereNull('order_id')->sum('quantity'),
+                'payment_method' => $order_data['payment_method'],
+                'payment_status' => $order_data['payment_method'] === 'paypal' ? 'paid' : 'unpaid',
+                'status'         => "new",
+                'first_name'     => $order_data['first_name'],
+                'last_name'      => $order_data['last_name'],
+                'email'          => $order_data['email'],
+                'phone'          => $order_data['phone'],
+                'country'        => $order_data['country'],
+                'post_code'      => $order_data['post_code'],
+                'address1'       => $order_data['address1'],
+                'address2'       => $order_data['address2']
+            ]);
 
-        // dd($users);        
-        request()->session()->flash('success','Your product successfully placed in order');
-        return redirect()->route('home');
+            // Enviar notificación si hay administradores
+            if ($admin = User::where('role', 'admin')->first()) {
+                Notification::send($admin, new StatusNotification([
+                    'title'     => 'Nuevo pedido creado',
+                    'actionURL' => route('order.show', $order->id),
+                    'fas'       => 'fa-file-alt'
+                ]));
+            }
+
+            // Asociar carrito con la orden
+            Cart::where('user_id', $userId)->whereNull('order_id')->update(['order_id' => $order->id]);
+            // Redirigir según el método de pago
+            //return ($order_data['payment_method'] === 'paypal') ? redirect()->route('payment')->with(['id' => $order->id]) : 
+            return redirect()->route('home')->with('success', 'Su producto ha sido colocado exitosamente en la orden.');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->with('error', 'Ocurrió un error al procesar la orden.');
+        }
     }
 
     public function show($id)
     {
-        $order=Order::find($id);
-        // return $order;
-        return view('backend.order.show')->with('order',$order);
+        $order = Order::find($id);
+        return Inertia::render('Dashboard/Order/Show', ['order' => $order]);
     }
 
     public function edit($id)
     {
-        $order=Order::find($id);
-        return view('backend.order.edit')->with('order',$order);
+        $order = Order::find($id);
+        return view('backend.order.edit')->with('order', $order);
     }
 
     public function update(Request $request, $id)
     {
-        $order=Order::find($id);
-        $this->validate($request,[
-            'status'=>'required|in:new,process,delivered,cancel'
+        $order = Order::find($id);
+        $this->validate($request, [
+            'status' => 'required|in:new,process,delivered,cancel'
         ]);
-        $data=$request->all();
+        $data = $request->all();
         // return $request->status;
-        if($request->status=='delivered'){
-            foreach($order->cart as $cart){
-                $product=$cart->product;
+        if ($request->status == 'delivered') {
+            foreach ($order->cart as $cart) {
+                $product = $cart->product;
                 // return $product;
-                $product->stock -=$cart->quantity;
+                $product->stock -= $cart->quantity;
                 $product->save();
             }
         }
-        $status=$order->fill($data)->save();
-        if($status){
-            request()->session()->flash('success','Successfully updated order');
-        }
-        else{
-            request()->session()->flash('error','Error while updating order');
+        $status = $order->fill($data)->save();
+        if ($status) {
+            request()->session()->flash('success', 'Successfully updated order');
+        } else {
+            request()->session()->flash('error', 'Error while updating order');
         }
         return redirect()->route('order.index');
     }
 
     public function destroy($id)
     {
-        $order=Order::find($id);
-        if($order){
-            $status=$order->delete();
-            if($status){
-                request()->session()->flash('success','Order Successfully deleted');
-            }
-            else{
-                request()->session()->flash('error','Order can not deleted');
+        $order = Order::find($id);
+        if ($order) {
+            $status = $order->delete();
+            if ($status) {
+                request()->session()->flash('success', 'Order Successfully deleted');
+            } else {
+                request()->session()->flash('error', 'Order can not deleted');
             }
             return redirect()->route('order.index');
-        }
-        else{
-            request()->session()->flash('error','Order can not found');
+        } else {
+            request()->session()->flash('error', 'Order can not found');
             return redirect()->back();
         }
     }
 
-    public function orderTrack(){
+    public function orderTrack()
+    {
         return view('frontend.pages.order-track');
     }
 
-    public function productTrackOrder(Request $request){
+    public function productTrackOrder(Request $request)
+    {
         // return $request->all();
-        $order=Order::where('user_id',auth()->user()->id)->where('order_number',$request->order_number)->first();
-        if($order){
-            if($order->status=="new"){
-            request()->session()->flash('success','Your order has been placed. please wait.');
-            return redirect()->route('home');
-
-            }
-            elseif($order->status=="process"){
-                request()->session()->flash('success','Your order is under processing please wait.');
+        $order = Order::where('user_id', auth()->user()->id)->where('order_number', $request->order_number)->first();
+        if ($order) {
+            if ($order->status == "new") {
+                request()->session()->flash('success', 'Your order has been placed. please wait.');
                 return redirect()->route('home');
-    
-            }
-            elseif($order->status=="delivered"){
-                request()->session()->flash('success','Your order is successfully delivered.');
+            } elseif ($order->status == "process") {
+                request()->session()->flash('success', 'Your order is under processing please wait.');
                 return redirect()->route('home');
-    
-            }
-            else{
-                request()->session()->flash('error','Your order canceled. please try again');
+            } elseif ($order->status == "delivered") {
+                request()->session()->flash('success', 'Your order is successfully delivered.');
                 return redirect()->route('home');
-    
+            } else {
+                request()->session()->flash('error', 'Your order canceled. please try again');
+                return redirect()->route('home');
             }
-        }
-        else{
-            request()->session()->flash('error','Invalid order numer please try again');
+        } else {
+            request()->session()->flash('error', 'Invalid order numer please try again');
             return back();
         }
     }
 
     // PDF generate
-    public function pdf(Request $request){
-        $order=Order::getAllOrder($request->id);
-        // return $order;
-        $file_name=$order->order_number.'-'.$order->first_name.'.pdf';
-        // return $file_name;
-        $pdf=PDF::loadview('backend.order.pdf',compact('order'));
-        return $pdf->download($file_name);
+    public function pdf(Request $request)
+    {
+        $order = Order::findOrFail($request->id);
+        $file_name = $order->order_number . '-' . $order->first_name . '.pdf';
+        $pdf = PDF::loadview('Pdfs.Pdf', compact('order'));
+
+        return Response::make($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $file_name . '"',
+        ]);
     }
+
     // Income chart
-    public function incomeChart(Request $request){
-        $year=\Carbon\Carbon::now()->year;
+    public function incomeChart(Request $request)
+    {
+        $year = \Carbon\Carbon::now()->year;
         // dd($year);
-        $items=Order::with(['cart_info'])->whereYear('created_at',$year)->where('status','delivered')->get()
-            ->groupBy(function($d){
+        $items = Order::with(['cart_info'])->whereYear('created_at', $year)->where('status', 'delivered')->get()
+            ->groupBy(function ($d) {
                 return \Carbon\Carbon::parse($d->created_at)->format('m');
             });
-            // dd($items);
-        $result=[];
-        foreach($items as $month=>$item_collections){
-            foreach($item_collections as $item){
-                $amount=$item->cart_info->sum('amount');
+        // dd($items);
+        $result = [];
+        foreach ($items as $month => $item_collections) {
+            foreach ($item_collections as $item) {
+                $amount = $item->cart_info->sum('amount');
                 // dd($amount);
-                $m=intval($month);
+                $m = intval($month);
                 // return $m;
-                isset($result[$m]) ? $result[$m] += $amount :$result[$m]=$amount;
+                isset($result[$m]) ? $result[$m] += $amount : $result[$m] = $amount;
             }
         }
-        $data=[];
-        for($i=1; $i <=12; $i++){
-            $monthName=date('F', mktime(0,0,0,$i,1));
-            $data[$monthName] = (!empty($result[$i]))? number_format((float)($result[$i]), 2, '.', '') : 0.0;
+        $data = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthName = date('F', mktime(0, 0, 0, $i, 1));
+            $data[$monthName] = (!empty($result[$i])) ? number_format((float)($result[$i]), 2, '.', '') : 0.0;
         }
         return $data;
     }

@@ -57,7 +57,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                 <img src={SearchIcon} alt="Icon Search" width={23} />
             </li>
             <li className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer">
-                <Link href={route("login")}>
+                <Link href={ user ? route('logout') : route("login")} {...(user && { method: 'post' })}>
                     <img src={AccountIcon} alt="Icon account" width={20} />
                 </Link>
             </li>

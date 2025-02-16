@@ -4,15 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductReview;
+use App\Models\User;
+use App\Notifications\StatusNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
+use Inertia\Inertia;
 
 class ProductReviewController extends Controller
 {
     public function index()
     {
         $reviews = ProductReview::getAllReview();
-        return view('backend.review.index')->with('reviews', $reviews);
+        return Inertia::render('Dashboard/Review/Index', [
+            'reviews' => [
+                'data' => $reviews->items(),
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'per_page' => $reviews->perPage(),
+                'total' => $reviews->total(),
+            ],
+        ]);
     }
 
     public function store(Request $request, $slug)
@@ -32,19 +44,19 @@ class ProductReviewController extends Controller
         ];
 
         try {
-            $review = ProductReview::create($reviewData);
+            ProductReview::create($reviewData);
         } catch (\Exception $e) {
             //\Log::error('Error al crear la reseña del producto: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Algo salió mal. Por favor, inténtalo de nuevo.');
         }
 
-        /*$admins = User::where('role', 'admin')->get();
+        $admins = User::where('role', 'admin')->get();
         $details = [
             'title' => '¡Nueva valoración de producto!',
-            'actionURL' => route('product-detail', $product->slug),
+            'actionURL' => route('page.product.detail', $product->slug),
             'fas' => 'fa-star',
         ];
-        Notification::send($admins, new StatusNotification($details));*/
+        Notification::send($admins, new StatusNotification($details));
 
         // 6. Respuesta JSON con código de estado HTTP adecuado
         return redirect()->back()->with('success', '¡Gracias por tu valoración!');
@@ -88,13 +100,13 @@ class ProductReviewController extends Controller
 
     public function destroy($id)
     {
-        $review = ProductReview::find($id);
-        $status = $review->delete();
-        if ($status) {
-            request()->session()->flash('success', 'Successfully deleted review');
-        } else {
-            request()->session()->flash('error', 'Something went wrong! Try again');
+        try{
+            $review = ProductReview::find($id);
+            if (!$review) return response()->json(['error' => false, 'message' => 'Reseña no encontrado'], 500);
+            $review->delete();
+            return response()->json(['success' => true, 'message' => 'Reseña eliminado exitosamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Error, inténtelo de nuevo: '], 500);
         }
-        return redirect()->route('review.index');
     }
 }

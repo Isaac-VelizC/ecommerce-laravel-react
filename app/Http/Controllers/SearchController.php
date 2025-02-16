@@ -15,7 +15,7 @@ class SearchController extends Controller
     {
         $resultados = [];
 
-        /*if (!empty($search)) {
+        if (!empty($search)) {
             $resultados = Product::where('status', 'active')
                 ->where(function ($query) use ($search) {
                     $query->whereRaw("SOUNDEX(title) = SOUNDEX(?)", [$search])
@@ -27,21 +27,7 @@ class SearchController extends Controller
                 ->latest()
                 ->limit(18)
                 ->get();
-        }*/
-        if (!empty($search)) {
-            $resultados = Product::where('status', 'active')
-                ->where(function ($query) use ($search) {
-                    $query->where('title', 'like', "%{$search}%")
-                        ->orWhere('title', 'like', "%" . substr($search, 0, -1) . "%") // Ejemplo: quitar la última letra
-                        ->orWhere('slug', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhere('summary', 'like', "%{$search}%");
-                })
-                ->latest()
-                ->limit(18)
-                ->get();
         }
-
         return Inertia::render('Client/Search', [
             'products' => $resultados,
             'query' => $search
@@ -73,9 +59,11 @@ class SearchController extends Controller
         try {
             $searchQuery = trim($request->input('query'));
             if ($searchQuery) {
-                $searchQuerie = SearchQuerie::firstOrCreate(['query' => $searchQuery], ['count' => 0]);
-                $searchQuerie->increment('count');
-                //['count' => DB::raw('COALESCE(count, 0) + 1')] //No funcioan no Sqlite
+                $searchQuerie = SearchQuerie::firstOrCreate(
+                    
+                    ['count' => DB::raw('COALESCE(count, 0) + 1')] //No funcioan no Sqlite
+                );
+                //$searchQuerie->increment('count');
                 return response()->json(['message' => 'Búsqueda guardada']);
             } else {
                 return response()->json(['message' => 'Búsqueda vacía, no se guarda'], 400);

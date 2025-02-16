@@ -8,9 +8,10 @@ import { Head, Link, router } from "@inertiajs/react";
 import axios from "axios";
 import React, { useState } from "react";
 import { debounce } from "lodash";
+import { CouponInterface } from "@/Interfaces/Coupon";
 
 type Props = {
-    //cartItems: CartInterface[];
+    //coupons: CouponInterface[];
 };
 
 interface Coupon {

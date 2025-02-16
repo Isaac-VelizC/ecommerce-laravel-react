@@ -50,7 +50,7 @@ const Products: React.FC<Props> = ({ products, categorias }) => {
                     <div className="w-full lg:w-3/4 md:w-2/3 p-0 md:text-right">
                         <ul className="inline-flex">
                             <li
-                                className={`cursor-pointer text-[10px] lg:text-lg text-[#111111] mr-3 md:mr-[35px] relative ${
+                                className={`cursor-pointer text-[10px] lg:text-sm text-[#111111] mr-3 md:mr-[35px] relative ${
                                     !selectedCategory ? "font-bold border-b-2 border-accent" : ""
                                 }`}
                                 onClick={() => setSelectedCategory(null)}
@@ -60,7 +60,7 @@ const Products: React.FC<Props> = ({ products, categorias }) => {
                             {categorias.map((cat, index) => (
                                 <li
                                     key={index}
-                                    className={`cursor-pointer text-[10px] lg:text-lg text-[#111111] mr-3 md:mr-[35px] relative ${
+                                    className={`cursor-pointer text-[10px] lg:text-sm text-[#111111] mr-3 md:mr-[35px] relative ${
                                         selectedCategory === cat.id ? "font-bold border-b-2 border-accent" : ""
                                     }`}
                                     onClick={() => setSelectedCategory(cat.id)}

@@ -8,6 +8,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostTagController;
@@ -15,6 +18,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -28,9 +32,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'checkrole:admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/dashboard', [AdminController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/dashboard/totals', [AdminController::class, 'getTotals'])->name('get.totals');
+    Route::get('/api/sales-data', [AdminController::class, 'salesData'])->name('sales.data');
+    Route::get('/api/top-products', [AdminController::class, 'topProducts'])->name('top.products');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -62,6 +67,19 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/products/edit/{id?}', [ProductController::class, 'edit'])->name('product.edit');
     Route::put('/products/update/{id?}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/delete/{id?}', [ProductController::class, 'destroy'])->name('product.delete');
+    ///Shipping o envios
+    Route::get('/shipping', [ShippingController::class, 'index'])->name('shipping.index');
+    Route::get('/shipping/create', [ShippingController::class, 'create'])->name('shipping.create');
+    Route::post('/shipping/create', [ShippingController::class, 'store'])->name('shipping.store');
+    Route::get('/shipping/edit/{id?}', [ShippingController::class, 'edit'])->name('shipping.edit');
+    Route::put('/shipping/update/{id?}', [ShippingController::class, 'update'])->name('shipping.update');
+    Route::delete('/shipping/delete/{id?}', [ShippingController::class, 'destroy'])->name('shipping.delete');
+    //Orders
+    Route::get('/order/view/{id}', [OrderController::class, 'show'])->name('order.show');
+    Route::get('/order/pdf/{id}', [OrderController::class, 'pdf'])->name('order.pdf');
+    //Reviews product
+    Route::get('/product/reviews', [ProductReviewController::class, 'index'])->name('review.index');
+    Route::delete('/product/reviews/delete/{id?}', [ProductReviewController::class, 'destroy'])->name('review.delete');
     //Posts
     Route::get('/posts', [PostController::class, 'index'])->name('post.index');
     Route::get('/posts/create', [PostController::class, 'create'])->name('post.create');
@@ -69,6 +87,8 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/posts/edit/{id?}', [PostController::class, 'edit'])->name('post.edit');
     Route::put('/posts/update/{id?}', [PostController::class, 'update'])->name('post.update');
     Route::delete('/api/posts/delete/{id?}', [PostController::class, 'destroy'])->name('post.delete');
+    // Orders o pedidos
+    Route::get('/orders', [OrderController::class, 'index'])->name('order.index');
     //Post categories
     Route::get('/posts/categories', [PostCategoryController::class, 'index'])->name('post.categories.index');
     Route::post('/api/posts/categories', [PostCategoryController::class, 'store'])->name('post.categories.store');
@@ -95,6 +115,15 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     //Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::patch('/settings/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
+    //Messages
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/api/message/five', [MessageController::class, 'messageFive'])->name('messages.five');
+    Route::get('/message/{id}', [MessageController::class, 'show'])->name('messages.show');
+    Route::delete('/api/message/delete/{id?}', [MessageController::class, 'destroy'])->name('message.delete');
+    // Notification
+    Route::get('/notification/{id}', [NotificationController::class, 'show'])->name('admin.notification');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('all.notification');
+    Route::delete('/notification/{id}', [NotificationController::class, 'delete'])->name('notification.delete');
 });
 
 Route::middleware(['auth', 'checkrole:user'])->group(function () {
@@ -106,6 +135,8 @@ Route::middleware(['auth', 'checkrole:user'])->group(function () {
     Route::get('/cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart.delete');
     Route::post('/cart-update/{id}/{quantity}', [CartController::class, 'cartUpdate'])->name('cart.update');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+    //Route::post('/checkout', [CartController::class, 'checkoutStore'])->name('checkout.store');
+    Route::post('cart/order', [OrderController::class, 'store'])->name('cart.order');
     // Favoritos
     Route::get('/api/wishlist', [WishlistController::class, 'getFavorites'])->name('get-favorites');
     Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist');//->middleware('user');
@@ -133,5 +164,6 @@ Route::post('/api/save-search', [SearchController::class, 'saveSearch']);
 Route::get('/blog', [FrontendController::class, 'PageBlog'])->name('blog');
 Route::get('/favorites', [WishlistController::class, 'index'])->name('page.list.favorite');
 Route::get('/contact', [FrontendController::class, 'PageContact'])->name('contact');
+Route::post('/contact/message', [MessageController::class, 'store'])->name('contact.store');
 
 require __DIR__.'/auth.php';

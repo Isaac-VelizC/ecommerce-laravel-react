@@ -101,9 +101,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             <LinkSidebar name="Category" icon="fa-diagram-project" href={route('category.index')}/>
                             <LinkSidebar name="Products" icon="fa-boxes-stacked" href={route('product.index')}/>
                             <LinkSidebar name="Brands" icon="fa-table-cells" href={route('brand.index')}/>
-                            <LinkSidebar name="Shipping" icon="fa-truck" href="#"/>
-                            <LinkSidebar name="Orders" icon="fa-phone" href="#"/>
-                            <LinkSidebar name="Reviews" icon="fa-comments" href="#"/>
+                            <LinkSidebar name="Shipping" icon="fa-truck" href={route('shipping.index')}/>
+                            <LinkSidebar name="Orders" icon="fa-phone" href={route('order.index')}/>
+                            <LinkSidebar name="Reviews" icon="fa-comments" href={route('review.index')}/>
+                            <LinkSidebar name="Messages" icon="fa-message" href={route('messages.index')}/>
                         </ul>
                     </div>
                     <div>

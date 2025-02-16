@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
+use App\Models\Categorie;
+use App\Models\Order;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
 use Carbon\Carbon;
@@ -15,15 +19,54 @@ class AdminController extends Controller
     public function index()
     {
         $data = User::select(DB::raw("COUNT(*) as count"), DB::raw("DAYNAME(created_at) as day_name"), DB::raw("DAY(created_at) as day"))
-            ->where('created_at', '>', Carbon::today()->subDay(6))
+            ->where('created_at', '>', Carbon::today()->subDays(6))
             ->groupBy('day_name', 'day')
             ->orderBy('day')
             ->get();
-        $array[] = ['Name', 'Number'];
-        foreach ($data as $key => $value) {
-            $array[++$key] = [$value->day_name, $value->count];
-        }
-        return view('backend.index')->with('users', json_encode($array));
+
+        return Inertia::render('Dashboard', [
+            'users' => $data
+        ]);
+    }
+
+    public function getTotals()
+    {
+        return response()->json([
+            'totalProducts' => Product::count(),
+            'totalCategories' => Categorie::where('status', 'active')->count(),
+            'totalUsersActives' => User::where('status', 'active')->count(),
+            'totalOrders' => Order::where('status', 'new')->count(),
+        ]);
+    }
+
+    public function salesData()
+    {
+        $sales = Order::select(
+            DB::raw("DATE(created_at) as date"),
+            DB::raw("SUM(total_amount) as total_sales")
+        )
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
+            ->groupBy('created_at')
+            ->orderBy('created_at')
+            ->get();
+
+        return response()->json($sales);
+    }
+
+    public function topProducts()
+    {
+        $products = Cart::whereNotNull('order_id')
+            ->join('products', 'carts.product_id', '=', 'products.id')
+            ->select(
+                'products.title', // Asegúrate de que esta columna existe en `products`
+                DB::raw("SUM(carts.quantity) as total_sold")
+            )
+            ->groupBy('products.title')
+            ->orderByDesc('total_sold')
+            ->limit(5)
+            ->get();
+
+        return response()->json($products);
     }
 
     public function settings()

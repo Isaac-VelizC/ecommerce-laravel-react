@@ -129,6 +129,9 @@ export default function Client({ children }: PropsWithChildren) {
                 {/* Navegación */}
                 <ul className="space-y-4 text-left">
                     <MenuLink href="/" text="Home" />
+                    {user && user.role === "admin" &&
+                        <MenuLink href="/dashboard" text="Dashboard"/>
+                    }
                     <MenuLink href="/shop/products" text="Products" />
                     <MenuLink href="/blog" text="Tendencies" />
                     <MenuLink href="/blog" text="Blog" />

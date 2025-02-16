@@ -4,83 +4,78 @@ namespace App\Http\Controllers;
 
 use App\Models\Shipping;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ShippingController extends Controller
 {
     public function index()
     {
-        $shipping=Shipping::orderBy('id','DESC')->paginate(10);
-        return view('backend.shipping.index')->with('shippings',$shipping);
+        $shipping = Shipping::orderBy('id', 'DESC')->paginate(10);
+        return Inertia::render('Dashboard/Shipping/Index', [
+            'shippings' => [
+                'data' => $shipping->items(),
+                'current_page' => $shipping->currentPage(),
+                'last_page' => $shipping->lastPage(),
+                'per_page' => $shipping->perPage(),
+                'total' => $shipping->total(),
+            ],
+        ]);
     }
 
     public function create()
     {
-        return view('backend.shipping.create');
+        return Inertia::render('Dashboard/Shipping/Create', ['isEditing' => false]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'type'=>'string|required',
-            'price'=>'nullable|numeric',
-            'status'=>'required|in:active,inactive'
+        $validatedData = $request->validate([
+            'type' => 'string|required',
+            'price' => 'nullable|numeric',
+            'status' => 'required|in:active,inactive'
         ]);
-        $data=$request->all();
-        $status=Shipping::create($data);
-        if($status){
-            request()->session()->flash('success','Shipping successfully created');
+        try {
+            Shipping::create($validatedData);
+            return redirect()->route('shipping.index')->with('success', 'Envío creado exitosamente');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Error, inténtelo de nuevo: ' . $th->getMessage());
         }
-        else{
-            request()->session()->flash('error','Error, Please try again');
-        }
-        return redirect()->route('shipping.index');
     }
 
     public function edit($id)
     {
-        $shipping=Shipping::find($id);
-        if(!$shipping){
-            request()->session()->flash('error','Shipping not found');
+        $shipping = Shipping::find($id);
+        if (!$shipping) {
+            return back()->with('error', 'Envío no encotrado');
         }
-        return view('backend.shipping.edit')->with('shipping',$shipping);
+        return Inertia::render('Dashboard/Shipping/Create', ['shipping' => $shipping, 'isEditing' => true]);
     }
 
     public function update(Request $request, $id)
     {
-        $shipping=Shipping::find($id);
-        $request->validate([
-            'type'=>'string|required',
-            'price'=>'nullable|numeric',
-            'status'=>'required|in:active,inactive'
+        $validatedData = $request->validate([
+            'type' => 'string|required',
+            'price' => 'nullable|numeric',
+            'status' => 'required|in:active,inactive'
         ]);
-        $data=$request->all();
-        // return $data;
-        $status=$shipping->fill($data)->save();
-        if($status){
-            request()->session()->flash('success','Shipping successfully updated');
+        try {
+            $shipping = Shipping::find($id);
+            $shipping->fill($validatedData)->save();
+            return redirect()->route('shipping.index')->with('success', 'Envío actualizado exitosamente');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Error, inténtelo de nuevo: ' . $th->getMessage());
         }
-        else{
-            request()->session()->flash('error','Error, Please try again');
-        }
-        return redirect()->route('shipping.index');
     }
 
     public function destroy($id)
     {
-        $shipping=Shipping::find($id);
-        if($shipping){
-            $status=$shipping->delete();
-            if($status){
-                request()->session()->flash('success','Shipping successfully deleted');
-            }
-            else{
-                request()->session()->flash('error','Error, Please try again');
-            }
-            return redirect()->route('shipping.index');
-        }
-        else{
-            request()->session()->flash('error','Shipping not found');
-            return redirect()->back();
+        try{
+            $shipping = Shipping::find($id);
+            if (!$shipping) return response()->json(['error' => false, 'message' => 'Envío no encontrado'], 500);
+            $shipping->delete();
+            return response()->json(['success' => true, 'message' => 'Envío eliminado exitosamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => false, 'message' => 'Error, inténtelo de nuevo: '], 500);
         }
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\Product;
+use App\Models\Shipping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -166,27 +168,36 @@ class CartController extends Controller
         ], 200);
     }
 
-    public function checkout(Request $request)
+    public function checkout()
     {
-        // $cart=session('cart');
-        // $cart_index=\Str::random(10);
-        // $sub_total=0;
-        // foreach($cart as $cart_item){
-        //     $sub_total+=$cart_item['amount'];
-        //     $data=array(
-        //         'cart_id'=>$cart_index,
-        //         'user_id'=>$request->user()->id,
-        //         'product_id'=>$cart_item['id'],
-        //         'quantity'=>$cart_item['quantity'],
-        //         'amount'=>$cart_item['amount'],
-        //         'status'=>'new',
-        //         'price'=>$cart_item['price'],
-        //     );
+        $cart = Cart::with('product')
+            ->where('user_id', Auth::id())
+            ->whereNull('order_id')
+            ->get();
 
-        //     $cart=new Cart();
-        //     $cart->fill($data);
-        //     $cart->save();
-        // }
-        return Inertia::render('Client/Checkout');
+        if ($cart->isEmpty()) {
+            return redirect()->back()->with('error', 'Tu carrito está vacío.');
+        }
+
+        // Calcular totales
+        $sub_total = $cart->sum('amount');
+        $taxRate = 0.15;
+        $discount = 0;
+        $tax = $sub_total * $taxRate;
+        $total = $sub_total + $tax - $discount;
+        $coupons = Coupon::where('status', 'active')->get();
+        $shippings = Shipping::where('status', 'active')->get();
+
+        return Inertia::render('Client/Checkout', [
+            'coupons' => $coupons,
+            'shippings' => $shippings,
+            'dataCart' => [
+                'productos' => $cart,
+                'sub_total' => round($sub_total, 2),
+                'tax' => round($tax, 2),
+                'discount' => round($discount, 2),
+                'total' => round($total, 2),
+            ],
+        ]);
     }
 }

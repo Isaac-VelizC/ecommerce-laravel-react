@@ -2,36 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function index(){
-        return view('backend.notification.index');
+    public function index()
+    {
+        return response()->json(Auth::user()->unreadNotifications);
     }
-    public function show(Request $request){
-        $notification=Auth()->user()->notifications()->where('id',$request->id)->first();
-        if($notification){
-            $notification->markAsRead();
-            return redirect($notification->data['actionURL']);
+    
+    public function show($id)
+    {
+        // Buscar la notificación por ID del usuario autenticado
+        $notification = Auth::user()->notifications()->find($id);
+        // Si no existe, devolver un error o redirigir a un fallback
+        if (!$notification) {
+            return redirect()->route('dashboard')->with('error', 'Notificación no encontrada');
         }
+
+        // Marcar como leída
+        $notification->markAsRead();
+
+        // Redirigir a la URL asociada o a un fallback si no existe
+        return redirect(optional($notification->data)['actionURL'] ?? route('dashboard'));
     }
+
     public function delete($id){
         $notification=Notification::find($id);
         if($notification){
             $status=$notification->delete();
             if($status){
-                request()->session()->flash('success','Notification successfully deleted');
-                return back();
+                return response()->json(['success','Notification successfully deleted'], 200);
             }
             else{
-                request()->session()->flash('error','Error please try again');
-                return back();
+                return response()->json(['error','Error please try again'], 500);
             }
         }
         else{
-            request()->session()->flash('error','Notification not found');
-            return back();
+            return response()->json(['error','Notification not found'], 201);
         }
     }
 }

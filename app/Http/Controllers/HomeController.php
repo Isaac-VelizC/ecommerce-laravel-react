@@ -43,8 +43,8 @@ class HomeController extends Controller
         }
         
         $discounted_products = Product::where('status', 'active')
-            ->whereNotNull('discount_price') // Solo productos con descuento
-            ->orderBy('discount_price', 'ASC') // Ordenar por el mayor descuento
+            ->whereNotNull('discount') // Solo productos con descuento
+            ->orderBy('discount', 'ASC') // Ordenar por el mayor descuento
             ->limit(6)
             ->get();
         
