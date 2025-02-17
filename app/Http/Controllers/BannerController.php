@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -34,22 +35,27 @@ class BannerController extends Controller
     {
         // Validación de los datos
         $validatedData = $request->validate([
-            'title' => 'required|string|max:50',
+            'title'       => 'required|string|max:50',
             'description' => 'nullable|string',
-            'photo' => 'required|string',
-            'status' => 'required|in:active,inactive',
+            'photoFile'   => 'required|image|mimes:jpg,png,webp|max:2048',
+            'status'      => 'required|in:active,inactive',
         ]);
+        
         try {
-            // Generación del slug
+            // Generación del slug único
             $slug = Str::slug($validatedData['title']);
             $slug = $this->generateUniqueSlug($slug);
             $validatedData['slug'] = $slug;
-            // Creación del banner
+
+            // Subir imagen a Cloudinary
+            $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+            $validatedData['photo'] = $uploadedFile->getSecurePath();
+            // Crear el banner con la URL de la imagen
             Banner::create($validatedData);
 
-            return redirect()->route('banner.index')->with('success', 'Banner successfully added');
+            return redirect()->route('banner.index')->with('success', 'Banner agregado correctamente');
         } catch (\Throwable $th) {
-            return back()->with('error', 'Error occurred while adding banner: ' . $th->getMessage());
+            return back()->with('error', 'Error al agregar el banner: ' . $th->getMessage());
         }
     }
 
@@ -75,23 +81,45 @@ class BannerController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Validación de los datos
         $validatedData = $request->validate([
-            'title' => 'required|string|max:50',
+            'title'       => 'required|string|max:50',
             'description' => 'nullable|string',
-            'photo' => 'required|string',
-            'status' => 'required|in:active,inactive',
+            'photoFile'   => 'nullable|image|mimes:jpg,png,webp|max:2048', // No es obligatorio
+            'status'      => 'required|in:active,inactive',
         ]);
+
         try {
+            // Buscar el banner existente
             $banner = Banner::findOrFail($id);
-            $banner->fill($validatedData);
-            $banner->save();
-            // Mensaje de éxito
-            return redirect()->route('banner.index')->with('success', 'Banner successfully updated');
+
+            // Si se sube una nueva imagen, actualizar en Cloudinary
+            if ($request->hasFile('photoFile')) {
+                // (Opcional) Eliminar imagen anterior en Cloudinary
+                if ($banner->photo) {
+                    Cloudinary::destroy($this->getPublicIdFromUrl($banner->photo));
+                }
+
+                // Subir nueva imagen a Cloudinary
+                $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+                $validatedData['photo'] = $uploadedFile->getSecurePath(); // Nueva URL de la imagen
+            }
+
+            // Actualizar el banner con los datos nuevos
+            $banner->update($validatedData);
+
+            return redirect()->route('banner.index')->with('success', 'Banner actualizado correctamente');
         } catch (\Exception $e) {
-            // Manejo de errores
-            return back()->with('error', 'Error occurred while updating banner: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar el banner: ' . $e->getMessage());
         }
     }
+
+    private function getPublicIdFromUrl($url)
+    {
+        $parsedUrl = pathinfo($url);
+        return $parsedUrl['filename']; // Extrae el `public_id` de la imagen
+    }
+
 
     public function destroy($id)
     {

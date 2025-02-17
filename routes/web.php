@@ -42,7 +42,7 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/banners/create', [BannerController::class, 'create'])->name('banner.create');
     Route::post('/banners/create', [BannerController::class, 'store'])->name('banner.store');
     Route::get('/banners/edit/{id?}', [BannerController::class, 'edit'])->name('banner.edit');
-    Route::put('/banners/update/{id?}', [BannerController::class, 'update'])->name('banner.update');
+    Route::post('/banners/update/{id?}', [BannerController::class, 'update'])->name('banner.update');
     Route::delete('/banners/delete/{id?}', [BannerController::class, 'destroy'])->name('banner.delete');
     //Brands
     Route::get('/brands', [BrandController::class, 'index'])->name('brand.index');

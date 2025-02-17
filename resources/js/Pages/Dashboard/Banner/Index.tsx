@@ -9,7 +9,7 @@ import Modal from "@/Components/Modal";
 import PreviewImage from "@/Components/PreviewImage";
 import { BannerInterface } from "@/Interfaces/Banner";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import axios from "axios";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -25,8 +25,6 @@ type Props = {
 };
 
 export default function Banner({ banners }: Props) {
-    const CLOUD_NAME = "dcvaqzmt9";
-    const UPLOAD_PRESET = "ecommerce-laravel-react";
     const [showModalDelete, setShowModalDelete] = useState(false);
     const [selectBanner, setSelectBanner] = useState<BannerInterface | null>();
     const [bannerList, setBannerList] = useState<BannerInterface[]>(
@@ -46,8 +44,8 @@ export default function Banner({ banners }: Props) {
                 name: "Imagen",
                 cell: (row: BannerInterface) => (
                     <img
-                        onClick={() => openModal(row.photo)}
-                        src={row.photo}
+                        onClick={() => openModal(row.photo!)}
+                        src={row.photo!}
                         alt={row.title}
                         className="w-32 h-20 object-cover rounded-lg shadow transition-transform duration-300 ease-in-out hover:scale-150 hover:z-[99]"
                     />
@@ -110,18 +108,6 @@ export default function Banner({ banners }: Props) {
         setSelectBanner(row);
     };
 
-    const deleteImageFromCloudinary = async (publicId: string) => {
-        try {
-            await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`,
-                { public_id: publicId }
-            );
-            console.log("Imagen eliminada correctamente");
-        } catch (error) {
-            console.error("Error al eliminar la imagen:", error);
-        }
-    };
-
     const handleDelete = async () => {
         if (selectBanner) {
             try {
@@ -129,13 +115,6 @@ export default function Banner({ banners }: Props) {
                     route("banner.delete", selectBanner.id)
                 );
                 if (response.data.success) {
-                    if (selectBanner.photo) {
-                        const publicId = selectBanner.photo
-                            .split("/")
-                            .pop()
-                            ?.split(".")[0];
-                        await deleteImageFromCloudinary(publicId || "");
-                    }
                     setBannerList(
                         bannerList.filter(
                             (banner) => banner.id !== selectBanner.id

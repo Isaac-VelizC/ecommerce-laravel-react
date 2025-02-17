@@ -12,6 +12,7 @@ export type FormBannerType = {
     id: number;
     title: string;
     photo: string;
+    photoFile?: File | null;
     description: string;
     status: string;
 }

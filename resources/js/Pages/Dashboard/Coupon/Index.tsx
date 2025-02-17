@@ -8,7 +8,7 @@ import { IconEdit, IconTrash } from "@/Components/IconSvg";
 import Modal from "@/Components/Modal";
 import { CouponInterface } from "@/Interfaces/Coupon";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import axios from "axios";
 import React, { useMemo, useState } from "react";
 import { toast } from "react-toastify";
