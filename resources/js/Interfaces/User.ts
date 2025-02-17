@@ -16,6 +16,7 @@ export type FormUserType = {
     email: string;
     password: string;
     photo: string;
+    photoFile?: File | null;
     role: string;
     status: string;
 }

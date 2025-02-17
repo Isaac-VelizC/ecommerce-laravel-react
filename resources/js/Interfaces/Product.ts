@@ -17,6 +17,7 @@ export interface ProductInterface {
     summary: string;
     description: string;
     photo: string;
+    photoFile?: File | null;
     cat_id: number;
     cat_info: CategoryInterface;
     get_review_avg_rate: number | null;

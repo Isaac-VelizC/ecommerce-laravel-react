@@ -32,6 +32,7 @@ export type FormCategoryType = {
     title: string;
     summary: string;
     photo: string;
+    photoFile?: File | null;
     is_parent: boolean;
     parent_id: number;
     status: string;

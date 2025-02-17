@@ -17,8 +17,8 @@ class SettingSeeder extends Seeder
 
                             sunt in culpa qui officia deserunt mollit anim id est laborum. sed ut perspiciatis Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. sed ut perspi deserunt mollit anim id est laborum. sed ut perspi.",
             'short_des' => "Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.",
-            'photo' => "image.jpg",
-            'logo' => 'logo.jpg',
+            'photo' => "https://cdn-icons-png.freepik.com/512/13434/13434972.png",
+            'logo' => 'https://cdn-icons-png.freepik.com/512/13434/13434972.png',
             'address' => "NO. 342 - London Oxford Street, 012 United Kingdom",
             'email' => "eshop@gmail.com",
             'phone' => "+060 (800) 801-582",

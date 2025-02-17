@@ -20,6 +20,12 @@ return new class extends Migration
             $table->string('address');
             $table->string('phone');
             $table->string('email');
+            $table->decimal('last_latitude', 10, 7)->nullable();
+            $table->decimal('last_longitude', 10, 7)->nullable();
+            $table->string('tiktok')->nullable();
+            $table->string('youtube')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('instagram')->nullable();
             $table->timestamps();
         });
     }

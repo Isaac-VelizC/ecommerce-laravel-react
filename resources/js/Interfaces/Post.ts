@@ -25,6 +25,7 @@ export type FormPostType = {
     summary: string;
     description: string;
     photo: string;
+    photoFile?: File | null;
     status: string;
     post_cat_id: number;
     tags: string;
