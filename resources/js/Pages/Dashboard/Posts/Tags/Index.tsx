@@ -1,6 +1,5 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
 import { IconTrash } from "@/Components/IconSvg";
@@ -60,13 +59,11 @@ export default function Index({ postTags }: Props) {
             {
                 name: "Acciones",
                 cell: (row: PostTagInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
-                            event={() => handleDeleteTag(row)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
-                        />
-                    </div>
+                    <IconTrash
+                        color="black"
+                        size={16}
+                        event={() => handleDeleteTag(row)}
+                    />
                 ),
                 ignoreRowClick: true,
                 width: "150px",

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -14,11 +15,11 @@ class UsersController extends Controller
         $users = User::where('role', '!=', 'admin')->orderBy('id', 'ASC')->paginate(10);
         return Inertia::render('Dashboard/Users/Index', [
             'users' => [
-                'data' => $users->items(), // Los productos
-                'current_page' => $users->currentPage(), // Página actual
-                'last_page' => $users->lastPage(), // Última página
-                'per_page' => $users->perPage(), // Elementos por página
-                'total' => $users->total(), // Total de elementos
+                'data' => $users->items(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
             ],
         ]);
     }
@@ -36,11 +37,14 @@ class UsersController extends Controller
             'password' => 'string|required',
             'role' => 'required|in:admin,user',
             'status' => 'required|in:active,inactive',
-            'photo' => 'nullable|string',
+            'photoFile' => 'nullable|image|mimes:jpg,png,webp|max:2048',
         ]);
         try {
             $data = $request->all();
             $data['password'] = Hash::make($request->password);
+
+            $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+            $data['photo'] = $uploadedFile->getSecurePath();
             User::create($data);
             return redirect()->route('user.index')->with('success', 'Usuario creado exitosamente.');
         } catch (\Throwable $th) {
@@ -60,9 +64,9 @@ class UsersController extends Controller
             'name' => 'required|string|max:30',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
             'role' => 'required|in:admin,user',
-            'password' => 'nullable|string|min:8', // Recomiendo añadir min:8
+            'password' => 'nullable|string|min:8',
             'status' => 'required|in:active,inactive',
-            'photo' => 'nullable|string',
+            'photoFile' => 'nullable|image|mimes:jpg,png,webp|max:2048',
         ]);
 
         try {
@@ -73,6 +77,17 @@ class UsersController extends Controller
             } else {
                 unset($validatedData['password']);
             }
+            // Si se sube una nueva imagen, actualizar en Cloudinary
+            if ($request->hasFile('photoFile')) {
+                // (Opcional) Eliminar imagen anterior en Cloudinary
+                if ($user->photo) {
+                    Cloudinary::destroy($this->getPublicIdFromUrl($user->photo));
+                }
+
+                // Subir nueva imagen a Cloudinary
+                $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+                $validatedData['photo'] = $uploadedFile->getSecurePath(); // Nueva URL de la imagen
+            }
             $user->update($validatedData);
             return redirect()->route('user.index')->with('success', 'Usuario actualizado exitosamente.');
         } catch (\Throwable $th) {
@@ -80,10 +95,17 @@ class UsersController extends Controller
         }
     }
 
+    private function getPublicIdFromUrl($url)
+    {
+        $parsedUrl = pathinfo($url);
+        return $parsedUrl['filename'];
+    }
+
     public function destroy($id)
     {
         try {
             $delete = User::findorFail($id);
+            $delete->status = 'inactive';
             $delete->delete();
             return redirect()->back()->with('success', 'Usuario eliminado exitosamente.');
         } catch (\Throwable $th) {

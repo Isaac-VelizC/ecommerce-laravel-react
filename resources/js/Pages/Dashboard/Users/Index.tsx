@@ -1,6 +1,5 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
@@ -16,17 +15,15 @@ import { toast } from "react-toastify";
 
 type Props = {
     users: {
-            data: UserInterface[];
-            current_page: number;
-            last_page: number;
-            per_page: number;
-            total: number;
-        };
+        data: UserInterface[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 };
 
 export default function Index({ users }: Props) {
-    const CLOUD_NAME = "dcvaqzmt9";
-    const UPLOAD_PRESET = "ecommerce-laravel-react";
     const [showModalDelete, setShowModalDelete] = useState(false);
     const [selectUser, setSelectUser] = useState<UserInterface | null>();
     const [userList, setUserList] = useState<UserInterface[]>(users.data);
@@ -45,7 +42,7 @@ export default function Index({ users }: Props) {
                         className="w-12 h-12 p-1 rounded-full object-cover shadow transition-transform duration-300 ease-in-out hover:scale-150 hover:z-[99]"
                     />
                 ),
-                width: "80px"
+                width: "80px",
             },
             {
                 name: "Nombre de usuario",
@@ -79,16 +76,16 @@ export default function Index({ users }: Props) {
             {
                 name: "Acciones",
                 cell: (row: UserInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEdit
+                            color="black"
+                            size={16}
                             event={() => router.get(route("user.edit", row.id))}
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
-                            event={() => handleDeleteBanner(row)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
+                        <IconTrash
+                            color="black"
+                            size={16}
+                            event={() => handleDeleteUser(row)}
                         />
                     </div>
                 ),
@@ -107,21 +104,9 @@ export default function Index({ users }: Props) {
         setIsOpen(false);
     };
 
-    const handleDeleteBanner = (row: UserInterface) => {
+    const handleDeleteUser = (row: UserInterface) => {
         setShowModalDelete(true);
         setSelectUser(row);
-    };
-
-    const deleteImageFromCloudinary = async (publicId: string) => {
-        try {
-            await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`,
-                { public_id: publicId }
-            );
-            console.log("Imagen eliminada correctamente");
-        } catch (error) {
-            console.error("Error al eliminar la imagen:", error);
-        }
     };
 
     const handleDelete = async () => {
@@ -131,13 +116,6 @@ export default function Index({ users }: Props) {
                     route("banner.delete", selectUser.id)
                 );
                 if (response.data.success) {
-                    if (selectUser.photo) {
-                        const publicId = selectUser.photo
-                            .split("/")
-                            .pop()
-                            ?.split(".")[0];
-                        await deleteImageFromCloudinary(publicId || "");
-                    }
                     setUserList(
                         userList.filter((item) => item.id !== selectUser.id)
                     );

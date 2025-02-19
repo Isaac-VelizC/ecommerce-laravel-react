@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ClickOutside from "../../ClickOutside";
 import axios from "axios";
 import { NotificationInterface } from "@/Interfaces/Notification";
+import { fDateTime } from "@/Utils/format-time";
 
 const DropdownNotification = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -82,9 +83,7 @@ const DropdownNotification = () => {
                                                 {notification.data.title}
                                             </span>
                                             <small className="text-xs text-gray-500">
-                                                {new Date(
-                                                    notification.read_at
-                                                ).toLocaleDateString()}
+                                                {fDateTime(notification.read_at)}
                                             </small>
                                           </div>
                                         </button>

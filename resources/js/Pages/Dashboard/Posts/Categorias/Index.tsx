@@ -1,6 +1,5 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
 import { IconEdit, IconTrash } from "@/Components/IconSvg";
@@ -65,16 +64,16 @@ export default function Index({ postCategories }: Props) {
             {
                 name: "Acciones",
                 cell: (row: PostCategoryInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
+                    <div className="flex gap-4">
+                        <IconEdit
+                            color="black"
+                            size={16}
                             event={() => handleEditarCategory(row)}
                         />
-                        <IconButton
+                        <IconTrash
+                            color="black"
+                            size={16}
                             event={() => handleDeleteCategory(row)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
                     </div>
                 ),

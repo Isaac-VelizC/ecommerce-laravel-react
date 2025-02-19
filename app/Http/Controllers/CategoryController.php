@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categorie;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -43,7 +44,7 @@ class CategoryController extends Controller
         $validatedData = $request->validate([
             'title' => 'string|required|max:25|regex:/^[A-Za-zÑñáéíóúÁÉÍÓÚ ]+$/',
             'summary' => 'string|nullable',
-            'photo' => 'string|nullable',
+            'photoFile'   => 'required|image|mimes:jpg,png,webp|max:2048',
             'status' => 'required|in:active,inactive',
             'is_parent' => 'sometimes|boolean',
             'parent_id' => 'nullable|exists:categories,id',
@@ -53,7 +54,10 @@ class CategoryController extends Controller
             $slug = $this->generateUniqueSlug($slug);
             $validatedData['slug'] = $slug;
             $validatedData['is_parent'] = $request->input('is_parent', 0);
-            // return $data;   
+            // Subir imagen a Cloudinary
+            $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+            $validatedData['photo'] = $uploadedFile->getSecurePath();
+
             Categorie::create($validatedData);
             return redirect()->route('category.index')->with('success', 'Category successfully added');
         } catch (\Throwable $th) {
@@ -79,7 +83,7 @@ class CategoryController extends Controller
         $validatedData = $request->validate([
             'title' => 'string|required|max:25|regex:/^[A-Za-zÑñáéíóúÁÉÍÓÚ ]+$/',
             'summary' => 'string|nullable',
-            'photo' => 'string|nullable',
+            'photoFile'   => 'nullable|image|mimes:jpg,png,webp|max:2048',
             'status' => 'required|in:active,inactive',
             'is_parent' => 'sometimes|boolean',
             'parent_id' => 'nullable|exists:categories,id',
@@ -88,11 +92,29 @@ class CategoryController extends Controller
         try {
             $category = Categorie::findOrFail($id);
             $validatedData['is_parent'] = $request->input('is_parent', 0);
+            // Si se sube una nueva imagen, actualizar en Cloudinary
+            if ($request->hasFile('photoFile')) {
+                // (Opcional) Eliminar imagen anterior en Cloudinary
+                if ($category->photo) {
+                    Cloudinary::destroy($this->getPublicIdFromUrl($category->photo));
+                }
+
+                // Subir nueva imagen a Cloudinary
+                $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+                $validatedData['photo'] = $uploadedFile->getSecurePath(); // Nueva URL de la imagen
+            }
+
             $category->fill($validatedData)->update();
             return redirect()->route('category.index')->with('success', 'Category successfully updated');
         } catch (\Throwable $th) {
             return back()->with('error', 'Error occurred, Please try again!');
         }
+    }
+
+    private function getPublicIdFromUrl($url)
+    {
+        $parsedUrl = pathinfo($url);
+        return $parsedUrl['filename']; // Extrae el `public_id` de la imagen
     }
 
     public function destroy($id)

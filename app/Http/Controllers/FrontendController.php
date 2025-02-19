@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Categorie;
+use App\Models\Color;
+use App\Models\ImageProduct;
+use App\Models\Inventory;
 use App\Models\Post;
 use App\Models\PostCategorie;
 use App\Models\PostTag;
 use App\Models\Product;
 use App\Models\Setting;
+use App\Models\Size;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -63,7 +67,18 @@ class FrontendController extends Controller
     {
         $product_detail = Product::getProductBySlug($slug, Auth::id());
         $relatedProdcuts = Product::where('cat_id', $product_detail->cat_id)->take(4)->get();
-        return Inertia::render('Client/ProductDetail', ['product_detail' => $product_detail, 'relatedProdcuts' => $relatedProdcuts]);
+        $sizes = Inventory::where('product_id', $product_detail->id)->pluck('talla_id')->toArray();
+        $sizes = Size::whereIn('id', $sizes)->get();
+        $colors = Inventory::where('product_id', $product_detail->id)->pluck('color_id')->toArray();
+        $colors = Color::whereIn('id', $colors)->get();
+        $images = ImageProduct::where('product_id', $product_detail->id)->get();
+        return Inertia::render('Client/ProductDetail', [
+            'product_detail' => $product_detail,
+            'relatedProdcuts' => $relatedProdcuts,
+            'colors' => $colors,
+            'sizes' => $sizes,
+            'images' => $images
+        ]);
     }
 
     public function productLists($slug)

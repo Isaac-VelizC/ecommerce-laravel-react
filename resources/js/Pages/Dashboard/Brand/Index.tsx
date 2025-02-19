@@ -1,20 +1,18 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import Card from "@/Components/Dashboard/Card";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
 import InputError from "@/Components/Dashboard/Form/InputError";
 import InputLabel from "@/Components/Dashboard/Form/InputLabel";
-import InputSelect from "@/Components/Dashboard/Form/InputSelect";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
 import TextInput from "@/Components/Dashboard/Form/TextInput";
 import { IconEdit, IconTrash } from "@/Components/IconSvg";
 import Modal from "@/Components/Modal";
 import { BrandInterface, formBrandType } from "@/Interfaces/Brand";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, router, useForm } from "@inertiajs/react";
 import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -80,16 +78,16 @@ export default function Brand({ brands }: Props) {
             {
                 name: "Acciones",
                 cell: (row: BrandInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEdit
+                            color="black"
+                            size={16}
                             event={() => handleEdit(row)}
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
+                        <IconTrash
+                            color="black"
+                            size={16}
                             event={() => handleDeleteBrand(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
                     </div>
                 ),

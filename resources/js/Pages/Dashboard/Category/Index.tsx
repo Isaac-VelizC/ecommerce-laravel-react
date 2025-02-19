@@ -9,7 +9,6 @@ import { Head, Link, router } from "@inertiajs/react";
 import axios from "axios";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import { IconEdit, IconTrash } from "@/Components/IconSvg";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 
@@ -81,18 +80,18 @@ export default function Category({ categories }: Props) {
             {
                 name: "Acciones",
                 cell: (row: CategoryInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEdit
+                            color="black"
+                            size={16}
                             event={() =>
                                 router.get(route("category.edit", row.id))
                             }
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
+                        <IconTrash
+                            color="black"
+                            size={16}
                             event={() => modalDeleteOpen(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
                     </div>
                 ),

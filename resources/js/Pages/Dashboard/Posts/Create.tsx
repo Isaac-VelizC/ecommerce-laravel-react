@@ -14,7 +14,6 @@ import { PostCategoryInterface } from "@/Interfaces/PostCategory";
 import { PostTagInterface } from "@/Interfaces/PostTag";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ModalCategory from "./Categorias/ModalCategory";
@@ -42,19 +41,16 @@ export default function Create({
         label: string;
     } | null>(null);
     const [selectedTag, setSelectedTag] = useState<TagOption[]>([]);
-    const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [createCategory, setCreateCategory] = useState<boolean>(false);
     const [createTag, setCreateTag] = useState<boolean>(false);
-
-    const CLOUD_NAME = "dcvaqzmt9";
-    const UPLOAD_PRESET = "ecommerce-laravel-react";
     const initialData = postItem || {
         id: null,
         title: "",
         summary: "",
         description: "",
         photo: "",
+        photoFile: null,
         status: "active",
         post_cat_id: null,
         tags: [] as string[],
@@ -111,74 +107,26 @@ export default function Create({
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setImage(file);
+            setData('photoFile', file);
             const reader = new FileReader();
             reader.onloadend = () => setImagePreview(reader.result as string);
             reader.readAsDataURL(file);
         }
     };
 
-    const uploadImageToCloudinary = async (): Promise<string | null> => {
-        if (!image) {
-            alert("Selecciona una imagen");
-            return null;
-        }
-
-        const formData = new FormData();
-        formData.append("file", image);
-        formData.append("upload_preset", UPLOAD_PRESET); // Debe coincidir con Cloudinary
-        formData.append("folder", "my_uploads"); // Opcional, para organizar imágenes
-
-        try {
-            const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            return response.data.secure_url;
-        } catch (error) {
-            console.error("Error subiendo imagen:", error);
-            alert("Error subiendo imagen");
-            return null;
-        }
-    };
-
-    const deleteImageFromCloudinary = async (publicId: string) => {
-        try {
-            await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`,
-                { public_id: publicId }
-            );
-            console.log("Imagen eliminada correctamente");
-        } catch (error) {
-            console.error("Error al eliminar la imagen:", error);
-        }
-    };
-
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            if (image) {
-                if (isEditing && data.photo) {
-                    const publicId = data.photo.split("/").pop()?.split(".")[0];
-                    await deleteImageFromCloudinary(publicId || "");
-                }
-                const uploadedImageUrl = await uploadImageToCloudinary();
-                if (!uploadedImageUrl) return;
-                data.photo = uploadedImageUrl;
-            }
             data.tags = selectedTag.map((tag) => tag.value);
             const routeUrl =
                 isEditing && data?.id
                     ? route("post.update", data.id)
                     : route("post.store");
-            const method = isEditing && data?.id ? put : post;
             // Enviar los datos al backend
-            method(routeUrl, {
+            post(routeUrl, {
                 onSuccess: () => {
                     toast.error("Publicacion registrado con exito!");
                     reset();
-                    setImage(null);
                     setImagePreview(null);
                 },
                 onError: () => {
@@ -361,7 +309,7 @@ export default function Create({
                                 onChange={handleFileChange}
                                 className="w-full mt-1 block"
                                 accept="image/*"
-                                //required={isEditing ? false : true}
+                                required={isEditing ? false : true}
                             />
                             <InputError
                                 message={errors.photo}

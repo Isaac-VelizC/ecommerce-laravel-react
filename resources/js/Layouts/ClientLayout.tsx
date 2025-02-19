@@ -219,7 +219,7 @@ export default function Client({ children }: PropsWithChildren) {
                             <div className="mb-[20px]">
                                 <a href="/">
                                     <img
-                                        src={settings ? settings.logo : Logo}
+                                        src={settings ? settings.photo : Logo}
                                         alt="Shoping"
                                     />
                                 </a>

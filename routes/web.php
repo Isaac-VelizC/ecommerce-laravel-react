@@ -54,15 +54,19 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create');
     Route::post('/category/create', [CategoryController::class, 'store'])->name('category.store');
     Route::get('/category/edit/{id?}', [CategoryController::class, 'edit'])->name('category.edit');
-    Route::put('/category/update/{id?}', [CategoryController::class, 'update'])->name('category.update');
+    Route::post('/category/update/{id?}', [CategoryController::class, 'update'])->name('category.update');
     Route::delete('/category/delete/{id?}', [CategoryController::class, 'destroy'])->name('category.delete');
     Route::get('/api/categories/{id}/children', [CategoryController::class, 'getChildByParent']);
     //Products
     Route::get('/products', [ProductController::class, 'index'])->name('product.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('product.create');
     Route::post('/products/create', [ProductController::class, 'store'])->name('product.store');
+    Route::get('/products/inventary/{slug}', [ProductController::class, 'PageFormInventary'])->name('product.create.inventary');
+    Route::post('/products/inventary', [ProductController::class, 'storeInventary'])->name('product.inventary.store');
+    Route::patch('/inventory/{id}', [ProductController::class, 'updateQuantity'])->name('inventory.update');
+    Route::get('/products/show/{slug}', [ProductController::class, 'show'])->name('product.show');
     Route::get('/products/edit/{id?}', [ProductController::class, 'edit'])->name('product.edit');
-    Route::put('/products/update/{id?}', [ProductController::class, 'update'])->name('product.update');
+    Route::post('/products/update/{id?}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/products/delete/{id?}', [ProductController::class, 'destroy'])->name('product.delete');
     ///Shipping o envios
     Route::get('/shipping', [ShippingController::class, 'index'])->name('shipping.index');
@@ -82,7 +86,7 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/posts/create', [PostController::class, 'create'])->name('post.create');
     Route::post('/posts/create', [PostController::class, 'store'])->name('post.store');
     Route::get('/posts/edit/{id?}', [PostController::class, 'edit'])->name('post.edit');
-    Route::put('/posts/update/{id?}', [PostController::class, 'update'])->name('post.update');
+    Route::post('/posts/update/{id?}', [PostController::class, 'update'])->name('post.update');
     Route::delete('/api/posts/delete/{id?}', [PostController::class, 'destroy'])->name('post.delete');
     // Orders o pedidos
     Route::get('/orders', [OrderController::class, 'index'])->name('order.index');
@@ -107,11 +111,11 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/users/create', [UsersController::class, 'create'])->name('user.create');
     Route::post('/users/create', [UsersController::class, 'store'])->name('user.store');
     Route::get('/users/edit/{id?}', [UsersController::class, 'edit'])->name('user.edit');
-    Route::put('/users/update/{id?}', [UsersController::class, 'update'])->name('user.update');
+    Route::post('/users/update/{id?}', [UsersController::class, 'update'])->name('user.update');
     Route::delete('/api/users/delete/{id?}', [UsersController::class, 'destroy'])->name('user.delete');
     //Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::patch('/settings/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
+    Route::post('/settings/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
     //Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/api/message/five', [MessageController::class, 'messageFive'])->name('messages.five');

@@ -1,12 +1,11 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
-import { IconEdit, IconTrash } from "@/Components/IconSvg";
+import { IconEdit, IconEye, IconTrash } from "@/Components/IconSvg";
 import PreviewImage from "@/Components/PreviewImage";
 import { ProductInterface } from "@/Interfaces/Product";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import React, { useMemo, useState } from "react";
 
 type Props = {
@@ -40,10 +39,6 @@ export default function Product({ products }: Props) {
                 sortable: true,
             },
             {
-                name: "Slug",
-                cell: (row: ProductInterface) => row.slug,
-            },
-            {
                 name: "Stock",
                 cell: (row: ProductInterface) => row.stock,
                 sortable: true,
@@ -56,7 +51,6 @@ export default function Product({ products }: Props) {
                 name: "Descuento",
                 cell: (row: ProductInterface) => row.discount,
             },
-
             {
                 name: "Categoria",
                 cell: (row: ProductInterface) => row.cat_info.title,
@@ -101,18 +95,22 @@ export default function Product({ products }: Props) {
             {
                 name: "Acciones",
                 cell: (row: ProductInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEye
+                            color="black" size={16}
+                            event={() =>
+                                router.get(route("product.show", row.slug))
+                            }
+                        />
+                        <IconEdit
+                            color="black" size={16}
                             event={() =>
                                 router.get(route("product.edit", row.id))
                             }
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
+                        <IconTrash
+                            color="black" size={16}
                             event={() => modalDeleteOpen(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
                     </div>
                 ),

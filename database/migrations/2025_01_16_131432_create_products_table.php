@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('summary');
             $table->longText('description')->nullable();
             $table->text('photo');
-            $table->integer('stock')->default(1);
+            $table->integer('stock')->default(0);
             $table->string('size')->default('M')->nullable();
             $table->enum('condition',['default','new','hot'])->default('default');
             $table->enum('status',['active','inactive'])->default('inactive');

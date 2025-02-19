@@ -1,13 +1,10 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
-import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
-import { IconEdit, IconTrash } from "@/Components/IconSvg";
+import { IconTrash } from "@/Components/IconSvg";
 import Modal from "@/Components/Modal";
 import { ProductReviewInterface } from "@/Interfaces/ProducReview";
-import { ShippingInterface } from "@/Interfaces/Shipping";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
 import axios from "axios";
@@ -27,7 +24,9 @@ type Props = {
 export default function Index({ reviews }: Props) {
     const [showModalDelete, setShowModalDelete] = useState(false);
     const [selectReview, setSelectReview] = useState<number | null>();
-    const [reviewList, setreviewList] = useState<ProductReviewInterface[]>(reviews.data);
+    const [reviewList, setreviewList] = useState<ProductReviewInterface[]>(
+        reviews.data
+    );
     const renderStars = (rating: number) => {
         const stars = [];
         for (let i = 1; i <= 5; i++) {
@@ -48,7 +47,7 @@ export default function Index({ reviews }: Props) {
             {
                 name: "S.N.",
                 cell: (row: ProductReviewInterface) => row.id,
-                width: "60px"
+                width: "60px",
             },
             {
                 name: "Reseña Por",
@@ -60,16 +59,16 @@ export default function Index({ reviews }: Props) {
             },
             {
                 name: "Reseña",
-                cell: (row: ProductReviewInterface) => row.review
+                cell: (row: ProductReviewInterface) => row.review,
             },
             {
                 name: "Estrellas",
-                cell: (row: ProductReviewInterface) => renderStars(row.rate) ,
-                width: "100px"
+                cell: (row: ProductReviewInterface) => renderStars(row.rate),
+                width: "100px",
             },
             {
                 name: "Fecha",
-                cell: (row: ProductReviewInterface) => row.created_at
+                cell: (row: ProductReviewInterface) => row.created_at,
             },
             {
                 name: "Estado",
@@ -84,20 +83,20 @@ export default function Index({ reviews }: Props) {
                         </button>
                     </div>
                 ),
-                width: "100px"
+                width: "100px",
             },
             {
                 name: "Acciones",
                 cell: (row: ProductReviewInterface) => (
-                        <IconButton
-                            event={() => handleDeleteBanner(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
-                        />
+                    <IconTrash
+                        color="black"
+                        size={16}
+                        event={() => handleDeleteBanner(row.id)}
+                    />
                 ),
                 ignoreRowClick: true,
-                
-                width: "100px"
+
+                width: "100px",
             },
         ],
         [reviewList]
@@ -116,9 +115,7 @@ export default function Index({ reviews }: Props) {
                 );
                 if (response.data.success) {
                     setreviewList(
-                        reviewList.filter(
-                            (item) => item.id !== selectReview
-                        )
+                        reviewList.filter((item) => item.id !== selectReview)
                     );
                     setShowModalDelete(false);
                     toast.success(response.data.message);

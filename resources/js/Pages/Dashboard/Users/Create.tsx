@@ -10,7 +10,6 @@ import TextInput from "@/Components/Dashboard/Form/TextInput";
 import { FormUserType } from "@/Interfaces/User";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -20,9 +19,6 @@ type Props = {
 };
 
 export default function Create({ user, isEditing }: Props) {
-    const CLOUD_NAME = "dcvaqzmt9";
-    const UPLOAD_PRESET = "ecommerce-laravel-react";
-    const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedRole, setSelectedRole] = useState<{
         value: string;
@@ -34,6 +30,7 @@ export default function Create({ user, isEditing }: Props) {
         email: "",
         password: "",
         photo: "",
+        photoFile: null,
         role: "",
         status: "active",
     };
@@ -52,74 +49,25 @@ export default function Create({ user, isEditing }: Props) {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setImage(file);
+            setData('photoFile', file);
             const reader = new FileReader();
             reader.onloadend = () => setImagePreview(reader.result as string);
             reader.readAsDataURL(file);
         }
     };
 
-    const uploadImageToCloudinary = async (): Promise<string | null> => {
-        if (!image) {
-            alert("Selecciona una imagen");
-            return null;
-        }
-
-        const formData = new FormData();
-        formData.append("file", image);
-        formData.append("upload_preset", UPLOAD_PRESET); // Debe coincidir con Cloudinary
-        formData.append("folder", "my_uploads"); // Opcional, para organizar imágenes
-
-        try {
-            const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            return response.data.secure_url;
-        } catch (error) {
-            console.error("Error subiendo imagen:", error);
-            alert("Error subiendo imagen");
-            return null;
-        }
-    };
-
-    const deleteImageFromCloudinary = async (publicId: string) => {
-        try {
-            await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`,
-                { public_id: publicId }
-            );
-            console.log("Imagen eliminada correctamente");
-        } catch (error) {
-            console.error("Error al eliminar la imagen:", error);
-        }
-    };
-
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!isEditing && !image) return alert("Selecciona una imagen");
         try {
-            if (image) {
-                if (isEditing && data.photo) {
-                    const publicId = data.photo.split("/").pop()?.split(".")[0];
-                    await deleteImageFromCloudinary(publicId || "");
-                }
-                const uploadedImageUrl = await uploadImageToCloudinary();
-                if (!uploadedImageUrl) return;
-                data.photo = uploadedImageUrl;
-            }
             const routeUrl =
                 isEditing && data?.id
                     ? route("user.update", data.id)
                     : route("user.store");
-            const method = isEditing && data?.id ? put : post;
             // Enviar los datos al backend
-            method(routeUrl, {
+            post(routeUrl, {
                 onSuccess: () => {
                     toast.success("Usuario registrado con exito!");
                     reset();
-                    setImage(null);
                     setImagePreview(null);
                 },
                 onError: () => {

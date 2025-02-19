@@ -1,6 +1,5 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
@@ -26,7 +25,9 @@ type Props = {
 export default function Index({ shippings }: Props) {
     const [showModalDelete, setShowModalDelete] = useState(false);
     const [selectShipping, setSelectShipping] = useState<number | null>();
-    const [shippingList, setShippingList] = useState<ShippingInterface[]>(shippings.data);
+    const [shippingList, setShippingList] = useState<ShippingInterface[]>(
+        shippings.data
+    );
 
     const columns = useMemo(
         () => [
@@ -41,7 +42,7 @@ export default function Index({ shippings }: Props) {
                     // Formatear el precio a dos decimales y agregar el símbolo de dólar
                     return `$${parseInt(row.price).toFixed(2)}`;
                 },
-            },            
+            },
             {
                 name: "Estado",
                 cell: (row: ShippingInterface) => (
@@ -60,18 +61,18 @@ export default function Index({ shippings }: Props) {
             {
                 name: "Acciones",
                 cell: (row: ShippingInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEdit
+                            color="black"
+                            size={16}
                             event={() =>
                                 router.get(route("shipping.edit", row.id))
                             }
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
-                            event={() => handleDeleteBanner(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
+                        <IconTrash
+                            color="black"
+                            size={16}
+                            event={() => handleDeleteShipping(row.id)}
                         />
                     </div>
                 ),
@@ -81,7 +82,7 @@ export default function Index({ shippings }: Props) {
         [shippingList]
     );
 
-    const handleDeleteBanner = (id: number) => {
+    const handleDeleteShipping = (id: number) => {
         setShowModalDelete(true);
         setSelectShipping(id);
     };
@@ -154,8 +155,8 @@ export default function Index({ shippings }: Props) {
                         Confirmar Eliminación
                     </h2>
                     <p className="text-sx text-gray-400">
-                        ¿Estás seguro de que deseas eliminar este tipo de envio? Esta
-                        acción no se puede deshacer.
+                        ¿Estás seguro de que deseas eliminar este tipo de envio?
+                        Esta acción no se puede deshacer.
                     </p>
                     <div className="flex justify-center gap-4 mb-3 mt-5">
                         <DangerButton onClick={handleDelete}>

@@ -17,20 +17,21 @@ type Props = {
 };
 
 const Settings: React.FC<Props> = ({ infoApp }) => {
-    const [image, setImage] = useState<File | null>(null);
     const [imagePreviewLogo, setImagePreviewLogo] = useState<string | null>(
         null
     );
     const [imagePreviewPhoto, setImagePreviewPhoto] = useState<string | null>(
         null
     );
-    const { data, patch, setData, errors, reset, processing } =
+    const { data, post, setData, errors, reset, processing } =
         useForm<SettingInterface>(infoApp);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChangeLogo = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = event.target.files?.[0];
         if (file) {
-            setImage(file);
+            setData("logoFile", file);
             const reader = new FileReader();
             reader.onloadend = () =>
                 setImagePreviewLogo(reader.result as string);
@@ -38,28 +39,30 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
         }
     };
 
+    const handleFileChangePhoto = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setData("photoFile", file);
+            const reader = new FileReader();
+            reader.onloadend = () =>
+                setImagePreviewPhoto(reader.result as string);
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleUpdateForm = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!image) return alert("Selecciona una imagen");
         try {
-            /*if (image) {
-                if (data.photo) {
-                    const publicId = data.photo.split("/").pop()?.split(".")[0];
-                    await deleteImageFromCloudinary(publicId || "");
-                }
-                const uploadedImageUrl = await uploadImageToCloudinary();
-                if (!uploadedImageUrl) return;
-                data.photo = uploadedImageUrl;
-            }*/
             // Enviar los datos al backend
-            patch(route("settings.update"), {
+            post(route("settings.update"), {
                 onSuccess: () => {
-                    toast.success("Banner registrado con exito!");
-                    setImage(null);
+                    toast.success("Información registrado con exito!");
                     setImagePreviewLogo(null);
                 },
                 onError: () => {
-                    toast.error("Error al enviar los datos del banner");
+                    toast.error("Error al enviar los datos");
                 },
             });
         } catch (error) {
@@ -69,7 +72,7 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
     };
 
     const handleEditorChange = (content: string) => {
-        setData({ ...data, description: content });
+        setData("description", content);
     };
 
     return (
@@ -180,33 +183,29 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
                             <InputLabel
-                                htmlFor="photo"
-                                value="Photo"
+                                htmlFor="logo"
+                                value="Logo"
                                 required
                             />
                             <InputFile
-                                id="photo"
-                                name="photo"
-                                onChange={handleFileChange}
+                                id="logo"
+                                name="logo"
+                                onChange={handleFileChangeLogo}
                                 className="w-full mt-1 block"
                                 accept="image/*"
                                 required
                             />
                             <InputError
-                                message={errors.photo}
+                                message={errors.logo}
                                 className="mt-2"
                             />
                         </div>
                         <div>
-                            <InputLabel
-                                htmlFor="photo"
-                                value="Logo"
-                                required
-                            />
+                            <InputLabel htmlFor="photo" value="Logo Letras" required />
                             <InputFile
                                 id="photo"
                                 name="photo"
-                                onChange={handleFileChange}
+                                onChange={handleFileChangePhoto}
                                 className="w-full mt-1 block"
                                 accept="image/*"
                                 required
@@ -225,28 +224,22 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                         {imagePreviewLogo && (
                             <div className="">
                                 <div
-                                    className=" relative rounded-full bg-cover w-32 h-32"
+                                    className=" relative rounded-full bg-cover w-22 h-22"
                                     style={{
                                         backgroundImage: `url(${imagePreviewLogo})`,
                                         backgroundPosition: "center",
                                     }}
                                 ></div>
-                                <h1 className="text-text text-lg font-bold text-center">
+                                <h1 className="text-text text-xs font-bold text-center">
                                     Logo
                                 </h1>
                             </div>
                         )}
-                        {imagePreviewLogo && (
-                            <div className="">
-                                <div
-                                    className=" relative rounded-full bg-cover w-32 h-32"
-                                    style={{
-                                        backgroundImage: `url(${imagePreviewLogo})`,
-                                        backgroundPosition: "center",
-                                    }}
-                                ></div>
-                                <h1 className="text-text text-lg font-bold text-center">
-                                    Photo
+                        {imagePreviewPhoto && (
+                            <div className="items-center">
+                                <img className="relative" src={imagePreviewPhoto} alt="Logo Name" width={200} />
+                                <h1 className="text-text text-xs font-bold text-center">
+                                    Logo Name
                                 </h1>
                             </div>
                         )}

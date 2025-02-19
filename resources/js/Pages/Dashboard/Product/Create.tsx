@@ -32,8 +32,7 @@ export default function Create({
     categories,
 }: Props) {
     const [subCategories, setSubCategories] = useState<CategoryInterface[]>([]); // Estado para los hijos
-    const [showSubSelect, setShowSubSelect] = useState(false); // Controlar visibilidad
-    const [image, setImage] = useState<File | null>(null);
+    const [showSubSelect, setShowSubSelect] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedBrand, setSelectedBrand] = useState<{
         value: number;
@@ -52,24 +51,22 @@ export default function Create({
         value: number;
         label: string;
     } | null>(null);
-    const CLOUD_NAME = "dcvaqzmt9";
-    const UPLOAD_PRESET = "ecommerce-laravel-react";
     const initialData = product || {
         id: null,
         title: "",
         summary: "",
         description: "",
         photo: "",
+        photoFile: null,
         cat_id: "",
         child_cat_id: "",
         price: null,
         brand_id: null,
         discount: 0,
         status: "active",
-        size: "",
-        stock: null,
         is_featured: true,
         condition: "",
+        inventaries: [] as string[],
     };
 
     useEffect(() => {
@@ -139,12 +136,12 @@ export default function Create({
         }
     }, [isEditing, product]);
 
-    const { data, setData, post, put, processing, errors, reset } =
+    const { data, setData, post, processing, errors, reset } =
         useForm(initialData);
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setImage(file);
+            setData("photoFile", file);
             const reader = new FileReader();
             reader.onloadend = () => setImagePreview(reader.result as string);
             reader.readAsDataURL(file);
@@ -194,68 +191,20 @@ export default function Create({
         setShowSubSelect(false);
     };
 
-    const uploadImageToCloudinary = async (): Promise<string | null> => {
-        if (!image) {
-            alert("Selecciona una imagen");
-            return null;
-        }
-
-        const formData = new FormData();
-        formData.append("file", image);
-        formData.append("upload_preset", UPLOAD_PRESET); // Debe coincidir con Cloudinary
-        formData.append("folder", "my_uploads"); // Opcional, para organizar imágenes
-
-        try {
-            const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            );
-            return response.data.secure_url;
-        } catch (error) {
-            console.error("Error subiendo imagen:", error);
-            alert("Error subiendo imagen");
-            return null;
-        }
-    };
-
-    const deleteImageFromCloudinary = async (publicId: string) => {
-        try {
-            await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`,
-                { public_id: publicId }
-            );
-            console.log("Imagen eliminada correctamente");
-        } catch (error) {
-            console.error("Error al eliminar la imagen:", error);
-        }
-    };
-
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            if (image) {
-                if (isEditing && data.photo) {
-                    const publicId = data.photo.split("/").pop()?.split(".")[0];
-                    await deleteImageFromCloudinary(publicId || "");
-                }
-                const uploadedImageUrl = await uploadImageToCloudinary();
-                if (!uploadedImageUrl) return;
-                data.photo = uploadedImageUrl;
-            }
             const routeUrl =
                 isEditing && data?.id
                     ? route("product.update", data.id)
                     : route("product.store");
-            const method = isEditing && data?.id ? put : post;
             // Enviar los datos al backend
-            method(routeUrl, {
+            post(routeUrl, {
                 onSuccess: () => {
                     toast.error("Producto registrado con exito!");
                     reset();
                     setShowSubSelect(false);
                     setSubCategories([]);
-                    setImage(null);
                     setImagePreview(null);
                 },
                 onError: () => {
@@ -263,8 +212,8 @@ export default function Create({
                 },
             });
         } catch (error) {
-            console.error("Error al subir la imagen:", error);
-            toast.error("Error al subir la imagen");
+            console.error("Ocurrio un Error vuelve a intertarlo: ", error);
+            toast.error("Ocurrio un Error vuelve a intertarlo");
         }
     };
 
@@ -474,31 +423,6 @@ export default function Create({
                                 className="mt-2"
                             />
                         </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-                        <div>
-                            <InputLabel
-                                htmlFor="stock"
-                                value="Cantidad del Producto"
-                                required
-                            />
-                            <TextInput
-                                id="stock"
-                                //type="number"
-                                name="stock"
-                                value={data.stock || "0"}
-                                min={1}
-                                onChange={(e) =>
-                                    setData("stock", parseFloat(e.target.value))
-                                }
-                                className="w-full mt-1 block"
-                                required
-                            />
-                            <InputError
-                                message={errors.stock}
-                                className="mt-2"
-                            />
-                        </div>
                         <div>
                             <InputLabel
                                 htmlFor="price"
@@ -519,6 +443,27 @@ export default function Create({
                             />
                             <InputError
                                 message={errors.price}
+                                className="mt-2"
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
+                        <div>
+                            <InputLabel
+                                htmlFor="photoFile"
+                                value="Imagen"
+                                required
+                            />
+                            <InputFile
+                                id="photoFile"
+                                name="photoFile"
+                                onChange={handleFileChange}
+                                className="w-full mt-1 block"
+                                accept="image/*"
+                                required={isEditing ? false : true}
+                            />
+                            <InputError
+                                message={errors.photoFile}
                                 className="mt-2"
                             />
                         </div>
@@ -546,27 +491,6 @@ export default function Create({
                             />
                             <InputError
                                 message={errors.discount}
-                                className="mt-2"
-                            />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-                        <div>
-                            <InputLabel
-                                htmlFor="photo"
-                                value="Imagen"
-                                required
-                            />
-                            <InputFile
-                                id="photo"
-                                name="photo"
-                                onChange={handleFileChange}
-                                className="w-full mt-1 block"
-                                accept="image/*"
-                                required={isEditing ? false : true}
-                            />
-                            <InputError
-                                message={errors.photo}
                                 className="mt-2"
                             />
                         </div>
@@ -624,7 +548,7 @@ export default function Create({
                                 type="submit"
                                 disabled={processing}
                             >
-                                {processing ? "Guardando" : "Enviar"}
+                                {processing ? "Guardando" : "Continuar"}
                             </PrimaryButton>
                         </div>
                     </div>

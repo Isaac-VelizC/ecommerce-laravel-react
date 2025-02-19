@@ -1,9 +1,8 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
-import { IconEdit, IconTrash } from "@/Components/IconSvg";
+import { IconEye, IconTrash } from "@/Components/IconSvg";
 import Modal from "@/Components/Modal";
 import { MessageInterface } from "@/Interfaces/Message";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
@@ -33,7 +32,7 @@ export default function Index({ messages }: Props) {
             {
                 name: "Id",
                 cell: (row: MessageInterface) => row.id,
-                width: "80px"
+                width: "80px",
             },
             {
                 name: "Nombre",
@@ -54,18 +53,18 @@ export default function Index({ messages }: Props) {
             {
                 name: "Acciones",
                 cell: (row: MessageInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEye
+                            color="black"
+                            size={16}
                             event={() =>
                                 router.get(route("messages.show", row.id))
                             }
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
-                            event={() => handleDeleteBanner(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
+                        <IconTrash
+                            color="black"
+                            size={16}
+                            event={() => handleDeleteMessage(row.id)}
                         />
                     </div>
                 ),
@@ -75,7 +74,7 @@ export default function Index({ messages }: Props) {
         [messageList]
     );
 
-    const handleDeleteBanner = (id: number) => {
+    const handleDeleteMessage = (id: number) => {
         setShowModalDelete(true);
         setSelectMessage(id);
     };
@@ -88,9 +87,7 @@ export default function Index({ messages }: Props) {
                 );
                 if (response.data.success) {
                     setMessageList(
-                        messageList.filter(
-                            (item) => item.id !== selectMessage
-                        )
+                        messageList.filter((item) => item.id !== selectMessage)
                     );
                     setShowModalDelete(false);
                     toast.success(response.data.message);

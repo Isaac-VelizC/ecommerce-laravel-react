@@ -115,7 +115,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             <LinkSidebar name="Posts" icon="fa-folder" href={route('post.index')}/>
                             <LinkSidebar name="Category" icon="fa-diagram-project" href={route('post.categories.index')}/>
                             <LinkSidebar name="Tags" icon="fa-tags" href={route('post.tags.index')}/>
-                            <LinkSidebar name="Comments" icon="fa-comments" href="#"/>
+                            <LinkSidebar name="Comments" icon="fa-comments" href="hola-mundo"/>
                         </ul>
                     </div>
                     <div>

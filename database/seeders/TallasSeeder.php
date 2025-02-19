@@ -13,15 +13,15 @@ class TallasSeeder extends Seeder
     public function run(): void
     {
         $tallas = [
-            ['nombre' => 'XS'],
-            ['nombre' => 'S'],
-            ['nombre' => 'M'],
-            ['nombre' => 'L'],
-            ['nombre' => 'XL'],
-            ['nombre' => 'XXL'],
-            ['nombre' => 'Única'],
+            ['name' => 'XS'],
+            ['name' => 'S'],
+            ['name' => 'M'],
+            ['name' => 'L'],
+            ['name' => 'XL'],
+            ['name' => 'XXL'],
+            ['name' => 'Única'],
         ];
 
-        DB::table('tallas')->insert($tallas);
+        DB::table('sizes')->insert($tallas);
     }
 }

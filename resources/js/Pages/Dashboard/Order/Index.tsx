@@ -1,7 +1,6 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
-import { IconTrash } from "@/Components/IconSvg";
+import { IconEye, IconTrash } from "@/Components/IconSvg";
 import { OrderInterface } from "@/Interfaces/Order";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
@@ -24,7 +23,7 @@ export default function Index({ orders }: Props) {
             {
                 name: "S.N.",
                 cell: (row: OrderInterface) => row.id,
-                width: '70px'
+                width: "70px",
             },
             {
                 name: "N. Orden",
@@ -42,17 +41,19 @@ export default function Index({ orders }: Props) {
             {
                 name: "Cantidad",
                 cell: (row: OrderInterface) => row.quantity,
-                width: '100px'
+                width: "100px",
             },
             {
                 name: "Envio",
-                cell: (row: OrderInterface) => `$${parseInt(row.shipping.price).toFixed(2)}` ,
-                width: '100px'
+                cell: (row: OrderInterface) =>
+                    `$${parseInt(row.shipping.price).toFixed(2)}`,
+                width: "100px",
             },
             {
                 name: "Monto Total",
-                cell: (row: OrderInterface) => `$${row.total_amount.toFixed(2)}`,
-                width: '120px'
+                cell: (row: OrderInterface) =>
+                    `$${row.total_amount.toFixed(2)}`,
+                width: "120px",
             },
             {
                 name: "Estado",
@@ -67,26 +68,28 @@ export default function Index({ orders }: Props) {
                         </button>
                     </div>
                 ),
-                width: '100px'
+                width: "100px",
             },
             {
                 name: "Acciones",
                 cell: (row: OrderInterface) => (
-                    <>
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEye
+                            color="black"
+                            size={16}
+                            event={() =>
+                                router.get(route("order.show", row.id))
+                            }
+                        />
+                        <IconTrash
+                            color="black"
+                            size={16}
                             event={() => modalDeleteOpen(row.id)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
-                        <IconButton
-                            event={() => router.get(route('order.show', row.id))}
-                            color="bg-yellow-700"
-                            icon={<IconTrash />}
-                        />
-                    </>
+                    </div>
                 ),
                 ignoreRowClick: true,
-                width: '100px'
+                width: "100px",
             },
         ],
         [ordersList]

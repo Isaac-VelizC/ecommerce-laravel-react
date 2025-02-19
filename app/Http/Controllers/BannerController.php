@@ -120,7 +120,6 @@ class BannerController extends Controller
         return $parsedUrl['filename']; // Extrae el `public_id` de la imagen
     }
 
-
     public function destroy($id)
     {
         try {

@@ -1,6 +1,5 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
@@ -73,22 +72,23 @@ export default function Banner({ banners }: Props) {
             {
                 name: "Acciones",
                 cell: (row: BannerInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
+                    <div className="flex gap-4">
+                        <IconEdit
+                            color="black"
+                            size={16}
                             event={() =>
                                 router.get(route("banner.edit", row.id))
                             }
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
                         />
-                        <IconButton
+                        <IconTrash
+                            color="black"
+                            size={16}
                             event={() => handleDeleteBanner(row)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
                     </div>
                 ),
                 ignoreRowClick: true,
+                width: "120px",
             },
         ],
         [bannerList]

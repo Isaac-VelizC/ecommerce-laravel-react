@@ -11,7 +11,7 @@ const Banner: React.FC<Props> = ({ banners }) => {
     return (
         <section className="h-[500px] relative">
             <Swiper
-                effect={'fade'}
+                effect={"fade"}
                 modules={[EffectFade, Navigation, Pagination, Autoplay]}
                 slidesPerView={1}
                 loop={true}
@@ -26,14 +26,19 @@ const Banner: React.FC<Props> = ({ banners }) => {
                             className="h-[500px] bg-cover bg-center"
                             style={{ backgroundImage: `url(${banner.photo})` }}
                         >
-                            <div className="w-full h-full absolute bg-black-2 opacity-40"/>
+                            <div className="w-full h-full absolute bg-black-2 opacity-15" />
                             <div className="relative text-center pt-[150px]">
                                 <span className="text-[18px] text-[#ca15b5] uppercase font-medium">
                                     {banner.title}
                                 </span>
-                                <h1 className="text-5xl md:text-7xl text-white font-cookie mb-[15px]">
+                                {/*<h1 className="text-5xl md:text-7xl text-white font-cookie mb-[15px]">
                                     {banner.description}
-                                </h1>
+                                </h1>*/}
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: banner.description,
+                                    }}
+                                />
                                 <a
                                     href="#"
                                     className="text-[14px] text-white uppercase font-bold relative inline-block pb-[3px]"

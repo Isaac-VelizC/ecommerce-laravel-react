@@ -28,8 +28,24 @@ class Product extends Model
     {
         return $this->hasMany(ProductReview::class, 'product_id', 'id')->with('user_info')->where('status', 'active')->orderBy('id', 'DESC');
     }
-    
-    public static function getProductBySlug($slug, $userId)
+
+    public function images()
+    {
+        return $this->hasMany(ImageProduct::class, 'product_id', 'id')->orderBy('id', 'DESC');
+    }
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class, 'product_id', 'id')->orderBy('id', 'DESC');
+    }
+
+    public function updateStock()
+    {
+        $this->stock = $this->inventories()->sum('quantity');
+        $this->save();
+    }
+
+    public static function getProductBySlug($slug, $userId = null)
     {
         $product = Product::withAvg('getReview', 'rate')
             ->with(['cat_info', 'rel_prods', 'getReview', 'brand'])

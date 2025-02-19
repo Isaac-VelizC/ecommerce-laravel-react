@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
 use Carbon\Carbon;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -80,25 +81,45 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'short_des' => 'required|string',
             'description' => 'required|string',
-            'photo' => 'required',
-            'logo' => 'required',
+            'logoFile' => 'nullable|image|mimes:svg,png,webp|max:2048',
+            'photoFile' => 'nullable|image|mimes:svg,png,webp|max:2048',
             'address' => 'required|string',
             'email' => 'required|email',
-            'phone' => 'required|string',
+            'phone' => 'required|string|min:8|max:15',
         ]);
         try {
             $settings = Setting::first();
+            // Si se sube una nueva imagen, actualizar en Cloudinary
+            if ($request->hasFile('photoFile')) {
+                // (Opcional) Eliminar imagen anterior en Cloudinary
+                if ($settings->photo) {
+                    Cloudinary::destroy($this->getPublicIdFromUrl($settings->photo));
+                }
+                // Subir nueva imagen a Cloudinary
+                $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+                $validatedData['photo'] = $uploadedFile->getSecurePath(); // Nueva URL de la imagen
+            }
+            if ($request->hasFile('logoFile')) {
+                // (Opcional) Eliminar imagen anterior en Cloudinary
+                if ($settings->logo) {
+                    Cloudinary::destroy($this->getPublicIdFromUrl($settings->logo));
+                }
+                // Subir nueva imagen a Cloudinary
+                $uploadedFile = Cloudinary::upload($request->file('logoFile')->getRealPath());
+                $validatedData['logo'] = $uploadedFile->getSecurePath(); // Nueva URL de la imagen
+            }
             $settings->fill($validatedData)->save();
             return back()->with('success', 'Configuración actualizada con éxito');
         } catch (\Throwable $th) {
-            Log::error($th->getMessage());
+            dd($th->getMessage());
             return back()->with('error', 'Por favor, inténtelo de nuevo');
         }
     }
 
-    public function changePassword()
+    private function getPublicIdFromUrl($url)
     {
-        return view('backend.layouts.changePassword');
+        $parsedUrl = pathinfo($url);
+        return $parsedUrl['filename']; // Extrae el `public_id` de la imagen
     }
 
     /*public function changPasswordStore(Request $request)

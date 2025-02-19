@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\PostTag;
 use App\Models\Post;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -43,7 +44,7 @@ class PostController extends Controller
             'title' => 'required|string|min:5',
             'summary' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'photo' => 'nullable|string',
+            'photoFile'   => 'required|image|mimes:jpg,png,webp|max:2048',
             'tags' => 'required|array',
             'post_cat_id' => 'required|exists:post_categories,id',
             'status' => 'required|in:active,inactive',
@@ -52,11 +53,14 @@ class PostController extends Controller
         try {
             $slug = Str::slug($validatedData['title']);
             $slug = $this->generateUniqueSlug($slug);
+            // Subir imagen a Cloudinary
+            $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+
             $postData = [
                 'title' => $validatedData['title'],
                 'summary' => $validatedData['summary'],
                 'description' => $validatedData['description'] ?? null,
-                'photo' => $validatedData['photo'] ?? null,
+                'photo' => $uploadedFile->getSecurePath(),
                 'post_cat_id' => $validatedData['post_cat_id'],
                 'status' => $validatedData['status'],
                 'slug' => $slug,
@@ -93,7 +97,7 @@ class PostController extends Controller
             'title' => 'required|string|min:5',
             'summary' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'photo' => 'nullable|string',
+            'photoFile'   => 'nullable|image|mimes:jpg,png,webp|max:2048',
             'tags' => 'required|array',
             'tags.*' => 'string', // Validar que cada elemento del array tags sea un string
             'post_cat_id' => 'required|exists:post_categories,id',
@@ -106,11 +110,21 @@ class PostController extends Controller
 
             $post = Post::findOrFail($id);
 
+            if ($request->hasFile('photoFile')) {
+                // (Opcional) Eliminar imagen anterior en Cloudinary
+                if ($post->photo) {
+                    Cloudinary::destroy($this->getPublicIdFromUrl($post->photo));
+                }
+                // Subir nueva imagen a Cloudinary
+                $uploadedFile = Cloudinary::upload($request->file('photoFile')->getRealPath());
+                //$validatedData['photo'] = $uploadedFile->getSecurePath(); // Nueva URL de la imagen
+            }
+
             $post->update([
                 'title' => $validatedData['title'],
                 'summary' => $validatedData['summary'],
                 'description' => $validatedData['description'] ?? null,
-                'photo' => $validatedData['photo'] ?? null,
+                'photo' => $uploadedFile->getSecurePath(),
                 'post_cat_id' => $validatedData['post_cat_id'],
                 'status' => $validatedData['status'],
                 'slug' => $slug,
@@ -123,10 +137,19 @@ class PostController extends Controller
         }
     }
 
+    private function getPublicIdFromUrl($url)
+    {
+        $parsedUrl = pathinfo($url);
+        return $parsedUrl['filename'];
+    }
+
     public function destroy($id)
     {
         try {
             $post = Post::findOrFail($id);
+            if ($post->photo) {
+                Cloudinary::destroy($this->getPublicIdFromUrl($post->photo));
+            }
             $post->delete();
             return response()->json(['success' => true, 'message' => 'Publicación eliminado exitosamente'], 200);
         } catch (\Throwable $th) {

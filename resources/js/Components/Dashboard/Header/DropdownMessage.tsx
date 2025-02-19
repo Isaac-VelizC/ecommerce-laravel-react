@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import ClickOutside from '../../ClickOutside';
 import { MessageContext } from '@/Context/MessageContext';
+import { fDateTime } from "@/Utils/format-time";
 
 const DropdownMessage = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -53,7 +54,7 @@ const DropdownMessage = () => {
                           {msg.name}
                         </h6>
                         <span className="text-sm text-gray-500">{msg.subject}</span> <br />
-                        <small className="text-xs text-gray-500">{msg.created_at}</small>
+                        <small className="text-xs text-gray-500">{fDateTime(msg.created_at)}</small>
                       </div>
                     </a>
                   </li>

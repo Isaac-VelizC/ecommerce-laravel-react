@@ -1,10 +1,9 @@
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
-import IconButton from "@/Components/Dashboard/Buttons/IconButton";
 import PrimaryButton from "@/Components/Dashboard/Buttons/PrimaryButton";
 import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
 import DataTableComponent from "@/Components/Dashboard/DataTable";
-import { IconEdit, IconTrash } from "@/Components/IconSvg";
+import { IconEdit, IconEye, IconTrash } from "@/Components/IconSvg";
 import Modal from "@/Components/Modal";
 import PreviewImage from "@/Components/PreviewImage";
 import { PostInterface } from "@/Interfaces/Post";
@@ -87,16 +86,21 @@ export default function Index({ posts }: Props) {
             {
                 name: "Acciones",
                 cell: (row: PostInterface) => (
-                    <div className="flex gap-2">
-                        <IconButton
-                            event={() => router.get(route("post.edit", row.id))}
-                            color="bg-blue-700"
-                            icon={<IconEdit />}
+                    <div className="flex gap-4">
+                        <IconEye
+                            color="black"
+                            size={16}
+                            event={() => {}}
                         />
-                        <IconButton
+                        <IconEdit
+                            color="black"
+                            size={16}
+                            event={() => router.get(route("post.edit", row.id))}
+                        />
+                        <IconTrash
+                            color="black"
+                            size={16}
                             event={() => handleDeletePost(row)}
-                            color="bg-red-700"
-                            icon={<IconTrash />}
                         />
                     </div>
                 ),
