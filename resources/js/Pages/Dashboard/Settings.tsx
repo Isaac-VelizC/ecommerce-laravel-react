@@ -249,7 +249,7 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                                 onClick={() => reset()}
                                 className="mr-2"
                             >
-                                Reset
+                                Cancelar
                             </DangerButton>
                             <PrimaryButton
                                 className="ml-2"

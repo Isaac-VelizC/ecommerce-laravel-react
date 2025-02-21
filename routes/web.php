@@ -112,7 +112,7 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::post('/users/create', [UsersController::class, 'store'])->name('user.store');
     Route::get('/users/edit/{id?}', [UsersController::class, 'edit'])->name('user.edit');
     Route::post('/users/update/{id?}', [UsersController::class, 'update'])->name('user.update');
-    Route::delete('/api/users/delete/{id?}', [UsersController::class, 'destroy'])->name('user.delete');
+    Route::delete('/api/users/delete/{id?}', [UsersController::class, 'destroy'])->name('user.delete.status');
     //Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::post('/settings/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');

@@ -36,8 +36,16 @@ export default function Index({ users }: Props) {
                 name: "Perfil",
                 cell: (row: UserInterface) => (
                     <img
-                        onClick={() => openModal(row.photo)}
-                        src={row.photo}
+                        onClick={() =>
+                            openModal(
+                                row.photo ??
+                                    "https://i.pinimg.com/736x/c3/36/df/c336dfaf9f076cdbebf896d68585c355.jpg"
+                            )
+                        }
+                        src={
+                            row.photo ??
+                            "https://i.pinimg.com/736x/c3/36/df/c336dfaf9f076cdbebf896d68585c355.jpg"
+                        }
                         alt={row.name}
                         className="w-12 h-12 p-1 rounded-full object-cover shadow transition-transform duration-300 ease-in-out hover:scale-150 hover:z-[99]"
                     />
@@ -112,20 +120,26 @@ export default function Index({ users }: Props) {
     const handleDelete = async () => {
         if (selectUser) {
             try {
+                
                 const response = await axios.delete(
-                    route("banner.delete", selectUser.id)
+                    route("user.delete.status", selectUser.id)
                 );
                 if (response.data.success) {
-                    setUserList(
-                        userList.filter((item) => item.id !== selectUser.id)
-                    );
+                    setUserList((prevUserList) => {
+                        return prevUserList.map((item) => 
+                            item.id === response.data.user.id ? response.data.user : item
+                        );
+                    });
                     setShowModalDelete(false);
                     toast.success(response.data.message);
                 } else {
                     toast.error(response.data.message);
                 }
             } catch (error) {
-                console.error("Error al eliminar el banner: ", error);
+                console.error(
+                    "Ocurrio un error, por favor intentalo de nuevo: ",
+                    error
+                );
             }
         }
     };
@@ -170,18 +184,26 @@ export default function Index({ users }: Props) {
             >
                 <div className="p-4">
                     <h2 className="font-semibold text-lg mb-4 text-text">
-                        Confirmar Eliminación
+                        Confirmar{" "}
+                        {selectUser?.status === "active"
+                            ? "dar de baja"
+                            : "dar de alta"}
                     </h2>
-                    <p className="text-sx text-gray-400">
-                        ¿Estás seguro de que deseas eliminar este banner? Esta
-                        acción no se puede deshacer.
+                    <p className="text-sx text-gray-400 text-center">
+                        ¿Estás seguro de que deseas
+                        {selectUser?.status === "active"
+                            ? " dar de baja"
+                            : " dar de alta"}{" "}
+                        al usuario <span className="font-bold">{selectUser?.name}</span>?
                     </p>
                     <div className="flex justify-center gap-4 mb-3 mt-5">
                         <SecondaryButton onClick={handleCloseModal}>
                             Cancelar
                         </SecondaryButton>
-                        <DangerButton onClick={handleDelete}>
-                            Eliminar
+                        <DangerButton onClick={() => handleDelete()}>
+                            {selectUser?.status === "active"
+                                ? "Dar de baja"
+                                : "Dar de alta"}
                         </DangerButton>
                     </div>
                 </div>

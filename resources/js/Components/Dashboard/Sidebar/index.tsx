@@ -96,7 +96,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             MENU
                         </h3>
                         <ul className="mb-6 flex flex-col gap-1.5">
-                            <LinkSidebar name="Media Manager" icon="fa-chart-column" href="/dashboard"/>
+                            <LinkSidebar name="Panel Control" icon="fa-chart-column" href="/dashboard"/>
                             <LinkSidebar name="Banner" icon="fa-image" href={route('banner.index')}/>
                             <LinkSidebar name="Category" icon="fa-diagram-project" href={route('category.index')}/>
                             <LinkSidebar name="Products" icon="fa-boxes-stacked" href={route('product.index')}/>

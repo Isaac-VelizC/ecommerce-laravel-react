@@ -195,7 +195,7 @@ export default function Create({ banner, isEditing }: Props) {
                                 onClick={() => handleCancelForm()}
                                 className="mr-2"
                             >
-                                Reset
+                                Volver
                             </DangerButton>
                             <PrimaryButton
                                 className="ml-2"

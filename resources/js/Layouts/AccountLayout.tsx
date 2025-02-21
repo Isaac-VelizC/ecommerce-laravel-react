@@ -29,7 +29,7 @@ export default function AccountLayout({ children }: PropsWithChildren) {
                         <aside className="md:col-span-1 bg-gray-50 p-4 rounded-lg">
                             <div className="text-center mb-6">
                                 <img
-                                    src={user.photo}
+                                    src={user.photo ?? 'https://i.pinimg.com/736x/c3/36/df/c336dfaf9f076cdbebf896d68585c355.jpg'}
                                     alt={user.name}
                                     className="w-24 h-24 mx-auto object-cover bg-center bg-cover rounded-full border-2 border-gray-300"
                                 />

@@ -104,13 +104,15 @@ class UsersController extends Controller
     public function destroy($id)
     {
         try {
-            $delete = User::findorFail($id);
-            $delete->status = 'inactive';
-            $delete->delete();
-            return redirect()->back()->with('success', 'Usuario eliminado exitosamente.');
+            // Buscar el usuario por ID y cambiar su estado
+            $user = User::findOrFail($id);
+            $user->status = ($user->status === 'active') ? 'inactive' : 'active';
+            $user->save();
+            // Redirigir con mensaje de éxito
+            return response()->json(['success' => true, 'message' => 'Usuario ' . ($user->status === 'active' ? 'activado' : 'inactivado') . ' exitosamente.', 'user' => $user], 200);
         } catch (\Throwable $th) {
-            dd($th);
-            return redirect()->back()->with('error', 'Ocurrió un error, vuelve a intentarlo');
+            // Manejo de errores
+            return response()->json(['error' => 'Ocurrió un error, vuelve a intentarlo']);
         }
     }
 }
