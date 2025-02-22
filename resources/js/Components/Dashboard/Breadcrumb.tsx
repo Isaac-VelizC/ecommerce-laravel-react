@@ -12,8 +12,7 @@ const Breadcrumb = ({ pageName, links }: BreadcrumbProps) => {
                 {pageName}
             </h2>
 
-            <nav>
-                <ol className="flex items-center gap-2">
+            <nav className="flex flex-wrap items-center gap-2 overflow-x-auto">
                     <a className="font-medium" href="/">
                         Dashboard /
                     </a>
@@ -33,7 +32,6 @@ const Breadcrumb = ({ pageName, links }: BreadcrumbProps) => {
                             )}
                         </a>
                     ))}
-                </ol>
             </nav>
         </div>
     );

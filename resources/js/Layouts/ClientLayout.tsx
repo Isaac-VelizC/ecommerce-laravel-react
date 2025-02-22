@@ -119,7 +119,7 @@ export default function Client({ children }: PropsWithChildren) {
                 >
                     &times;
                 </button>
-                <div className=" float-right px-16 py-10">
+                <div className=" float-right px-12 py-10">
                     <IconsNavBar
                         cartItems={[]}
                         toggleSearch={() => setIsOpenSearch(true)}

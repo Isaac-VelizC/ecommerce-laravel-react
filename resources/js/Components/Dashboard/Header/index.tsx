@@ -3,14 +3,13 @@ import DarkModeSwitcher from "./DarkModeSwitcher";
 import DropdownNotification from "./DropdownNotification";
 import DropdownMessage from "./DropdownMessage";
 import DropdownUser from "./DropdownUser";
-import { Link } from "@inertiajs/react";
 
 const Header = (props: {
     sidebarOpen: string | boolean | undefined;
     setSidebarOpen: (arg0: boolean) => void;
 }) => {
     return (
-        <header className="sticky top-0 z-999 flex w-full backdrop-blur-sm drop-shadow-1 m-2 rounded-3xl bg-gray-500/10 dark:drop-shadow-none">
+        <header className="sticky top-0 z-999 flex w-full backdrop-blur-sm drop-shadow-1 my-2 rounded-3xl bg-gray-500/0 dark:drop-shadow-none">
             <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 rounded-3xl md:px-6 2xl:px-11">
                 <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
                     {/* <!-- Hamburger Toggle BTN --> */}

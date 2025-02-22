@@ -23,7 +23,7 @@ export default function Authenticated({
                     {/* <!-- ===== Sidebar End ===== --> */}
                     <ToastContainer
                         position="top-center"
-                        autoClose={5000}
+                        autoClose={4000}
                         hideProgressBar={false}
                         newestOnTop={false}
                         closeOnClick={false}
@@ -44,10 +44,8 @@ export default function Authenticated({
                         {/* <!-- ===== Header End ===== --> */}
 
                         {/* <!-- ===== Main Content Start ===== --> */}
-                        <main>
-                            <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-                                {children}
-                            </div>
+                        <main className="max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+                            {children}
                         </main>
                         {/* <!-- ===== Main Content End ===== --> */}
                     </div>

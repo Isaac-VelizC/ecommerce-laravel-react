@@ -18,7 +18,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
     const { user } = usePage().props.auth;
 
     useEffect(() => {
-        if (user.role === "user") {
+        if (user && user.role === "user") {
             const fetchFavorites = async () => {
                 try {
                     const response = await axios.get(route("get-favorites"));
@@ -53,7 +53,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                 <img
                     src={SearchIcon}
                     alt="Icon Search"
-                    className="lg:w-6 w-16"
+                    className="lg:w-6 w-18"
                 />
             </li>
             <li className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer">
@@ -70,7 +70,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                     <img
                         src={HeartIcon}
                         alt="Icon Heart"
-                        className="lg:w-6 w-16"
+                        className="lg:w-6 w-20"
                     />
                     {countFavorite > 0 && (
                         <div className="absolute -right-3 -top-[11px] h-4 w-4 bg-black text-white text-xs leading-tight rounded-full text-center">
