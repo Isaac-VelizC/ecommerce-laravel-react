@@ -109,10 +109,14 @@ export default function Index({ messages }: Props) {
         router.get(route("messages.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route('messages.index'), label: "Mensajes" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Messages" />
-            <Breadcrumb pageName="Mensajes" />
+            <Breadcrumb pageName="Mensajes" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

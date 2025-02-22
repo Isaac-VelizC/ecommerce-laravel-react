@@ -22,17 +22,23 @@ export default function Show({ product, inventaries }: PropsInventary) {
     const exitPage = () => {
         router.get("/products");
     };
+
+    const breadcrumbLinks = [
+        { href: route("product.index"), label: "Productos" },
+        { href: route("product.show", product.slug), label: product.title }
+    ];
+
     return (
         <Authenticated>
             <Head title={product.title} />
-            <Breadcrumb pageName={product.slug} />
+            <Breadcrumb pageName={product.slug} links={breadcrumbLinks}/>
             <Card>
-                <div className="flex justify-between items-center mb-10">
-                    <h4 className="font-semibold text-text">
+                <div className="flex flex-col lg:flex-row justify-between items-center mb-10">
+                    <h4 className="font-semibold text-text mb-8 lg:mb-0">
                         Producto{" "}
                         <span className="text-accent">{product.title}</span>
                     </h4>
-                    <div className=" flex gap-2">
+                    <div className="flex gap-2">
                         <DangerButton onClick={() => exitPage()}>
                             Volver
                         </DangerButton>
@@ -58,7 +64,7 @@ export default function Show({ product, inventaries }: PropsInventary) {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="w-full">
+                    <div className="w-full flex justify-center">
                         <img
                             src={product.photo}
                             alt={product.slug}

@@ -1,6 +1,6 @@
 import { ProductInventaryInterface } from "@/Interfaces/Product";
 import { toast } from "react-toastify";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import _ from "lodash";
 
@@ -11,6 +11,9 @@ type Props = {
 const TableInventary: React.FC<Props> = ({ inventaries }) => {
     const [listInventario, setListInventario] =
         useState<ProductInventaryInterface[]>(inventaries);
+    useEffect(() => {
+        setListInventario(inventaries);
+    }, [inventaries]);
 
     const handleQuantityChange = (id: number, newQuantity: number) => {
         setListInventario((prevList) =>

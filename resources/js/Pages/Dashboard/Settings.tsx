@@ -9,7 +9,7 @@ import TextInput from "@/Components/Dashboard/Form/TextInput";
 import { SettingInterface } from "@/Interfaces/Settings";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, useForm } from "@inertiajs/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 type Props = {
@@ -25,6 +25,13 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
     );
     const { data, post, setData, errors, reset, processing } =
         useForm<SettingInterface>(infoApp);
+
+    useEffect(() => {
+        if (infoApp.logo || infoApp.photo) {
+            setImagePreviewLogo(infoApp.logo);
+            setImagePreviewPhoto(infoApp.photo);
+        }
+    }, []);
 
     const handleFileChangeLogo = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -182,18 +189,13 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
-                            <InputLabel
-                                htmlFor="logo"
-                                value="Logo"
-                                required
-                            />
+                            <InputLabel htmlFor="logo" value="Logo" required />
                             <InputFile
                                 id="logo"
                                 name="logo"
                                 onChange={handleFileChangeLogo}
                                 className="w-full mt-1 block"
                                 accept="image/*"
-                                required
                             />
                             <InputError
                                 message={errors.logo}
@@ -201,14 +203,17 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                             />
                         </div>
                         <div>
-                            <InputLabel htmlFor="photo" value="Logo Letras" required />
+                            <InputLabel
+                                htmlFor="photo"
+                                value="Logo Letras"
+                                required
+                            />
                             <InputFile
                                 id="photo"
                                 name="photo"
                                 onChange={handleFileChangePhoto}
                                 className="w-full mt-1 block"
                                 accept="image/*"
-                                required
                             />
                             <InputError
                                 message={errors.photo}
@@ -237,7 +242,12 @@ const Settings: React.FC<Props> = ({ infoApp }) => {
                         )}
                         {imagePreviewPhoto && (
                             <div className="items-center">
-                                <img className="relative" src={imagePreviewPhoto} alt="Logo Name" width={200} />
+                                <img
+                                    className="relative"
+                                    src={imagePreviewPhoto}
+                                    alt="Logo Name"
+                                    width={200}
+                                />
                                 <h1 className="text-text text-xs font-bold text-center">
                                     Logo Name
                                 </h1>

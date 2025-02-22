@@ -6,10 +6,11 @@ import InputLabel from "@/Components/Dashboard/Form/InputLabel";
 import InputSelect from "@/Components/Dashboard/Form/InputSelect";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
 import TextInput from "@/Components/Dashboard/Form/TextInput";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 import { FormCouponType } from "@/Interfaces/Coupon";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 type Props = {
@@ -29,6 +30,16 @@ export default function Create({ coupon, isEditing }: Props) {
         value: null,
         status: "active",
     };
+
+    useEffect(() => {
+        if (isEditing) {
+            setSelectedType({
+                value: coupon?.type === "Fijo" ? 1 : 2,
+                label: coupon?.type || "",
+            });
+        }
+    }, []);
+
     const { data, setData, post, put, processing, errors, reset } =
         useForm(initialData);
 
@@ -79,6 +90,7 @@ export default function Create({ coupon, isEditing }: Props) {
     return (
         <Authenticated>
             <Head title="Cupón Create" />
+            <FullScreenLoader show={processing} />
             <Card>
                 <h4 className="font-semibold text-text">
                     {isEditing ? "Editar" : "Agregar "} Cupón
@@ -109,31 +121,6 @@ export default function Create({ coupon, isEditing }: Props) {
                         </div>
                         <div className="mt-1">
                             <InputLabel
-                                htmlFor="value"
-                                value="Valor del Cupón"
-                                required
-                            />
-                            <TextInput
-                                id="value"
-                                name="value"
-                                placeholder="Ingrese el valor"
-                                value={data.value || 0}
-                                onChange={(e) =>
-                                    setData("value", parseInt(e.target.value))
-                                }
-                                className="w-full mt-1 block"
-                                min={1}
-                                required
-                            />
-                            <InputError
-                                message={errors.value}
-                                className="mt-2"
-                            />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 mt-1 gap-4">
-                        <div className="mt-1">
-                            <InputLabel
                                 htmlFor="code"
                                 value="Tipo de cupón"
                                 required
@@ -153,6 +140,31 @@ export default function Create({ coupon, isEditing }: Props) {
                             />
                             <InputError
                                 message={errors.type}
+                                className="mt-2"
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 mt-1 gap-4">
+                        <div className="mt-1">
+                            <InputLabel
+                                htmlFor="value"
+                                value="Valor del Cupón"
+                                required
+                            />
+                            <TextInput
+                                id="value"
+                                name="value"
+                                placeholder="Ingrese el valor"
+                                value={data.value || 0}
+                                onChange={(e) =>
+                                    setData("value", parseInt(e.target.value))
+                                }
+                                className="w-full mt-1 block"
+                                min={1}
+                                required
+                            />
+                            <InputError
+                                message={errors.value}
                                 className="mt-2"
                             />
                         </div>
@@ -190,7 +202,7 @@ export default function Create({ coupon, isEditing }: Props) {
                             onClick={() => handleCancelForm()}
                             className="mr-2"
                         >
-                            Reset
+                            Volver
                         </DangerButton>
                         <PrimaryButton
                             className="ml-2"

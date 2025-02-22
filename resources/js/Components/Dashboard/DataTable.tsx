@@ -94,7 +94,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
     onFilter,
     onClear,
 }) => (
-    <div className="my-4 bg-body rounded-xl">
+    <div className="my-4 bg-body rounded-xl flex">
         <input
             type="text"
             placeholder="Buscar..."
@@ -150,14 +150,16 @@ const DataTableComponent = <T extends Record<string, unknown>>({
             }
         };
         return (
-            <>
+            <div className="w-full flex flex-col md:flex-row justify-between items-center">
                 <FilterComponent
                     onFilter={(e) => setFilterText(e.target.value)}
                     onClear={handleClear}
                     filterText={filterText}
                 />
+                <div className="w-full float-end right-0">
                 {children}
-            </>
+                </div>
+            </div>
         );
     }, [filterText, resetPaginationToggle]);
 

@@ -5,6 +5,7 @@ import { IconEdit, IconEye, IconTrash } from "@/Components/IconSvg";
 import PreviewImage from "@/Components/PreviewImage";
 import { ProductInterface } from "@/Interfaces/Product";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { truncateText } from "@/Utils/functions";
 import { Head, router } from "@inertiajs/react";
 import React, { useMemo, useState } from "react";
 
@@ -35,7 +36,7 @@ export default function Product({ products }: Props) {
         () => [
             {
                 name: "Titulo",
-                cell: (row: ProductInterface) => row.title,
+                cell: (row: ProductInterface) => truncateText(row.title, 25),
                 sortable: true,
             },
             {
@@ -126,10 +127,14 @@ export default function Product({ products }: Props) {
         router.get(route("product.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route("product.index"), label: "Productos" },
+    ];
+    
     return (
         <Authenticated>
             <Head title="Product" />
-            <Breadcrumb pageName="Productos" />
+            <Breadcrumb pageName="Productos" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

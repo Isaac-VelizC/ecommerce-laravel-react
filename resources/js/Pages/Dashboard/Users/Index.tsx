@@ -153,10 +153,14 @@ export default function Index({ users }: Props) {
         router.get(route("user.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route("user.index"), label: "Usuarios" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Usuarios" />
-            <Breadcrumb pageName="Usuarios" />
+            <Breadcrumb pageName="Usuarios" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

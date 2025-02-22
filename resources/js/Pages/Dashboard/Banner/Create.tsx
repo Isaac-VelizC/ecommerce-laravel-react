@@ -12,6 +12,8 @@ import { FormBannerType } from "@/Interfaces/Banner";
 import { toast } from "react-toastify";
 import EditorText from "@/Components/Dashboard/Form/EditorText";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
+import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 
 type Props = {
     banner?: FormBannerType;
@@ -52,17 +54,15 @@ export default function Create({ banner, isEditing }: Props) {
         if (!isEditing && !data.photoFile)
             return alert("Selecciona una imagen");
         try {
+            
             const routeUrl =
                 isEditing && data?.id
                     ? route("banner.update", data.id)
                     : route("banner.store");
-            //const method = isEditing && data?.id ? put : post;
             // Enviar los datos al backend
             post(routeUrl, {
                 forceFormData: true,
                 onSuccess: () => {
-                    //if (flash.message.success) toast.success(flash.message.success);
-                    //if (flash.message.error) toast.error(flash.message.error);
                     reset();
                     setImagePreview(null);
                 },
@@ -70,6 +70,7 @@ export default function Create({ banner, isEditing }: Props) {
                     toast.error("Error al enviar los datos del banner");
                 },
             });
+            
         } catch (error) {
             console.error("Error al subir la imagen:", error);
             toast.error("Error al subir la imagen");
@@ -92,14 +93,18 @@ export default function Create({ banner, isEditing }: Props) {
         }));
     };
 
+    const breadcrumbLinks = [
+        { href: route('banner.index'), label: "Lista banner" },
+        { href: "#", label: "Formulario" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Banner Create" />
+            <Breadcrumb pageName={`${isEditing ? "Editar" : "Agregar "} Banner`} links={breadcrumbLinks}/>
+            <FullScreenLoader show={processing} />
             <Card>
-                <h4 className="font-semibold text-text">
-                    {isEditing ? "Editar" : "Agregar "} Banner
-                </h4>
-                <form className="py-4" onSubmit={handleSubmit}>
+                <form className="pb-4" onSubmit={handleSubmit}>
                     <div className="mt-1">
                         <InputLabel htmlFor="title" value="Titulo" required />
                         <TextInput

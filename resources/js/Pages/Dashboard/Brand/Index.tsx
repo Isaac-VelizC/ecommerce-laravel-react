@@ -186,10 +186,14 @@ export default function Brand({ brands }: Props) {
         router.get(route("brand.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route('brand.index'), label: "Marcas" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Brands" />
-            <Breadcrumb pageName="Marcas" />
+            <Breadcrumb pageName="Marcas" links={breadcrumbLinks} />
             <AnimatePresence>
                 {formView ? (
                     <motion.div
@@ -257,7 +261,7 @@ export default function Brand({ brands }: Props) {
                                         type="reset"
                                         onClick={() => cancelarForm()}
                                     >
-                                        Reset
+                                        Cancelar
                                     </DangerButton>
                                     <PrimaryButton
                                         type="submit"

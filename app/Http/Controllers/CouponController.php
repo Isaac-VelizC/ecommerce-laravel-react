@@ -6,6 +6,8 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CouponController extends Controller
@@ -31,19 +33,31 @@ class CouponController extends Controller
 
     public function store(Request $request)
     {
+        // Validar el descuento si es tipo 'Porcentaje'
+        if ($request->type === 'Porcentaje') {
+            $request->validate([
+                'value' => 'required|integer|min:1|max:100',
+            ], [
+                'value.min' => 'El valor debe ser un número entre 1 y 100.',
+                'value.max' => 'El valor debe ser un número entre 1 y 100.'
+            ]);
+        }
+        // Validar los demás campos
         $validatedData = $request->validate([
-            'code' => 'string|required|min:5',
-            'type' => 'required|in:Fijo,Porcentaje',
-            'value' => 'required|numeric|min:1',
-            'status' => 'required|in:active,inactive'
+            'code'   => 'required|string|min:5',
+            'type'   => ['required', Rule::in(['Fijo', 'Porcentaje'])],
+            'value'  => 'required|numeric',
+            'status' => ['required', Rule::in(['active', 'inactive'])]
         ]);
         try {
             Coupon::create($validatedData);
-            return redirect()->route('coupon.index')->with('success', 'Coupon successfully added');
+            return redirect()->route('coupon.index')->with('success', trans('Coupon successfully added'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error, Please try again: ' . $e->getMessage());
+            //Log::error('Error al crear el cupón: ' . $e->getMessage());
+            return redirect()->back()->with('error', trans('Error, Please try again') . ': ' . trans($e->getMessage()));
         }
     }
+
 
     public function edit($id)
     {
@@ -60,12 +74,23 @@ class CouponController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Validar el descuento si es tipo 'Porcentaje'
+        if ($request->type === 'Porcentaje') {
+            $request->validate([
+                'value' => 'required|integer|min:1|max:100',
+            ], [
+                'value.min' => 'El valor debe ser un número entre 1 y 100.',
+                'value.max' => 'El valor debe ser un número entre 1 y 100.'
+            ]);
+        }
+        // Validar los demás campos
         $validatedData = $request->validate([
-            'code' => 'string|required|min:5',
-            'type' => 'required|in:Fijo,Porcentaje',
-            'value' => 'required|numeric|min:1',
-            'status' => 'required|in:active,inactive'
+            'code'   => 'required|string|min:5',
+            'type'   => ['required', Rule::in(['Fijo', 'Porcentaje'])],
+            'value'  => 'required|numeric',
+            'status' => ['required', Rule::in(['active', 'inactive'])]
         ]);
+        
         try {
             $coupon = Coupon::find($id);
             $coupon->fill($validatedData)->save();
@@ -83,7 +108,7 @@ class CouponController extends Controller
         try {
             $coupon = Coupon::find($id);
             $coupon->delete();
-        return response()->json(['success' => true, 'message' => 'Cupón eliminado exitosamente'], 200);
+            return response()->json(['success' => true, 'message' => 'Cupón eliminado exitosamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['error' => false, 'message' => 'Error, inténtelo de nuevo: '], 500);
         }

@@ -15,6 +15,8 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import EditorText from "@/Components/Dashboard/Form/EditorText";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
+import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 
 type Props = {
     category?: FormCategoryType;
@@ -110,14 +112,18 @@ export default function Create({ isEditing, category, parent_cats }: Props) {
         router.get(route("category.index"));
     };
 
+    const breadcrumbLinks = [
+        { href: route('banner.index'), label: "Lista categoria" },
+        { href: "#", label: "Formulario" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Categoria" />
+            <Breadcrumb pageName={`${isEditing ? "Editar" : "Añadir"} Categoria`} links={breadcrumbLinks}/>
+            <FullScreenLoader show={processing} />
             <Card>
-                <h4 className="font-semibold text-text">
-                    {isEditing ? "Editar" : "Añadir"} Categoria
-                </h4>
-                <form className="py-4" onSubmit={handleSubmit}>
+                <form className="pb-4" onSubmit={handleSubmit}>
                     <div>
                         <InputLabel htmlFor="title" value="Titulo" required />
                         <TextInput
@@ -251,7 +257,7 @@ export default function Create({ isEditing, category, parent_cats }: Props) {
                                 onClick={() => handleCancelForm()}
                                 className="mr-2"
                             >
-                                Reset
+                                Volver
                             </DangerButton>
                             <PrimaryButton
                                 className="ml-2"

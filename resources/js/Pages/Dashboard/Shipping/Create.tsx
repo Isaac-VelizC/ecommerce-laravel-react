@@ -9,6 +9,7 @@ import { Head, router, useForm } from "@inertiajs/react";
 import { toast } from "react-toastify";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
 import { FormShippingType } from "@/Interfaces/Shipping";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 
 type Props = {
     shipping?: FormShippingType;
@@ -64,6 +65,7 @@ export default function Create({ shipping, isEditing }: Props) {
     return (
         <Authenticated>
             <Head title="Shipping Create" />
+            <FullScreenLoader show={processing} />
             <Card>
                 <h4 className="font-semibold text-text">
                     {isEditing ? "Editar" : "Agregar "} Envio
@@ -137,7 +139,7 @@ export default function Create({ shipping, isEditing }: Props) {
                             onClick={() => handleCancelForm()}
                             className="mr-2"
                         >
-                            Reset
+                            Volver
                         </DangerButton>
                         <PrimaryButton
                             className="ml-2"

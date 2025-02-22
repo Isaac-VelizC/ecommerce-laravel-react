@@ -118,10 +118,14 @@ export default function Coupon({ coupons }: Props) {
         router.get(route("coupon.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route('coupon.index'), label: "Lista cupones" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Cupones" />
-            <Breadcrumb pageName="Cupón" />
+            <Breadcrumb pageName="Cupón" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

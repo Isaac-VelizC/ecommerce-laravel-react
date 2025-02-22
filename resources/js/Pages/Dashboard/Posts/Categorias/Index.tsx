@@ -138,10 +138,14 @@ export default function Index({ postCategories }: Props) {
         router.get(route("post.categories.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route("post.categories.index"), label: "Categorias" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Categoiras" />
-            <Breadcrumb pageName="Posts Categorias" />
+            <Breadcrumb pageName="Posts Categorias" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

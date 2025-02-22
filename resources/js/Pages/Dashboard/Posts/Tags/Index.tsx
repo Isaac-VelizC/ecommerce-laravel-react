@@ -107,10 +107,14 @@ export default function Index({ postTags }: Props) {
         router.get(route("post.tags.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route("post.tags.index"), label: "Etiquetas" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Etiquetas" />
-            <Breadcrumb pageName="Etiquetas de publicación" />
+            <Breadcrumb pageName="Etiquetas de publicación" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

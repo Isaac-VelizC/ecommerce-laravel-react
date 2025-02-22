@@ -20,6 +20,7 @@ import ModalCategory from "./Categorias/ModalCategory";
 import ModalTag from "./Tags/ModalTag";
 import { MultiValue } from "react-select";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 
 type Props = {
     categories: PostCategoryInterface[];
@@ -101,7 +102,7 @@ export default function Create({
         }
     }, [isEditing, postItem, categories, tags]);
 
-    const { data, setData, post, put, processing, errors, reset } =
+    const { data, setData, post, processing, errors, reset } =
         useForm(initialData);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +147,6 @@ export default function Create({
     };
 
     const CloseModal = () => {
-        reset();
         setCreateCategory(false);
         setCreateTag(false);
     };
@@ -157,6 +157,7 @@ export default function Create({
             value: newCategory.id,
             label: newCategory.title,
         });
+        //setData("post_cat_id", newCategory.id);
         data.post_cat_id = newCategory.id;
     };
 
@@ -195,6 +196,7 @@ export default function Create({
     return (
         <Authenticated>
             <Head title="Post Create" />
+            <FullScreenLoader show={processing} />
             <Card>
                 <h4 className="font-semibold text-text">
                     {isEditing ? "Editar" : "Agregar "} Publicación
@@ -364,7 +366,7 @@ export default function Create({
                                 onClick={() => exitFormPage()}
                                 className="mr-2"
                             >
-                                Reset
+                                Cancelar
                             </DangerButton>
                             <PrimaryButton
                                 className="ml-2"

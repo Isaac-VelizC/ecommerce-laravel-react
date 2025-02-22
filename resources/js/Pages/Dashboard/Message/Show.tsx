@@ -31,10 +31,15 @@ export default function Index({ message }: Props) {
         }
     };
 
+    const breadcrumbLinks = [
+        { href: route('messages.index'), label: "Mensajes" },
+        { href: "#", label: "Show" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Messages" />
-            <Breadcrumb pageName="Mensajes" />
+            <Breadcrumb pageName="Mensajes" links={breadcrumbLinks}/>
             <Card>
                 <h5 className="text-lg font-semibold">Mensaje de {message.name}</h5>
                 <div className="py-4 px-20">

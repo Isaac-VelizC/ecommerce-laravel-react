@@ -75,7 +75,8 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/shipping/edit/{id?}', [ShippingController::class, 'edit'])->name('shipping.edit');
     Route::put('/shipping/update/{id?}', [ShippingController::class, 'update'])->name('shipping.update');
     Route::delete('/shipping/delete/{id?}', [ShippingController::class, 'destroy'])->name('shipping.delete');
-    //Orders
+    // Orders o pedidos
+    Route::get('/orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('/order/view/{id}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/order/pdf/{id}', [OrderController::class, 'pdf'])->name('order.pdf');
     //Reviews product
@@ -88,17 +89,16 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::get('/posts/edit/{id?}', [PostController::class, 'edit'])->name('post.edit');
     Route::post('/posts/update/{id?}', [PostController::class, 'update'])->name('post.update');
     Route::delete('/api/posts/delete/{id?}', [PostController::class, 'destroy'])->name('post.delete');
-    // Orders o pedidos
-    Route::get('/orders', [OrderController::class, 'index'])->name('order.index');
+    
     //Post categories
-    Route::get('/posts/categories', [PostCategoryController::class, 'index'])->name('post.categories.index');
+    Route::get('/categories/posts', [PostCategoryController::class, 'index'])->name('post.categories.index');
     Route::post('/api/posts/categories', [PostCategoryController::class, 'store'])->name('post.categories.store');
     Route::put('/api/posts/categories/update/{id?}', [PostCategoryController::class, 'update'])->name('post.categories.update');
-    Route::delete('/posts/categories/delete/{id?}', [PostCategoryController::class, 'destroy'])->name('post.categories.delete');
+    Route::delete('/categories/posts/delete/{id?}', [PostCategoryController::class, 'destroy'])->name('post.categories.delete');
     //Post Tags
-    Route::get('/posts/tags', [PostTagController::class, 'index'])->name('post.tags.index');
+    Route::get('/tags/posts', [PostTagController::class, 'index'])->name('post.tags.index');
     Route::post('/api/posts/tags', [PostTagController::class, 'store'])->name('post.tags.store');
-    Route::delete('/posts/tags/delete/{id?}', [PostTagController::class, 'destroy'])->name('post.tags.delete');
+    Route::delete('/tags/posts/delete/{id?}', [PostTagController::class, 'destroy'])->name('post.tags.delete');
     //Coupons
     Route::get('/coupon', [CouponController::class, 'index'])->name('coupon.index');
     Route::get('/coupon/create', [CouponController::class, 'create'])->name('coupon.create');

@@ -48,6 +48,7 @@ export default function ModalCategory({
                 toast.success(response.data.message);
             }
             onCategoryAdded(response.data.category);
+            setTitle("");
             closeModal();
         } catch (error: any) {
             console.error("Error al crear/actualizar categoría:", error);

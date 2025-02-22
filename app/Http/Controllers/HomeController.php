@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
-    public function pageWelcome() {
+    public function pageWelcome()
+    {
         // Obtener los datos necesarios
         $categories = Categorie::where('status', 'active')
             ->where('is_parent', 1)
@@ -30,7 +31,7 @@ class HomeController extends Controller
             ->orderBy('price', 'DESC')
             ->limit(2)
             ->get();
-        
+
         $topProducts = Cart::with('product')
             ->whereNotNull('order_id')
             ->join('products', 'carts.product_id', '=', 'products.id')
@@ -41,25 +42,25 @@ class HomeController extends Controller
             ->orderByDesc('carts.quantity')
             ->limit(2)
             ->get();
-        
+
         $products = Product::where('status', 'active')
             ->orderBy('created_at', 'DESC')
             ->limit(8)
             ->get();
-        
+
         if (Auth::check()) {
             $userId = Auth::id();
             foreach ($products as $product) {
                 $product->is_in_wishlist = $product->isInWishlist($userId, $product->id);
             }
         }
-        
+
         $discounted_products = Product::where('status', 'active')
-            ->whereNotNull('discount') // Solo productos con descuento
-            ->orderBy('discount', 'ASC') // Ordenar por el mayor descuento
+            ->where('discount', '>', 0)
+            ->orderBy('discount', 'DESC') // Ordenar por el mayor descuento
             ->limit(6)
             ->get();
-        
+
         // Devolver los datos en formato JSON
         return response()->json([
             'featured' => $featured,
@@ -70,5 +71,4 @@ class HomeController extends Controller
             'topProducts' => $topProducts
         ]);
     }
-    
 }

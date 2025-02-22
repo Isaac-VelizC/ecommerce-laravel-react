@@ -134,13 +134,17 @@ export default function Index({ reviews }: Props) {
     };
 
     const handlePageChange = (page: number) => {
-        router.get(route("shipping.index"), { page: page });
+        router.get(route("review.index"), { page: page });
     };
+
+    const breadcrumbLinks = [
+        { href: route("review.index"), label: "Reseñas" },
+    ];
 
     return (
         <Authenticated>
             <Head title="Reviews" />
-            <Breadcrumb pageName="Reseñas" />
+            <Breadcrumb pageName="Reseñas" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

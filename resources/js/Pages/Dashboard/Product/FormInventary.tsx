@@ -19,6 +19,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
 import TableInventary from "@/Components/Dashboard/TableInventary";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 
 type PropsInventary = {
     product: ProductInterface;
@@ -55,9 +56,8 @@ export default function FormInventary({
         talla_id: null as unknown as number,
         color_id: null as unknown as number,
     };
-
     const { data, setData, processing, errors, reset } = useForm(initialData);
-
+    
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -143,10 +143,18 @@ export default function FormInventary({
         setImagePreview(null);
         router.get("/products");
     };
+    
+    const breadcrumbLinks = [
+        { href: route("product.index"), label: "Productos" },
+        { href: route("product.show", product.slug), label: product.title },
+        { href: "#", label: "Inventario" },
+    ];
+
     return (
         <Authenticated>
-            <Head title="Producto Create" />
-            <Breadcrumb pageName="Inventario" />
+            <Head title="Producto Inventario" />
+            <Breadcrumb pageName="Inventario" links={breadcrumbLinks}/>
+            <FullScreenLoader show={processing} />
             <Card>
                 <h4 className="font-semibold text-text">
                     Registrar Inventario
@@ -270,7 +278,7 @@ export default function FormInventary({
                     </div>
                 </form>
             </Card>
-            <br className="py-4" />
+            <br className="py-4"/>
             <Card>
                 <TableInventary inventaries={listInventario} />
             </Card>

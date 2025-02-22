@@ -7,6 +7,7 @@ import InputLabel from "@/Components/Dashboard/Form/InputLabel";
 import InputSelect from "@/Components/Dashboard/Form/InputSelect";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
 import TextInput from "@/Components/Dashboard/Form/TextInput";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 import { FormUserType } from "@/Interfaces/User";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router, useForm } from "@inertiajs/react";
@@ -103,6 +104,7 @@ export default function Create({ user, isEditing }: Props) {
     return (
         <Authenticated>
             <Head title="Nuevo Usuario" />
+            <FullScreenLoader show={processing} />
             <Card>
                 <h4 className="font-semibold text-text">
                     {isEditing ? "Editar" : "Agregar "} Usuario

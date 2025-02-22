@@ -9,6 +9,7 @@ import InputLabel from "@/Components/Dashboard/Form/InputLabel";
 import InputSelect from "@/Components/Dashboard/Form/InputSelect";
 import RadioInput from "@/Components/Dashboard/Form/RadioInput";
 import TextInput from "@/Components/Dashboard/Form/TextInput";
+import FullScreenLoader from "@/Components/FullScreenLoader";
 import { BrandInterface } from "@/Interfaces/Brand";
 import { CategoryInterface } from "@/Interfaces/Category";
 import { FormProductType } from "@/Interfaces/Product";
@@ -273,6 +274,7 @@ export default function Create({
     return (
         <Authenticated>
             <Head title="Producto Create" />
+            <FullScreenLoader show={processing} />
             <Card>
                 <h4 className="font-semibold text-text">
                     {isEditing ? "Editar" : "Agregar "} Producto
@@ -541,7 +543,7 @@ export default function Create({
                                 onClick={() => exitFormPage()}
                                 className="mr-2"
                             >
-                                Reset
+                                Cancelar
                             </DangerButton>
                             <PrimaryButton
                                 className="ml-2"

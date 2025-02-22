@@ -68,7 +68,7 @@ export default function Client({ children }: PropsWithChildren) {
     }, []);
 
     useEffect(() => {
-        if (user) {
+        if (user && user.role === 'user') {
             fetchCartItems();
         }
     }, []);

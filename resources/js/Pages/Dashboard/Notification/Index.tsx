@@ -1,22 +1,19 @@
-import Breadcrumb from '@/Components/Dashboard/Breadcrumb'
-import DangerButton from '@/Components/Dashboard/Buttons/DangerButton'
-import SecondaryButton from '@/Components/Dashboard/Buttons/SecondaryButton'
-import Modal from '@/Components/Modal'
-import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head } from '@inertiajs/react'
-import axios from 'axios'
-import{ useState } from 'react'
-import { toast } from 'react-toastify'
+import Breadcrumb from "@/Components/Dashboard/Breadcrumb";
+import DangerButton from "@/Components/Dashboard/Buttons/DangerButton";
+import SecondaryButton from "@/Components/Dashboard/Buttons/SecondaryButton";
+import Modal from "@/Components/Modal";
+import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { Head } from "@inertiajs/react";
+import axios from "axios";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
-type Props = {
-
-}
+type Props = {};
 
 export default function Index({}: Props) {
     const [showModalDelete, setShowModalDelete] = useState(false);
     //const [selectBanner, setSelectBanner] = useState<BannerInterface | null>();
     //const [bannerList, setBannerList] = useState<BannerInterface[]>(banners.data);
-    
 
     /*const handleDelete = async () => {
         if (selectBanner) {
@@ -45,14 +42,16 @@ export default function Index({}: Props) {
         setShowModalDelete(false);
     };
 
-  return (
-    <Authenticated>
-        <Head title='Notification'/>
-        <Breadcrumb pageName='Notificaciones' />
-        <div className="mx-auto max-w-7xl">
-                <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
-                
-                </div>
+    const breadcrumbLinks = [
+        { href: route("all.notification"), label: "Notificaciones" },
+    ];
+
+    return (
+        <Authenticated>
+            <Head title="Notification" />
+            <Breadcrumb pageName="Notificaciones" links={breadcrumbLinks} />
+            <div className="mx-auto max-w-7xl">
+                <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10"></div>
             </div>
             <Modal
                 show={showModalDelete}
@@ -68,15 +67,13 @@ export default function Index({}: Props) {
                         acción no se puede deshacer.
                     </p>
                     <div className="flex justify-center gap-4 mb-3 mt-5">
-                        <DangerButton>
-                            Eliminar
-                        </DangerButton>
+                        <DangerButton>Eliminar</DangerButton>
                         <SecondaryButton onClick={handleCloseModal}>
                             Cancelar
                         </SecondaryButton>
                     </div>
                 </div>
             </Modal>
-    </Authenticated>
-  )
+        </Authenticated>
+    );
 }

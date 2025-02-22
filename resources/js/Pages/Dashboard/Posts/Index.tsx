@@ -8,6 +8,7 @@ import Modal from "@/Components/Modal";
 import PreviewImage from "@/Components/PreviewImage";
 import { PostInterface } from "@/Interfaces/Post";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { truncateText } from "@/Utils/functions";
 import { Head, router } from "@inertiajs/react";
 import axios from "axios";
 import React, { useMemo, useState } from "react";
@@ -36,7 +37,7 @@ export default function Index({ posts }: Props) {
         () => [
             {
                 name: "Titulo",
-                cell: (row: PostInterface) => row.title,
+                cell: (row: PostInterface) => truncateText(row.title, 25),
                 sortable: true,
             },
             {
@@ -172,11 +173,15 @@ export default function Index({ posts }: Props) {
     const handlePageChange = (page: number) => {
         router.get(route("post.index"), { page: page });
     };
+    
+    const breadcrumbLinks = [
+        { href: route("post.index"), label: "Publicaciones" },
+    ];
 
     return (
         <Authenticated>
             <Head title="Posts" />
-            <Breadcrumb pageName="Publicaciones" />
+            <Breadcrumb pageName="Publicaciones" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

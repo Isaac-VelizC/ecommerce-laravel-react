@@ -119,10 +119,14 @@ export default function Index({ shippings }: Props) {
         router.get(route("shipping.index"), { page: page });
     };
 
+    const breadcrumbLinks = [
+        { href: route("shipping.index"), label: "Envios" },
+    ];
+
     return (
         <Authenticated>
             <Head title="Shippings" />
-            <Breadcrumb pageName="Envios" />
+            <Breadcrumb pageName="Envios" links={breadcrumbLinks}/>
             <div className="mx-auto max-w-7xl">
                 <div className="shadow rounded-2xl sm:p-4 bg-gray-500/10">
                     <DataTableComponent

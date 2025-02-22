@@ -18,14 +18,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
     const { user } = usePage().props.auth;
 
     useEffect(() => {
-        if (!user) {
-            // Obtener favoritos desde localStorage
-            const favorites = JSON.parse(
-                localStorage.getItem("favorites") || "[]"
-            );
-            setCountFavorite(favorites.length);
-        } else {
-            // Si el usuario está autenticado, obtener los favoritos desde el backend
+        if (user.role === "user") {
             const fetchFavorites = async () => {
                 try {
                     const response = await axios.get(route("get-favorites"));
@@ -38,7 +31,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
             };
             fetchFavorites();
         }
-    }, [user]); // Se ejecuta cuando cambia el usuario
+    }, [user]);
 
     const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -57,16 +50,28 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                 onClick={toggleSearch}
                 className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer"
             >
-                <img src={SearchIcon} alt="Icon Search" width={23} />
+                <img
+                    src={SearchIcon}
+                    alt="Icon Search"
+                    className="lg:w-6 w-16"
+                />
             </li>
             <li className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer">
                 <Link href={user ? route("perfil.account") : route("login")}>
-                    <img src={AccountIcon} alt="Icon account" width={20} />
+                    <img
+                        src={AccountIcon}
+                        alt="Icon account"
+                        className="lg:w-5 w-16"
+                    />
                 </Link>
             </li>
             <li className="hover:scale-110 transition duration-300 ease-in-out cursor-pointer">
                 <Link href={route("page.list.favorite")}>
-                    <img src={HeartIcon} alt="Icon Heart" width={24} />
+                    <img
+                        src={HeartIcon}
+                        alt="Icon Heart"
+                        className="lg:w-6 w-16"
+                    />
                     {countFavorite > 0 && (
                         <div className="absolute -right-3 -top-[11px] h-4 w-4 bg-black text-white text-xs leading-tight rounded-full text-center">
                             {countFavorite}
@@ -80,7 +85,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                 onMouseLeave={() => setIsCartOpen(false)}
             >
                 <div className="relative cursor-pointer">
-                    <img src={BagIcon} alt="Icon Bag" width={20} />
+                    <img src={BagIcon} alt="Icon Bag" className="lg:w-5 w-16" />
                     {cartItems.length > 0 && (
                         <div className="absolute -right-3 -top-[11px] h-4 w-4 bg-black text-white text-xs leading-tight rounded-full text-center">
                             {cartItems.length}

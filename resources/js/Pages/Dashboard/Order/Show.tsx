@@ -29,11 +29,16 @@ export default function Show({ order }: Props) {
             console.error("Error al descargar el PDF:", error);
         }
     };
+
+    const breadcrumbLinks = [
+        { href: route("all.notification"), label: "Notificaciones" },
+        { href: "#", label: order.order_number }
+    ];
     
     return (
         <Authenticated>
             <Head title="Pedido" />
-            <Breadcrumb pageName={order.order_number} />
+            <Breadcrumb pageName={order.order_number} links={breadcrumbLinks}/>
             <div className="flex justify-end py-8 gap-4">
                 <DangerButton>Delete</DangerButton>
                 <SecondaryButton onClick={() => handleDownloadPDF()}>
