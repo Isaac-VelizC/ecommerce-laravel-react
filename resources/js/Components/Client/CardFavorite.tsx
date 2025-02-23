@@ -54,7 +54,7 @@ const CardFavorite: React.FC<Props> = ({ product, deleteFavorite }) => {
                 />
 
                 {/* Contenido del producto */}
-                <div className="flex flex-col justify-center p-4 flex-grow">
+                <div className="flex flex-col justify-center p-2 md:p-4 flex-grow">
                     <h6 className="text-sm md:text-lg font-semibold text-gray-800 hover:text-gray-600 transition-colors">
                         {product.title}
                     </h6>
@@ -72,7 +72,7 @@ const CardFavorite: React.FC<Props> = ({ product, deleteFavorite }) => {
                     </div>
 
                     {/* Resumen del producto */}
-                    <div className="mt-1 text-sm text-gray-600 line-clamp-2">
+                    <div className="mt-1 text-xs text-gray-600 line-clamp-2">
                         <span
                             dangerouslySetInnerHTML={{
                                 __html: product.summary,

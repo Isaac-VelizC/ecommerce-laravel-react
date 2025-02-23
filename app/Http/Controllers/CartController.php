@@ -89,6 +89,10 @@ class CartController extends Controller
 
     public function singleAddToCart(Request $request)
     {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'No estás autenticado'], 401);
+        }
+
         $request->validate([
             'slug'  => 'required|string',
             'quant' => 'required|integer|min:1'

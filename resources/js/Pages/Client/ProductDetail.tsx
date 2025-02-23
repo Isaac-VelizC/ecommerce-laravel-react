@@ -7,7 +7,7 @@ import {
     SizesInterface,
 } from "@/Interfaces/Product";
 import Client from "@/Layouts/ClientLayout";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import { IconCart, IconShare } from "@/Components/Client/IconSvgClient";
 import RowProducts from "@/Containers/RowProducts";
@@ -17,6 +17,8 @@ import { saveFavoriteProduct } from "@/Utils/api/consultas";
 import LikeButton from "@/Components/Animated/ButtonLike";
 import MyCarousel from "@/Components/Client/Carousel";
 import ReviewProduct from "@/Components/Client/ReviewProduct";
+import { PropMessage } from "@/Interfaces/Message";
+import { Alert } from "@/Components/Client/alerts";
 
 type Props = {
     product_detail: ProductInterface;
@@ -41,6 +43,10 @@ export default function ProductDetail({
         },
         { href: "#", label: product_detail.title },
     ];
+    const [message, setMessage] = useState<PropMessage>({
+        type: "info",
+        message: "",
+    });
     const [isInWishlist, setIsInWishlist] = useState(
         product_detail.is_in_wishlist
     );
@@ -61,19 +67,39 @@ export default function ProductDetail({
     ) => {
         event.preventDefault();
         try {
-            const response = await axios.post(route("single-add-to-cart"), {
-                slug: product_detail.slug, // Enviar el slug del producto
-                quant: quantity, // Enviar la cantidad seleccionada
-            });
+            const response = await axios.post(
+                route("single-add-to-cart"),
+                {
+                    slug: product_detail.slug,
+                    quant: quantity,
+                },
+                {
+                    withCredentials: true, // Enviar cookies de sesión
+                }
+            );
+
             if (response.status === 200) {
                 setCart(response.data.cartItems);
+                setMessage({
+                    type: "success",
+                    message: "Producto añadido carrito.",
+                });
             } else {
-                console.error(
-                    response.data.error || "Error al agregar el producto"
-                );
+                setMessage({
+                    type: "error",
+                    message:
+                        response.data.error || "Error al agregar el producto",
+                });
             }
-        } catch (error) {
-            console.error("Error de red:", error);
+        } catch (error: any) {
+            if (error.response.status === 401) {
+                console.warn(
+                    "Usuario no autenticado, redirigiendo al login..."
+                );
+                router.visit("/login"); // Redirigir al login si no está autenticado
+            } else {
+                console.error("Error de red:", error);
+            }
         }
     };
 
@@ -104,7 +130,7 @@ export default function ProductDetail({
         const text = encodeURIComponent(
             `${product_detail.title} - ${product_detail.price}`
         );
-        const imageUrl = encodeURIComponent(product_detail.photo); // Asegurar que la imagen tenga un link válido
+        const imageUrl = encodeURIComponent(product_detail.photo);
 
         let shareUrl = "";
 
@@ -175,6 +201,17 @@ export default function ProductDetail({
 
             <section className="pt-17 pb-12">
                 <div className="mx-4 sm:mx-10 xl:mx-44">
+                    {message.message && (
+                        <div className="my-4">
+                            <Alert
+                                type={message.type}
+                                message={message.message}
+                                closeAlert={() =>
+                                    setMessage({ type: "info", message: "" })
+                                }
+                            />
+                        </div>
+                    )}
                     <div className="flex flex-wrap">
                         <MyCarousel images={images} />
                         <div className="w-full lg:w-1/2 md:pl-4 lg:pl-8">
@@ -322,13 +359,21 @@ export default function ProductDetail({
                                                 {sizes.map((size) => (
                                                     <label
                                                         key={size.id}
-                                                        className={`mr-2 cursor-pointer ${selectedSize === size.id ? "text-[#ff6b8e]" : ""}`}
+                                                        className={`mr-2 cursor-pointer ${
+                                                            selectedSize ===
+                                                            size.id
+                                                                ? "text-[#ff6b8e]"
+                                                                : ""
+                                                        }`}
                                                     >
                                                         <input
                                                             type="radio"
                                                             name="size__radio"
                                                             value={size.id}
-                                                            checked={selectedSize === size.id}
+                                                            checked={
+                                                                selectedSize ===
+                                                                size.id
+                                                            }
                                                             onChange={
                                                                 handleSizeChange
                                                             }
@@ -422,7 +467,8 @@ export default function ProductDetail({
                                         productSlug={product_detail.slug}
                                         reviews={product_detail.get_review}
                                         ratingTotal={
-                                            product_detail.get_review_avg_rate
+                                            product_detail.get_review_avg_rate ??
+                                            0
                                         }
                                     />
                                 </div>

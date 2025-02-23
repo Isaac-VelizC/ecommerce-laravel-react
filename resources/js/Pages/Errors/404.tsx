@@ -4,6 +4,6 @@ type Props = {}
 
 export default function Error404({}: Props) {
   return (
-    <div>404</div>
+    <div>Error 404</div>
   )
 }

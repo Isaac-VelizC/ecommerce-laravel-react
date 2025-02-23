@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import InputLabel from "../Dashboard/Form/InputLabel";
 import { router, usePage } from "@inertiajs/react";
 import { ProductReviewInterface } from "@/Interfaces/ProducReview";
+import { Alert } from "./alerts";
 
 type Props = {
     productSlug: string;
     reviews: ProductReviewInterface[];
-    ratingTotal: number | null;
+    ratingTotal: number;
 };
 
 const ReviewProduct = ({ productSlug, reviews, ratingTotal }: Props) => {
@@ -30,10 +31,18 @@ const ReviewProduct = ({ productSlug, reviews, ratingTotal }: Props) => {
         setIsSubmitting(true);
 
         try {
-            await router.post(`/product/${productSlug}/review`, {
-                rate: rating,
-                review: review.trim(),
-            });
+            await router.post(
+                `/product/${productSlug}/review`,
+                {
+                    rate: rating,
+                    review: review.trim(),
+                },
+                {
+                    onSuccess: () => {
+                        //mensajeAlerta({  })
+                    },
+                }
+            );
         } catch (error: any) {
             setErrorMessage(
                 `Error: ${error.message || "Unknown error occurred"}`
@@ -71,17 +80,25 @@ const ReviewProduct = ({ productSlug, reviews, ratingTotal }: Props) => {
                         Los campos obligatorios están marcados
                     </p>
                 </div>
-                <h4 className="text-base font-medium">
-                    <InputLabel
-                        htmlFor="calificacion"
-                        value="Tu calificación"
-                        required
-                    />
-                </h4>
+                {errorMessage && (
+                    <div className="my-2">
+                        <Alert
+                            type="error"
+                            message={errorMessage}
+                            closeAlert={() => setErrorMessage(null)}
+                        />
+                    </div>
+                )}
                 <div className="review-inner">
                     {user ? (
                         <form className="form" onSubmit={handleReviewProduct}>
-                            <p className="text-red-600">{errorMessage}</p>
+                            <h4 className="text-base font-medium">
+                                <InputLabel
+                                    htmlFor="calificacion"
+                                    value="Tu calificación"
+                                    required
+                                />
+                            </h4>
                             <div className="flex flex-wrap">
                                 {/* Rating Stars */}
                                 <div className="w-full">
@@ -168,7 +185,8 @@ const ReviewProduct = ({ productSlug, reviews, ratingTotal }: Props) => {
 
                 <div className="mt-10">
                     <h4 className="text-lg font-bold">
-                        {(ratingTotal || 0).toFixed(1)} <span>(Overall)</span>
+                        {(Number(ratingTotal) || 0).toFixed(1)}{" "}
+                        <span>(Overall)</span>
                     </h4>
 
                     <span className="text-sm">

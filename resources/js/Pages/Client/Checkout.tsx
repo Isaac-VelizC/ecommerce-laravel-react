@@ -122,7 +122,6 @@ export default function Checkout({
                 },
                 onError: () => {
                     console.log("Error al enviar los datos");
-
                     //toast.error("Error al enviar los datos del banner");
                 },
             });

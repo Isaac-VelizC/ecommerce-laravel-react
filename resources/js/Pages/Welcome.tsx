@@ -28,9 +28,6 @@ export default function Welcome({}: PageProps) {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
-    console.log(data.products);
-    
-
     useEffect(() => {
         fetchWelcomeData();
     }, [])

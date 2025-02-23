@@ -17,9 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'checkrole' => \App\Http\Middleware\CheckRole::class,
+            'custom-auth' => App\Http\Middleware\StorePreviousUrl::class,
         ]);
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        //....
     })->create();

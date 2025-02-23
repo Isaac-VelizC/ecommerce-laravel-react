@@ -127,7 +127,7 @@ Route::middleware(['auth', 'checkrole:admin'])->group(function () {
     Route::delete('/notification/{id}', [NotificationController::class, 'delete'])->name('notification.delete');
 });
 
-Route::middleware(['auth', 'checkrole:user'])->group(function () {
+Route::middleware(['auth', 'checkrole:user', 'custom-auth'])->group(function () {
     //Carrito
     Route::get('/cart', [CartController::class, 'cart'])->name('cart');
     Route::get('/api/list/cart', [CartController::class, 'listCart'])->name('api.list.cart');
@@ -140,7 +140,7 @@ Route::middleware(['auth', 'checkrole:user'])->group(function () {
     Route::post('cart/order', [OrderController::class, 'store'])->name('cart.order');
     // Favoritos
     Route::get('/api/wishlist', [WishlistController::class, 'getFavorites'])->name('get-favorites');
-    Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist');//->middleware('user');
+    Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist');
     Route::delete('/wishlist-delete/{id}', [WishlistController::class, 'wishlistDelete'])->name('wishlist-delete');
     Route::get('/wishlist-delete-all', [WishlistController::class, 'wishlistDeleteAll'])->name('delete.all.favorites');
     // Product Review
@@ -177,5 +177,8 @@ Route::get('/products/all', [FrontendController::class, 'PageProducts'])->name('
 Route::get('/about-us', [FrontendController::class, 'PageAboutUs'])->name('page.about.us');
 Route::get('/contact', [FrontendController::class, 'PageContact'])->name('contact');
 Route::post('/contact/message', [MessageController::class, 'store'])->name('contact.store');
+Route::fallback(function () {
+    return Inertia::render('Errors/404')->toResponse(request())->setStatusCode(404);
+});
 
 require __DIR__.'/auth.php';

@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import Logo from "@/assets/AshStyle.svg";
 import MenuLink from "@/Components/Layout/MenuLink";
 import { Link, usePage } from "@inertiajs/react";
@@ -27,12 +27,15 @@ export default function Client({ children }: PropsWithChildren) {
     const [error, setError] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenSearch, setIsOpenSearch] = useState(false);
-    const paymentsImgs = [
-        { img: Payment1, description: "Descripción del Pago 1" },
-        { img: Payment2, description: "Descripción del Pago 2" },
-        { img: Payment3, description: "Descripción del Pago 3" },
-        { img: Payment4, description: "Descripción del Pago 4" },
-    ];
+    const paymentsImgs = useMemo(
+        () => [
+            { img: Payment1, description: "Descripción del Pago 1" },
+            { img: Payment2, description: "Descripción del Pago 2" },
+            { img: Payment3, description: "Descripción del Pago 3" },
+            { img: Payment4, description: "Descripción del Pago 4" },
+        ],
+        []
+    );
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -68,7 +71,7 @@ export default function Client({ children }: PropsWithChildren) {
     }, []);
 
     useEffect(() => {
-        if (user && user.role === 'user') {
+        if (user && user.role === "user") {
             fetchCartItems();
         }
     }, []);
@@ -76,7 +79,7 @@ export default function Client({ children }: PropsWithChildren) {
     const fetchCartItems = async () => {
         try {
             const response = await axios.get(route("api.list.cart"));
-
+            
             // Verificar si la respuesta es exitosa y los datos están presentes
             if (
                 response.status === 200 &&
@@ -304,7 +307,7 @@ export default function Client({ children }: PropsWithChildren) {
                                 </button>
                             </form>
                             {/* Social Media Icons */}
-                            <div className="footer__social flex flex-wrap">
+                            <div className="flex flex-wrap gap-4">
                                 {[
                                     "facebook",
                                     "twitter",
@@ -314,7 +317,7 @@ export default function Client({ children }: PropsWithChildren) {
                                     <a
                                         href="#"
                                         key={index}
-                                        className={`inline-block h-[40px] w-[40px] bg-[#e1e1e1] text-[#111111] rounded-full md:flex items-center justify-center mr-[6px] mb-[5px]`}
+                                        className={`h-[40px] w-[40px] bg-[#e1e1e1] text-[#111111] rounded-full flex items-center justify-center`}
                                     >
                                         <i
                                             className={`fa-brands fa-${icon} text-[15px]`}

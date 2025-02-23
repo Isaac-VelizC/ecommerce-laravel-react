@@ -46,7 +46,6 @@ class ProductReviewController extends Controller
         try {
             ProductReview::create($reviewData);
         } catch (\Exception $e) {
-            //\Log::error('Error al crear la reseña del producto: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Algo salió mal. Por favor, inténtalo de nuevo.');
         }
 
@@ -57,8 +56,6 @@ class ProductReviewController extends Controller
             'fas' => 'fa-star',
         ];
         Notification::send($admins, new StatusNotification($details));
-
-        // 6. Respuesta JSON con código de estado HTTP adecuado
         return redirect()->back()->with('success', '¡Gracias por tu valoración!');
     }
 

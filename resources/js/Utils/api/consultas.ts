@@ -16,7 +16,6 @@ export const saveFavoriteProduct = async ({
     if (response.status === 200) {
       // Ejecutar el callback de éxito si está definido
       onSuccess && onSuccess(response.data);
-      console.log("Producto guardado como favorito.");
     } else {
       // Manejar casos de estado no exitosos (ej. 400, 500)
       console.error(

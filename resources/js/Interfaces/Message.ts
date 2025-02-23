@@ -10,3 +10,8 @@ export interface MessageInterface {
     created_at: string;
     [key: string]: unknown;
 }
+
+export interface PropMessage {
+    type: "success" | "info" | "warning" | "error";
+    message: string;
+}
