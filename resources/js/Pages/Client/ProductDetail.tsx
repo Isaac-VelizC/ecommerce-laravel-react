@@ -44,6 +44,8 @@ export default function ProductDetail({
     const [isInWishlist, setIsInWishlist] = useState(
         product_detail.is_in_wishlist
     );
+    const [selectedColor, setSelectedColor] = useState<number | null>(null);
+    const [selectedSize, setSelectedSize] = useState<number | null>(null);
     const [quantity, setQuantity] = useState(1);
     const handleIncrease = () => setQuantity((prev) => prev + 1);
     const handleDecrease = () =>
@@ -87,6 +89,14 @@ export default function ProductDetail({
         } else {
             alert("Tu navegador no soporta la función de compartir.");
         }
+    };
+
+    const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedColor(Number(event.target.value));
+    };
+
+    const handleSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedSize(Number(event.target.value));
     };
 
     /*const shareOnSocialMedia = (platform: string) => {
@@ -192,13 +202,12 @@ export default function ProductDetail({
                                         </span>
                                     )}
                                 </div>
-                                <p className="mb-7 text-[#444444]">
-                                    <div
-                                        dangerouslySetInnerHTML={{
-                                            __html: product_detail.summary,
-                                        }}
-                                    />
-                                </p>
+                                <div
+                                    className="mb-7 text-[#444444]"
+                                    dangerouslySetInnerHTML={{
+                                        __html: product_detail.summary,
+                                    }}
+                                />
                                 <div className="overflow-hidden mb-6">
                                     <form onSubmit={handleAddCartSingle}>
                                         <div className="quantity float-left mr-2 mb-4">
@@ -272,31 +281,58 @@ export default function ProductDetail({
                                             </span>
                                             <div className="color__checkbox">
                                                 {colors.map((color) => (
-                                                    <label key={color.id}>
+                                                    <label
+                                                        key={color.id}
+                                                        className="cursor-pointer"
+                                                    >
                                                         <input
                                                             type="radio"
                                                             name="color__radio"
-                                                            id="red"
-                                                            checked
+                                                            value={color.id}
+                                                            checked={
+                                                                selectedColor ===
+                                                                color.id
+                                                            }
+                                                            onChange={
+                                                                handleColorChange
+                                                            }
+                                                            className="hidden"
                                                         />
-                                                        <span className="checkmark"></span>
+                                                        <span
+                                                            className="w-5 h-5 inline-block rounded-[50%] mr-2"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    color.codigo_hex,
+                                                                border:
+                                                                    selectedColor ===
+                                                                    color.id
+                                                                        ? "2px solid #ff6b8e"
+                                                                        : "1px solid #000",
+                                                            }}
+                                                        ></span>
                                                     </label>
                                                 ))}
                                             </div>
                                         </li>
                                         <li className="mb-2">
                                             <span className=" inline-block text-sm font-semibold w-[150px] float-left text-[#111111]">
-                                               Tamaño disponible:
+                                                Tamaño disponible:
                                             </span>
                                             <div className="size__btn">
                                                 {sizes.map((size) => (
                                                     <label
                                                         key={size.id}
-                                                        className="active"
+                                                        className={`mr-2 cursor-pointer ${selectedSize === size.id ? "text-[#ff6b8e]" : ""}`}
                                                     >
                                                         <input
                                                             type="radio"
-                                                            id="xs-btn"
+                                                            name="size__radio"
+                                                            value={size.id}
+                                                            checked={selectedSize === size.id}
+                                                            onChange={
+                                                                handleSizeChange
+                                                            }
+                                                            className="hidden"
                                                         />
                                                         {size.name}
                                                     </label>
@@ -322,8 +358,13 @@ export default function ProductDetail({
                                 <li className="mr-4">
                                     <a
                                         className={`relative inline-block p-0 text-lg font-semibold border-none transition ${
-                                            activeTab === "descripcion" ? "text-[#111111]" : "text-[#666666]"}`}
-                                        onClick={() => setActiveTab("descripcion")}
+                                            activeTab === "descripcion"
+                                                ? "text-[#111111]"
+                                                : "text-[#666666]"
+                                        }`}
+                                        onClick={() =>
+                                            setActiveTab("descripcion")
+                                        }
                                         href="#descripcion"
                                     >
                                         Descripción
@@ -354,9 +395,15 @@ export default function ProductDetail({
                             <div className="text-[#666666] font-semibold mb-6">
                                 <div
                                     id="descripcion"
-                                    className={`tab-pane ${activeTab === "descripcion" ? "block" : "hidden"}`}
+                                    className={`tab-pane ${
+                                        activeTab === "descripcion"
+                                            ? "block"
+                                            : "hidden"
+                                    }`}
                                 >
-                                    <h6 className="text-lg font-bold">Descripción</h6>
+                                    <h6 className="text-lg font-bold">
+                                        Descripción
+                                    </h6>
                                     <div
                                         dangerouslySetInnerHTML={{
                                             __html: product_detail.description,
@@ -365,7 +412,11 @@ export default function ProductDetail({
                                 </div>
                                 <div
                                     id="review"
-                                    className={`tab-pane ${activeTab === "review" ? "block" : "hidden"}`}
+                                    className={`tab-pane ${
+                                        activeTab === "review"
+                                            ? "block"
+                                            : "hidden"
+                                    }`}
                                 >
                                     <ReviewProduct
                                         productSlug={product_detail.slug}

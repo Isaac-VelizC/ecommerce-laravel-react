@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { IconCart, IconHeart } from "./IconSvgClient";
-import IconButton from "../Dashboard/Buttons/IconButton";
 import { Link } from "@inertiajs/react";
 import { ProductInterface } from "@/Interfaces/Product";
-import axios from "axios";
-import { useCart } from "@/Context/CartContext";
 import { saveFavoriteProduct } from "@/Utils/api/consultas";
 import LikeButton from "../Animated/ButtonLike";
 

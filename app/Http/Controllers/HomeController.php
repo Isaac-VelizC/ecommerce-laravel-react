@@ -7,7 +7,6 @@ use App\Models\Cart;
 use App\Models\Categorie;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {

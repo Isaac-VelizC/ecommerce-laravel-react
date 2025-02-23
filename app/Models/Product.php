@@ -75,7 +75,7 @@ class Product extends Model
 
     public function isInWishlist($userId, $productId)
     {
-        return $this->hasMany(Wishlist::class, 'product_id')
+        return $this->hasMany(WishList::class, 'product_id')
             ->where('user_id', $userId)
             ->where('product_id', $productId)
             ->exists();

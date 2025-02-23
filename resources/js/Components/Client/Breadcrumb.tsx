@@ -10,7 +10,7 @@ const Breadcrumb = ({ links }: Props) => {
             <div className="mx-4 sm:mx-10 xl:mx-44">
                 <div className="flex">
                     <div className="w-full">
-                        <div className="flex items-center">
+                        <div className="flex flex-wrap items-center">
                             {links.map((link, index) => (
                                 <React.Fragment key={index}>
                                     <a

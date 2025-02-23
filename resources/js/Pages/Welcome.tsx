@@ -17,7 +17,7 @@ import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-export default function Welcome({ auth }: PageProps) {
+export default function Welcome({}: PageProps) {
     const [data, setData] = useState({
         featured: [],
         banners: [],
@@ -28,6 +28,8 @@ export default function Welcome({ auth }: PageProps) {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
+    console.log(data.products);
+    
 
     useEffect(() => {
         fetchWelcomeData();
@@ -36,12 +38,12 @@ export default function Welcome({ auth }: PageProps) {
     const fetchWelcomeData = async () => {
         try {
             const response = await axios.get('/api/welcome');
-            setData(response.data); // Almacena los datos en el estado
+            setData(response.data);
         } catch (error) {
             console.error('Error fetching welcome data:', error);
             setError('Error al cargar los datos.'); // Manejo del error
         } finally {
-            setLoading(false); // Cambia el estado de carga
+            setLoading(false);
         }
     };
 
