@@ -1,7 +1,7 @@
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import Logo from "@/assets/AshStyle.svg";
 import MenuLink from "@/Components/Layout/MenuLink";
-import { Link, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import LinkImg from "@/Components/Layout/LinkImg";
 import Payment1 from "@/assets/img/payment/payment-1.png";
 import Payment2 from "@/assets/img/payment/payment-2.png";
@@ -124,7 +124,7 @@ export default function Client({ children }: PropsWithChildren) {
                 </button>
                 <div className=" float-right px-12 py-10">
                     <IconsNavBar
-                        cartItems={[]}
+                        cartItems={cart}
                         toggleSearch={() => setIsOpenSearch(true)}
                     />
                 </div>
@@ -156,7 +156,7 @@ export default function Client({ children }: PropsWithChildren) {
                 <div className="xl:mx-10">
                     <div className="flex flex-wrap items-center">
                         <div className="w-full lg:w-1/4 px-6">
-                            <a href="#" className="inline-block py-6">
+                            <a href="/" className="inline-block py-6">
                                 <img src={Logo} alt="Ashion" />
                             </a>
                         </div>
@@ -174,7 +174,7 @@ export default function Client({ children }: PropsWithChildren) {
                                         href="/products/all"
                                         text="Products"
                                     />
-                                    <MenuLink href="/blog" text="Tendencies" />
+                                    <MenuLink href="#" text="Tendencies"></MenuLink>
                                     <MenuLink href="/blog" text="Blog" />
                                     <MenuLink
                                         href="/about-us"

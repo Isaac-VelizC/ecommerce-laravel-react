@@ -1,8 +1,4 @@
 import React from "react";
-import Ht1 from "@/assets/img/trend/ht-1.jpg";
-import Ht2 from "@/assets/img/trend/ht-2.jpg";
-import Bs1 from "@/assets/img/trend/bs-1.jpg";
-import Bs2 from "@/assets/img/trend/bs-2.jpg";
 import TrendCard from "@/Components/Client/TrendCard";
 import { ProductInterface } from "@/Interfaces/Product";
 
@@ -12,6 +8,8 @@ type Props = {
 };
 
 const Trend: React.FC<Props> = ({ featured, topProducts }) => {
+    console.log(topProducts);
+    
     return (
         <section className="trend pt-[80px] pb-[50px]">
             <div className="mx-4 sm:mx-10 xl:mx-44">
@@ -31,6 +29,7 @@ const Trend: React.FC<Props> = ({ featured, topProducts }) => {
                                     title={item.title}
                                     price={item.price}
                                     discount={item.discount}
+                                    slug={item.slug}
                                 />
                             ))}
                         </div>
@@ -42,18 +41,7 @@ const Trend: React.FC<Props> = ({ featured, topProducts }) => {
                             <div className="section-title mb-[20px]">
                                 <h4 className="text-[20px]">Best seller</h4>
                             </div>
-                            <TrendCard
-                                img={Bs1}
-                                title="Cotton T-Shirt"
-                                price={59}
-                                discount={10}
-                            />
-                            <TrendCard
-                                img={Bs2}
-                                title="Zip-pockets pebbled tote briefcase"
-                                price={59}
-                                discount={10}
-                            />
+                            <div></div>
                         </div>
                     </div>
 
@@ -70,6 +58,7 @@ const Trend: React.FC<Props> = ({ featured, topProducts }) => {
                                     title={item.title}
                                     price={item.price}
                                     discount={item.discount}
+                                    slug={item.slug}
                                 />
                             ))}
                         </div>

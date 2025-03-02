@@ -134,7 +134,8 @@ Route::middleware(['auth', 'checkrole:user', 'custom-auth'])->group(function () 
     Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart');
     Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart');
     Route::get('/cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart.delete');
-    Route::post('/cart-update/{id}/{quantity}', [CartController::class, 'cartUpdate'])->name('cart.update');
+    Route::post('/cart-update/{id}', [CartController::class, 'cartUpdate'])->name('cart.update');
+    Route::post('/cart-update/{id}/{quantity}/stock', [CartController::class, 'cartUpdateStock'])->name('cart.update.stock');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     //Route::post('/checkout', [CartController::class, 'checkoutStore'])->name('checkout.store');
     Route::post('cart/order', [OrderController::class, 'store'])->name('cart.order');
@@ -160,9 +161,12 @@ Route::get('/settings/app', [FrontendController::class, 'settingsApp'])->name('s
 // Frontend Routes
 Route::get('/api/welcome', [HomeController::class, 'pageWelcome'])->name('page.welcome');
 Route::get('/product/detail/{slug}', [FrontendController::class, 'productDetail'])->name('page.product.detail');
+Route::get('/inventory/check', [FrontendController::class, 'checkAvailability']);
+
 Route::get('/shop/{slug}', [FrontendController::class, 'productLists'])->name('page.product.category');
 
 Route::get('/product-cat/{slug}', [FrontendController::class, 'productCat'])->name('product.cat');
+Route::get('/products/filter', [FrontendController::class, 'productFilter'])->name('product.filter');
 Route::get('/product-sub-cat/{slug}/{sub_slug}', [FrontendController::class, 'productSubCat'])->name('product.sub.cat');
 Route::get('/product-brand/{slug}', [FrontendController::class, 'productBrand'])->name('product.brand');
 

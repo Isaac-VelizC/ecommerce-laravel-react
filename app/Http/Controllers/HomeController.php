@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Models\Banner;
 use App\Models\Cart;
 use App\Models\Categorie;
 use App\Models\Product;
-use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -34,10 +34,6 @@ class HomeController extends Controller
         $topProducts = Cart::with('product')
             ->whereNotNull('order_id')
             ->join('products', 'carts.product_id', '=', 'products.id')
-            ->select(
-                'products.title',
-                'carts.quantity'
-            )
             ->orderByDesc('carts.quantity')
             ->limit(2)
             ->get();
@@ -46,13 +42,7 @@ class HomeController extends Controller
             ->orderBy('created_at', 'DESC')
             ->limit(8)
             ->get();
-
-        if (Auth::check()) {
-            $userId = Auth::id();
-            foreach ($products as $product) {
-                $product->is_in_wishlist = $product->isInWishlist($userId, $product->id);
-            }
-        }
+        $products = Helper::setWishlistStatus($products);
 
         $discounted_products = Product::where('status', 'active')
             ->where('discount', '>', 0)

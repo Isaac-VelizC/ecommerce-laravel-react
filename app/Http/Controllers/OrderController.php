@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\Shipping;
 use App\Models\User;
@@ -49,9 +50,6 @@ class OrderController extends Controller
             "shipping_id"     => 'required|integer|exists:shippings,id',
             "payment_method"  => 'required|string|in:cod,paypal',
             "country"         => "required|string|min:2",
-            //'expiry_date'     => 'nullable|string',
-            //'card_number'     => 'nullable|string',
-            //'cvv'             => 'nullable|integer|digits:3',
         ]);
         try {
             $userId = Auth::id();
@@ -91,9 +89,16 @@ class OrderController extends Controller
                     'fas'       => 'fa-file-alt'
                 ]));
             }
-
             // Asociar carrito con la orden
+            $carts = Cart::where('user_id', $userId)->whereNull('order_id')->get();
+
+            foreach ($carts as $cart) {
+                $this->updateStockInventory($cart->inventary_id, $cart->quantity);
+            }
+
+            // Luego de actualizar stock, asignar la orden al carrito
             Cart::where('user_id', $userId)->whereNull('order_id')->update(['order_id' => $order->id]);
+
             // Redirigir según el método de pago
             //return ($order_data['payment_method'] === 'paypal') ? redirect()->route('payment')->with(['id' => $order->id]) : 
             return redirect()->route('home')->with('success', 'Su producto ha sido colocado exitosamente en la orden.');
@@ -101,6 +106,21 @@ class OrderController extends Controller
             dd($e->getMessage());
             return redirect()->back()->with('error', 'Ocurrió un error al procesar la orden.');
         }
+    }
+
+    public function updateStockInventory($id, $quantity)
+    {
+        $item = Inventory::find($id);
+        if (!$item) {
+            return response()->json(['error' => 'Inventario no encontrado'], 400);
+        }
+
+        if ($item->quantity < $quantity) {
+            return response()->json(['error' => 'Stock insuficiente'], 400);
+        }
+
+        $item->quantity -= $quantity;
+        $item->save();
     }
 
     public function show($id)

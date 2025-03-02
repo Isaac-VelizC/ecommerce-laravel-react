@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Models\Cart;
 use App\Models\Coupon;
+use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Shipping;
+use App\Models\Size;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -21,8 +24,7 @@ class CartController extends Controller
     public function listCart()
     {
         $userId = Auth::id();
-        $cartItems = Cart::with('product')->where(['user_id' => $userId, 'order_id' => null])->get();
-        // Formatear la respuesta JSON correctamente
+        $cartItems = Cart::with(['product', 'inventarioConDetalles'])->where(['user_id' => $userId, 'order_id' => null])->get();
         return response()->json([
             'status' => 'success',
             'items' => $cartItems,
@@ -31,7 +33,8 @@ class CartController extends Controller
 
     public function cart()
     {
-        return Inertia::render('Client/Cart');
+        $sizes = Size::all();
+        return Inertia::render('Client/Cart', ['sizes' => $sizes]);
     }
 
     public function addToCart($slug)
@@ -95,43 +98,57 @@ class CartController extends Controller
 
         $request->validate([
             'slug'  => 'required|string',
-            'quant' => 'required|integer|min:1'
+            'quant' => 'required|integer|min:1',
+            'color' => 'required|integer|exists:colors,id',
+            'size' => 'required|integer|exists:sizes,id',
         ]);
+
         $product = Product::where('slug', $request->slug)->first();
-        // Verificar si el producto existe y si hay suficiente stock
+
         if (!$product) {
             return response()->json(['error' => 'Producto no encontrado'], 404);
         }
-        if ($product->stock < $request->quant) {
+
+        $inventary = Helper::inventorySelected($product->id, $request->size, $request->color);
+
+        if (!$inventary) {
+            return response()->json(['error' => 'Inventario no encontrado'], 404);
+        }
+
+        if ($inventary->quantity < $request->quant) {
             return response()->json(['error' => 'Stock insuficiente'], 400);
         }
 
         $userId = Auth::id();
-        $quantity = min($request->quant, $product->stock); // Evita que la cantidad supere el stock
+        $quantity = min($request->quant, $inventary->quantity);
         $discountedPrice = $product->price * (1 - ($product->discount / 100));
 
         // Buscar si el producto ya está en el carrito
         $cartItem = Cart::where('user_id', $userId)
             ->where('order_id', null)
-            ->where('product_id', $product->id)
+            ->where('inventary_id', $inventary->id)
             ->first();
 
         if ($cartItem) {
             // Actualizar cantidad y total en el carrito
-            $cartItem->quantity = min($cartItem->quantity + $quantity, $product->stock);
+            $cartItem->quantity = min($cartItem->quantity + $quantity, $inventary->quantity);
             $cartItem->amount = $cartItem->quantity * $discountedPrice;
             $cartItem->save();
         } else {
             // Crear un nuevo registro en el carrito
             Cart::create([
-                'user_id'    => $userId,
-                'product_id' => $product->id,
-                'price'      => $discountedPrice,
-                'quantity'   => $quantity,
-                'amount'     => $quantity * $discountedPrice
+                'user_id'     => $userId,
+                'inventary_id' => $inventary->id,
+                'product_id'  => $product->id,
+                'price'       => $discountedPrice,
+                'quantity'    => $quantity,
+                'amount'      => $quantity * $discountedPrice
             ]);
         }
+
+        // Obtener todos los items del carrito para la respuesta
         $items = Cart::with('product')->where(['user_id' => $userId, 'order_id' => null])->get();
+
         return response()->json(['success' => 'Producto agregado al carrito', 'cartItems' => $items], 200);
     }
 
@@ -150,18 +167,19 @@ class CartController extends Controller
         }
     }
 
-    public function cartUpdate($id, $quantity)
+    public function cartUpdateStock($id, $quantity)
     {
         $cart = Cart::find($id);
         if (!$cart) {
             return response()->json(['error' => 'Carrito no encontrado'], 404);
         }
         $product = $cart->product;
-        if ($product->stock < $quantity) {
+        $inventary = $cart->inventario;
+        if ($inventary->quantity < $quantity) {
             return response()->json(['error' => 'Stock insuficiente'], 400);
         }
         // Actualizar cantidad asegurando que no exceda el stock
-        $cart->quantity = min($quantity, $product->stock);
+        $cart->quantity = min($quantity, $inventary->quantity);
         $after_price = $product->price * (1 - ($product->discount / 100));
         $cart->amount = $after_price * $cart->quantity;
         $cart->save();
@@ -170,6 +188,36 @@ class CartController extends Controller
             'success' => 'Carrito actualizado correctamente',
             'cart' => $cart
         ], 200);
+    }
+
+    public function cartUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'size_id' => 'required|integer|exists:sizes,id'
+        ]);
+        
+        $cart = Cart::with('inventario')->find($id);
+        if (!$cart) {
+            return redirect()->back()->with(['error' => 'Carrito no encontrado']);
+        }
+        $inventary = Helper::inventorySelected($cart->product_id, $request->size_id, $cart->inventario->color_id);
+
+        if (!$inventary) {
+            return redirect()->back()->with(['error' => 'Inventario no encontrado']);
+        }
+
+        if ($inventary->quantity < $request->quantity) {
+            return redirect()->back()->with(['error' => 'Stock insuficiente']);
+        }
+
+        $cart->inventary_id = $inventary->id;
+        $cart->quantity = $request->quantity;
+        $cart->save();
+
+        return redirect()->route('cart')->with([
+            'success' => 'Carrito actualizado correctamente',
+        ]);
     }
 
     public function checkout()
@@ -191,7 +239,6 @@ class CartController extends Controller
         $total = $sub_total + $tax - $discount;
         $coupons = Coupon::where('status', 'active')->get();
         $shippings = Shipping::where('status', 'active')->get();
-
         return Inertia::render('Client/Checkout', [
             'coupons' => $coupons,
             'shippings' => $shippings,

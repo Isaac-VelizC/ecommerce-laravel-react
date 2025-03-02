@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Models\Brand;
 use App\Models\Categorie;
 use App\Models\Color;
@@ -19,11 +20,13 @@ use Inertia\Inertia;
 
 class FrontendController extends Controller
 {
-    public function PageProducts() {
+    public function PageProducts()
+    {
         $products = Product::where('status', 'active')->orderBy('id', 'ASC')->paginate(40);
+        $prods = Helper::setWishlistStatus($products->items());
         return Inertia::render('Client/Products', [
             'products' => [
-                'data' => $products->items(),
+                'data' => $prods,
                 'current_page' => $products->currentPage(),
                 'last_page' => $products->lastPage(),
                 'per_page' => $products->perPage(),
@@ -45,9 +48,9 @@ class FrontendController extends Controller
     public function PageBlog()
     {
         $posts = Post::with('author_info')->where('status', 'active')
-        ->latest()
-        ->take(10)
-        ->get();
+            ->latest()
+            ->take(10)
+            ->get();
         return Inertia::render('Client/Blog', [
             'posts' => $posts
         ]);
@@ -67,8 +70,7 @@ class FrontendController extends Controller
     {
         $product_detail = Product::getProductBySlug($slug, Auth::id());
         $relatedProdcuts = Product::where('cat_id', $product_detail->cat_id)->take(4)->get();
-        $sizes = Inventory::where('product_id', $product_detail->id)->pluck('talla_id')->toArray();
-        $sizes = Size::whereIn('id', $sizes)->get();
+        $sizes = Helper::sizesProduct($product_detail->id);
         $colors = Inventory::where('product_id', $product_detail->id)->pluck('color_id')->toArray();
         $colors = Color::whereIn('id', $colors)->get();
         $images = ImageProduct::where('product_id', $product_detail->id)->get();
@@ -79,6 +81,27 @@ class FrontendController extends Controller
             'sizes' => $sizes,
             'images' => $images
         ]);
+    }
+
+    public function checkAvailability(Request $request)
+    {
+        $color = $request->query('color');
+        $size = $request->query('size');
+        $productId = $request->query('product_id');
+
+        // Validar que los parámetros no sean nulos
+        if (!$color || !$size || !$productId) {
+            return response()->json([
+                'error' => 'Faltan parámetros en la consulta'
+            ], 400);
+        }
+
+        $stock = Inventory::where('product_id', $productId)
+            ->where('talla_id', $size)
+            ->where('color_id', $color)
+            ->sum('quantity');
+
+        return response()->json(['stock' => $stock]);
     }
 
     public function productLists($slug)
@@ -134,50 +157,44 @@ class FrontendController extends Controller
 
     public function productFilter(Request $request)
     {
-        $data = $request->all();
-        // return $data;
-        $showURL = "";
-        if (!empty($data['show'])) {
-            $showURL .= '&show=' . $data['show'];
-        }
+        $query = Product::with(['inventories.color', 'inventories.size']);
 
-        $sortByURL = '';
-        if (!empty($data['sortBy'])) {
-            $sortByURL .= '&sortBy=' . $data['sortBy'];
-        }
-
-        $catURL = "";
-        if (!empty($data['category'])) {
-            foreach ($data['category'] as $category) {
-                if (empty($catURL)) {
-                    $catURL .= '&category=' . $category;
-                } else {
-                    $catURL .= ',' . $category;
-                }
+        // Filtrar por precio (rango)
+        if ($request->has('min_price') && $request->has('max_price')) {
+            if ($request->min_price && $request->max_price) {
+                $query->whereBetween('price', [$request->min_price, $request->max_price]);
             }
         }
 
-        $brandURL = "";
-        if (!empty($data['brand'])) {
-            foreach ($data['brand'] as $brand) {
-                if (empty($brandURL)) {
-                    $brandURL .= '&brand=' . $brand;
-                } else {
-                    $brandURL .= ',' . $brand;
-                }
+        // Filtrar por talla (size)
+        if ($request->has('sizes') && $request->sizes) {
+            $sizes = array_filter(array_map('trim', explode(',', $request->sizes)));
+            if (!empty($sizes)) {
+                $query->whereHas('inventories.size', function ($q) use ($sizes) {
+                    $q->whereIn('id', $sizes);
+                });
             }
         }
-        // return $brandURL;
 
-        $priceRangeURL = "";
-        if (!empty($data['price_range'])) {
-            $priceRangeURL .= '&price=' . $data['price_range'];
+        // Filtrar por color
+        if ($request->has('colors') && $request->colors) {
+            $colors = array_filter(array_map('trim', explode(',', $request->colors)));
+            if (!empty($colors)) {
+                $query->whereHas('inventories.color', function ($q) use ($colors) {
+                    $q->whereIn('id', $colors);
+                });
+            }
         }
-        if (request()->is('e-shop.loc/product-grids')) {
-            return redirect()->route('product-grids', $catURL . $brandURL . $priceRangeURL . $showURL . $sortByURL);
-        } else {
-            return redirect()->route('product-lists', $catURL . $brandURL . $priceRangeURL . $showURL . $sortByURL);
+
+        // Filtrar por marca
+        if ($request->has('brand_id') && $request->brand_id) {
+            $query->where('brand_id', $request->brand_id);
         }
+
+        // Obtener los productos con paginación
+        $products = $query->paginate(10);
+
+        return response()->json($products);
     }
 
     public function productBrand(Request $request)
@@ -196,25 +213,28 @@ class FrontendController extends Controller
     {
         $slug = $request->slug;
         $products = Categorie::with(['products' => function ($query) {
-                $query->paginate(10);
-            }])->where('slug', $slug)->firstOrFail();
+            $query->paginate(10);
+        }])->where('slug', $slug)->firstOrFail();
         $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
         $brands = Brand::all();
+        $sizes = Size::all();
+        $colors = Color::all();
         return Inertia::render('Client/Shop', [
             'products' => $products->products()->paginate(10),
             'recent_products' => $recent_products,
             'slug' => $slug,
-            'brands' => $brands
+            'brands' => $brands,
+            'sizes' => $sizes,
+            'colors' => $colors
         ]);
     }
 
     public function productSubCat(Request $request)
     {
-        
         $slug = $request->slug;
         $products = Categorie::with(['sub_products' => function ($query) {
-                $query->paginate(10);
-            }])->where('slug', $slug)->firstOrFail();
+            $query->paginate(10);
+        }])->where('slug', $slug)->firstOrFail();
         $recent_products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
         return Inertia::render('Client/Shop', [
             'products' => $products->products()->paginate(10),

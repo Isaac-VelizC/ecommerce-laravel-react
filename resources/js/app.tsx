@@ -6,6 +6,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createRoot } from "react-dom/client";
 import { CartProvider } from "./Context/CartContext";
 import { SettingProvider } from "./Context/SettingsContext";
+import { HelmetProvider } from "react-helmet-async";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -20,11 +21,13 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <SettingProvider>
-                <CartProvider>
-                    <App {...props} />
-                </CartProvider>
-            </SettingProvider>
+            <HelmetProvider>
+                <SettingProvider>
+                    <CartProvider>
+                        <App {...props} />
+                    </CartProvider>
+                </SettingProvider>
+            </HelmetProvider>
         );
     },
     progress: {

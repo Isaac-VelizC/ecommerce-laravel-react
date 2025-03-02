@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('image');
             $table->unsignedBigInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products')->onDelete('SET NULL');
+            $table->unsignedBigInteger('color_id')->nullable();
+            $table->foreign('color_id')->references('id')->on('colors')->onDelete('SET NULL');
             $table->timestamps();
         });
     }

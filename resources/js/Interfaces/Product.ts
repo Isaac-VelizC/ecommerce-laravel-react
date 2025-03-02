@@ -22,6 +22,8 @@ export interface ProductInventaryInterface {
     id: number;
     quantity: number;
     image_id: string;
+    talla_id: number;
+    color_id: number;
     status: string;
     product_id: string;
     image: ProductImagesInterface;

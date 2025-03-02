@@ -9,31 +9,10 @@ type Props = {
 };
 
 const ProductCard: React.FC<Props> = ({ product }) => {
-    //const { setCart } = useCart();
     const [isInWishlist, setIsInWishlist] = useState(product.is_in_wishlist);
     const originalPrice = product.price;
     const discountAmount = (originalPrice * product.discount) / 100;
     const finalPrice = originalPrice - discountAmount;
-    /*const handleAddCart = async () => {
-        try {
-            const response = await axios.get(
-                route("add-to-cart", product.slug)
-            );
-            if (response.status === 200) {
-                setCart(response.data.cartItems);
-            } else {
-                console.error(
-                    "Error al añadir el producto al carrito:",
-                    response.status
-                );
-            }
-        } catch (error: any) {
-            console.error(
-                "Error de red al añadir el producto al carrito:",
-                error
-            );
-        }
-    };*/
 
     useEffect(() => {
         setIsInWishlist(product.is_in_wishlist);
@@ -44,8 +23,6 @@ const ProductCard: React.FC<Props> = ({ product }) => {
             slug: product.slug,
             onSuccess: () => {
                 setIsInWishlist(!isInWishlist);
-                // Notificar al componente padre si la función está definida
-                //onWishlistChange?.(product_detail.id, !isInWishlist);
             },
             onError: (error) => {
                 console.error("Error al actualizar la lista de deseos:", error);

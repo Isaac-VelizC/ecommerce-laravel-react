@@ -1,8 +1,8 @@
+import Procesando from "@/Common/Procesando";
 import { Alert } from "@/Components/Client/alerts";
 import Breadcrumb from "@/Components/Client/Breadcrumb";
 import TextInput from "@/Components/Client/TextInput";
 import InputError from "@/Components/Dashboard/Form/InputError";
-import FullScreenLoader from "@/Components/FullScreenLoader";
 import Instagram from "@/Containers/Instagram";
 import { useSettings } from "@/Context/SettingsContext";
 import { PropMessage } from "@/Interfaces/Message";
@@ -63,7 +63,7 @@ export default function Contact({}: Props) {
             <Breadcrumb links={breadcrumbLinks} />
             <section className="pt-20 pb-20 contact">
                 <div className="mx-4 sm:mx-10 xl:mx-44">
-                    <FullScreenLoader show={processing} />
+                    {processing && <Procesando />}
                     {message.message && (
                         <div className="my-4">
                             <Alert

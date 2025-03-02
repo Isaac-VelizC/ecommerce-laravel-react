@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
 {
-    protected $fillable=['user_id','product_id','order_id','quantity','amount','price','status'];
+    protected $fillable=['user_id','product_id', 'inventary_id', 'order_id','quantity','amount','price','status'];
     
     public function product()
     {
@@ -14,5 +14,12 @@ class Cart extends Model
     }
     public function order(){
         return $this->belongsTo(Order::class,'order_id');
+    }
+    public function inventario() {
+        return $this->belongsTo(Inventory::class, 'inventary_id');
+    }
+    public function inventarioConDetalles()
+    {
+        return $this->inventario()->with(['size', 'color', 'image']);
     }
 }

@@ -25,7 +25,7 @@ export const Alert: React.FC<AlertProps> = ({ type, message, closeAlert }) => {
     return (
         <div
             role="alert"
-            className={`${alertStyles[type]} border-l-4 p-2 rounded-lg flex items-center justify-between transition duration-300 ease-in-out transform hover:scale-105`}
+            className={`${alertStyles[type]} z-9999 absolute top-4 right-4 border-l-4 p-2 rounded-lg flex items-center justify-between transition duration-300 ease-in-out transform hover:scale-105`}
         >
             <div className="flex items-center ">
                 <svg

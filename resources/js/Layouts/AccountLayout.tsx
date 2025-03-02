@@ -24,7 +24,7 @@ export default function AccountLayout({ children }: PropsWithChildren) {
             <Breadcrumb links={breadcrumbLinks} />
             <section className="min-h-screen pt-10 lg:pt-20 pb-20">
                 <div className="mx-4 sm:mx-10 xl:mx-44">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-white shadow-lg rounded-lg p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-white shadow-lg rounded-lg p-2 lg:p-6">
                         {/* Menú lateral */}
                         <aside className="md:col-span-1 bg-gray-50 p-4 rounded-lg">
                             <div className="text-center mb-6">
@@ -70,7 +70,7 @@ export default function AccountLayout({ children }: PropsWithChildren) {
                         </aside>
 
                         {/* Contenido dinámico de cada página */}
-                        <main className="md:col-span-3 p-4 bg-white rounded-lg shadow-sm">
+                        <main className="md:col-span-3 bg-white rounded-lg shadow-sm">
                             {children}
                         </main>
                     </div>

@@ -1,8 +1,8 @@
-import { ProductInterface } from "./Product";
+import { ProductInterface, ProductInventaryInterface } from "./Product";
 
 export interface CartInterface {
     id: number;
-    //product_id: number;
+    //inventario: ProductInventaryInterface;
     product: ProductInterface;
     order_id: number;
     user_id: number;
@@ -10,4 +10,5 @@ export interface CartInterface {
     status: string;
     quantity: number;
     amount: number;
+    inventario_con_detalles: ProductInventaryInterface;
 }

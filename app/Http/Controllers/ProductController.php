@@ -52,7 +52,7 @@ class ProductController extends Controller
             'photoFile'   => 'required|image|mimes:jpg,png,webp|max:2048',
             'cat_id' => 'required|integer|exists:categories,id',
             'brand_id' => 'nullable|integer|exists:brands,id',
-            'child_cat_id' => 'nullable|integer|exists:categories,id', // Corrección de typo en "intenger"
+            'child_cat_id' => 'nullable|integer|exists:categories,id',
             'is_featured' => 'sometimes|boolean',
             'status' => 'required|in:active,inactive',
             'condition' => 'required|in:default,new,hot',
@@ -129,8 +129,8 @@ class ProductController extends Controller
             $image = ImageProduct::create([
                 'image'      => $uploadedFileUrl,
                 'product_id' => $validatedData['product_id'],
+                'color_id'   => $validatedData['color_id']
             ]);
-
             // Agregar el `image_id` al inventario
             $validatedData['image_id'] = $image->id;
 

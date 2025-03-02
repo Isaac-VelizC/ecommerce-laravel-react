@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
-            $table->string('quantity')->default(0);
+            $table->integer('quantity')->default(0);
             $table->unsignedBigInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('image_products')->onDelete('SET NULL');
             $table->enum('status', ['active', 'inactive'])->default('active');

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Modal from "../Modal";
+import Modal from "../../Modal";
 import { CouponInterface } from "@/Interfaces/Coupon";
 
 type Props = {
@@ -45,7 +45,7 @@ const CouponModal = ({ show, onCloseModal, coupons, total, applyDiscount }: Prop
                     <input
                         className="h-13 w-full border-[1px] bg-gray-100/80 border-solid pl-8 pr-30 text-sm rounded-full focus:ring-0 focus:border-accent"
                         type="text"
-                        placeholder="Ingrese su código de cupón"
+                        placeholder="Ingrese su código"
                         value={coupon}
                         onChange={(e) => setCoupon(e.target.value)}
                     />

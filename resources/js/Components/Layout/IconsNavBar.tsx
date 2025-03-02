@@ -2,7 +2,7 @@ import BagIcon from "@/assets/svg/bag.svg";
 import HeartIcon from "@/assets/svg/heart.svg";
 import SearchIcon from "@/assets/svg/search.svg";
 import AccountIcon from "@/assets/svg/acount.svg";
-import { Link, usePage } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CartInterface } from "@/Interfaces/Cart";
@@ -41,6 +41,14 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
             setIsCartOpen(false);
         }
     };
+
+    const handleCartClick = () => {
+        if (window.innerWidth < 1000) {
+          router.get(route('cart'));
+        } else {
+          setIsCartOpen(!isCartOpen);
+        }
+      };
 
     useEffect(() => {
         if (isCartOpen) {
@@ -82,7 +90,7 @@ const IconsNavBar: React.FC<Props> = ({ cartItems, toggleSearch }) => {
                 </Link>
             </li>
             <li className="relative hover:scale-110 transition duration-300 ease-in-out">
-                <div className="relative cursor-pointer" onClick={() => setIsCartOpen(!isCartOpen)}>
+                <div className="relative cursor-pointer" onClick={() => handleCartClick()}>
                     <img src={BagIcon} alt="Icon Bag" className="lg:w-5 w-16" />
                     {cartItems.length > 0 && (
                         <div className="absolute -right-3 -top-[11px] h-4 w-4 bg-black text-white text-xs leading-tight rounded-full text-center">

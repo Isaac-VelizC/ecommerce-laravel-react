@@ -1,6 +1,6 @@
 import Procesando from "@/Common/Procesando";
 import Breadcrumb from "@/Components/Client/Breadcrumb";
-import CouponModal from "@/Components/Client/CouponModal";
+import CouponModal from "@/Components/Client/Modal/CouponModal";
 import TextInput from "@/Components/Client/TextInput";
 import InputError from "@/Components/Dashboard/Form/InputError";
 import Instagram from "@/Containers/Instagram";
@@ -416,9 +416,7 @@ export default function Checkout({
                                                         <option
                                                             key={index}
                                                             value={item.id}
-                                                            selected={
-                                                                index === 0
-                                                            }
+                                                            //selected={index === 0}
                                                         >
                                                             {`${item.type}, precio $${item.price}`}
                                                         </option>
